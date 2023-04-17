@@ -328,10 +328,19 @@ end
 
 function buildMap()
 	mapInfo = {}
+	local x1, x2, y1, y2
+	x1 = math.random(12, 20)
+	x2 = math.random(12, 20)
+	y1 = math.random(12, 20)
+	y2 = math.random(12, 20)
 	for x = 0, MAP_SIZE - 1 do
 		mapInfo[x] = {}
 		for y = 0, MAP_SIZE - 1 do
 			if x == 0 or x == MAP_SIZE - 1 or y == 0 or y == MAP_SIZE - 1 then
+				mapInfo[x][y] = 2
+			elseif (x == x1 and y < 7) or (x == x2 and y > 24) or (y == y1 and x < 7) or (y == y2 and x > 24) or
+				(math.abs(x - x1) < 4 and y == 7) or (math.abs(x - x2) < 4 and y == 24) or
+				(math.abs(y - y1) < 4 and x == 7) or (math.abs(y - y2) < 4 and x == 24) then
 				mapInfo[x][y] = 2
 			elseif x < 4 and y < 4 then
 				mapInfo[x][y] = 6
@@ -344,8 +353,14 @@ function buildMap()
 	mapInfo[MAP_SIZE - 2][MAP_SIZE - 2] = 4
 	mapInfo[1][MAP_SIZE - 2] = 4
 	local mapX, mapY
-	for o = 1, 10 do
-		mapX, mapY = findVacantSpot(2, 2, MAP_SIZE - 3, MAP_SIZE - 3)
+	for o = 1, 12 do
+		if o < 5 then
+			mapX, mapY = findVacantSpot(2, 2, 29, 6)
+		elseif o < 9 then
+			mapX, mapY = findVacantSpot(2, 8, 29, 23)
+		else
+			mapX, mapY = findVacantSpot(2, 5, 29, 29)
+		end
 		mapInfo[mapX][mapY] = 3
 	end
 end

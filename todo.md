@@ -12,6 +12,7 @@
 
 [x] enemy becomes combatants[1] bug
 [ ] Cube farm level design
+[ ] random starting corner
 [ ] turret enemy
 
 # Future features
@@ -41,4 +42,3 @@ cooldown should have time ADDED after it hits zero, shouldn't just jump up to fu
 do we really need the strafe key?
 enemy shot cooldown tracks should be randomized at spawn
 you should die if you move into an enemy
-in some conditions you respawn as an enemy? as if combatants[1] has changed?
