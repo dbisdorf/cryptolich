@@ -67,6 +67,8 @@ oldReturn = false
 level = 0
 stalling = 0.0
 advancing = false
+startX = 0
+startY = 0
 
 function love.load()
 	-- this is where we initialize
@@ -328,30 +330,41 @@ end
 
 function buildMap()
 	mapInfo = {}
-	local x1, x2, y1, y2
-	x1 = math.random(12, 20)
-	x2 = math.random(12, 20)
-	y1 = math.random(12, 20)
-	y2 = math.random(12, 20)
+
+	-- cube farm
+	local corner = math.random(1, 4)
+	local x1 = math.random(12, 20)
+	local x2 = math.random(12, 20)
+	local y1 = math.random(12, 20)
+	local y2 = math.random(12, 20)
 	for x = 0, MAP_SIZE - 1 do
 		mapInfo[x] = {}
 		for y = 0, MAP_SIZE - 1 do
 			if x == 0 or x == MAP_SIZE - 1 or y == 0 or y == MAP_SIZE - 1 then
+				-- exterior walls
 				mapInfo[x][y] = 2
 			elseif (x == x1 and y < 7) or (x == x2 and y > 24) or (y == y1 and x < 7) or (y == y2 and x > 24) or
 				(math.abs(x - x1) < 4 and y == 7) or (math.abs(x - x2) < 4 and y == 24) or
 				(math.abs(y - y1) < 4 and x == 7) or (math.abs(y - y2) < 4 and x == 24) then
+				-- interior walls
 				mapInfo[x][y] = 2
-			elseif x < 4 and y < 4 then
+			elseif (corner == 1 and x < 4 and y < 4) or
+				(corner == 2 and x > 27 and y < 4) or
+				(corner == 3 and x < 4 and y > 27) or
+				(corner == 4 and x > 27 and y > 27) then
+				-- safe starting zone
 				mapInfo[x][y] = 6
+			elseif (x == 1 and y == 1 and corner ~= 1) or
+				(x == 30 and y == 1 and corner ~= 2) or
+				(x == 1 and y == 30 and corner ~= 3) or
+				(x == 30 and y == 30 and coner ~= 4) then
+				-- security servers
+				mapInfo[x][y] = 4
 			else
 				mapInfo[x][y] = 1
 			end
 		end
 	end
-	mapInfo[MAP_SIZE - 2][1] = 4
-	mapInfo[MAP_SIZE - 2][MAP_SIZE - 2] = 4
-	mapInfo[1][MAP_SIZE - 2] = 4
 	local mapX, mapY
 	for o = 1, 12 do
 		if o < 5 then
@@ -362,6 +375,19 @@ function buildMap()
 			mapX, mapY = findVacantSpot(2, 5, 29, 29)
 		end
 		mapInfo[mapX][mapY] = 3
+	end
+	if corner == 1 then
+		startX = TILE_SIZE
+		startY = TILE_SIZE
+	elseif corner == 2 then
+		startX = 30 * TILE_SIZE
+		startY = TILE_SIZE
+	elseif corner == 3 then
+		startX = TILE_SIZE
+		startY = 30 * TILE_SIZE
+	else
+		startX = 30 * TILE_SIZE
+		startY = 30 * TILE_SIZE
 	end
 end
 
@@ -702,7 +728,7 @@ function startLevel()
 	mapCanvas:renderTo(drawMap)
 
 	combatants = {}
-	makeCombatant(16, 16, "player")
+	makeCombatant(startX, startY, "player")
 	local mapX, mapY
 	for e = 1, 8 + (level * 2) do
 		mapX, mapY = findVacantSpot(5, 5, MAP_SIZE - 2, MAP_SIZE - 2)

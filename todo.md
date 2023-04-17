@@ -11,9 +11,9 @@
 # Sprint 2
 
 [x] enemy becomes combatants[1] bug
-[ ] Cube farm level design
+[x] Cube farm level design
 [ ] random starting corner
-[ ] turret enemy
+[ ] turret enemy & sounds
 
 # Future features
 
