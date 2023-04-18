@@ -12,8 +12,9 @@
 
 [x] enemy becomes combatants[1] bug
 [x] Cube farm level design
-[ ] random starting corner
+[x] random starting corner
 [ ] turret enemy & sounds
+[ ] random starting cooldowns
 
 # Future features
 

@@ -18,15 +18,18 @@ RIGHT_INDEX = 1
 DOWN_INDEX = 2
 LEFT_INDEX = 3
 UP_INDEX = 4
+INVULNERABLE = 999
 VECTORS = {{x = 1.0, y = 0.0}, {x = 0.0, y = 1.0}, {x = -1.0, y = 0.0}, {x = 0.0, y = -1.0}}
 BESTIARY = {
-	["player"] = {speed = 64.0, spf = 0.25, points = 0},
-	["spider"] = {speed = 16.0, spf = 0.2, points = 10},
-	["wasp"] = {speed = 8.0, spf = 0.05, points = 10, cooldown = 3.0}
+	["player"] = {speed = 64.0, spf = 0.25, points = 0, cooldown = 0.0, hits = 0},
+	["spider"] = {speed = 16.0, spf = 0.2, points = 10, cooldown = 0.0, hits = 1},
+	["wasp"] = {speed = 8.0, spf = 0.05, points = 10, cooldown = 3.0, hits = 1},
+	["turret"] = {speed = 0.0, spf = 0.25, points = 10, cooldown = 10.0, hits = INVULNERABLE}
 }
 ARMORY = {
 	["playerM"] = {speed = 256.0},
-	["waspM"] = {speed = 80.0}
+	["waspM"] = {speed = 80.0},
+	["turretM"] = {speed = 80.0}
 }
 TERRAIN = {
 	{playerPass = true, enemyPass = true},
@@ -85,9 +88,11 @@ function love.load()
 	loadWalkingSprites("player", 0)
 	loadWalkingSprites("spider", 16)
 	loadWalkingSprites("wasp", 32)
+	loadWalkingSprites("turret", 48)
 
 	loadMissileSprites("playerM", 0, 208)
 	loadMissileSprites("waspM", 64, 208)
+	loadMissileSprites("turretM", 128, 208)
 
 	spriteQuads["life"] = love.graphics.newQuad(0, 224, TILE_SIZE, TILE_SIZE, textures)
 	spriteQuads["blastH"] = love.graphics.newQuad(16, 224, TILE_SIZE, TILE_SIZE, textures)
@@ -420,8 +425,8 @@ function makeCombatant(startX, startY, name)
 		frame = 1,
 		waiting = true, 
 		name = name,
-		hits = 1,
-		cooling = 0.0,
+		cooling = math.random() * BESTIARY[name].cooldown,
+		hits = BESTIARY[name].hits,
 		destroyed = false})
 end
 
@@ -536,7 +541,6 @@ function moveMissile(missile, delta)
 						end
 					else
 						takeHits(c, 1)
-						awardPoints(BESTIARY[c.name].points)
 					end
 					missile.destroyed = true
 					break
@@ -590,11 +594,14 @@ function pointIsObstructed(x, y, fromPlayer)
 end
 
 function takeHits(combatant, hits)
-	combatant.hits = combatant.hits - hits
-	if combatant.hits <= 0 then
-		combatant.destroyed = true
-		makeBlast(combatant.x, combatant.y)
-		sounds["boom"]:play()
+	if BESTIARY[combatant.name].hits ~= INVULNERABLE then
+		combatant.hits = combatant.hits - hits
+		if combatant.hits <= 0 then
+			combatant.destroyed = true
+			makeBlast(combatant.x, combatant.y)
+			sounds["boom"]:play()
+			awardPoints(BESTIARY[combatant.name].points)
+		end
 	end
 end
 
@@ -603,9 +610,6 @@ function runEnemyLogic(enemy, delta)
 	local rangeY = combatants[1].y - enemy.y
 	if enemy.cooling > 0.0 then
 		enemy.cooling = enemy.cooling - delta
-		if enemy.cooling < 0.0 then
-			enemy.cooling = 0.0
-		end
 	end
 	if enemy.name == "spider" then
 		-- walker logic
@@ -634,35 +638,12 @@ function runEnemyLogic(enemy, delta)
 				end
 			end
 		end
-	else
+	elseif enemy.name == "wasp" then
 		-- patrolling shooter logic
 		if enemy.waiting then
 			if math.abs(rangeX) + math.abs(rangeY) <= TILE_SIZE then
 				killed = true
 			else
-				if enemy.cooling == 0.0 then
-					local fireFacing
-					if math.abs(rangeX) > math.abs(rangeY) then
-						if rangeX < 0 then
-							fireFacing = LEFT_INDEX
-						else
-							fireFacing = RIGHT_INDEX
-						end
-					else
-						if rangeY < 0 then
-							fireFacing = UP_INDEX
-						else
-							fireFacing = DOWN_INDEX
-						end
-					end
-					makeMissile(
-						enemy.x + VECTORS[fireFacing].x * TILE_SIZE, 
-						enemy.y + VECTORS[fireFacing].y * TILE_SIZE,
-						fireFacing,
-						enemy.name,
-						false)
-					enemy.cooling = BESTIARY[enemy.name].cooldown	
-				end
 				enemy.facing = math.random(1, 4)
 				local futureX = enemy.x + (VECTORS[enemy.facing].x * TILE_SIZE)
 				local futureY = enemy.y + (VECTORS[enemy.facing].y * TILE_SIZE)
@@ -671,6 +652,45 @@ function runEnemyLogic(enemy, delta)
 				end
 			end
 		end
+		if enemy.cooling <= 0.0 then
+			local fireFacing
+			if math.abs(rangeX) > math.abs(rangeY) then
+				if rangeX < 0 then
+					fireFacing = LEFT_INDEX
+				else
+					fireFacing = RIGHT_INDEX
+				end
+			else
+				if rangeY < 0 then
+					fireFacing = UP_INDEX
+				else
+					fireFacing = DOWN_INDEX
+				end
+			end
+			makeMissile(
+				enemy.x + VECTORS[fireFacing].x * TILE_SIZE, 
+				enemy.y + VECTORS[fireFacing].y * TILE_SIZE,
+				fireFacing,
+				enemy.name,
+				false)
+		end
+	else
+		-- rotating turret logic
+		if enemy.cooling < 1.0 then
+			local i1 = math.floor(enemy.cooling / 0.2)
+			local i2 = math.floor((enemy.cooling + delta) / 0.2)
+			if i1 ~= i2 then
+				for v = 1, 4 do
+					makeMissile(
+						enemy.x + VECTORS[v].x * TILE_SIZE,
+						enemy.y + VECTORS[v].y * TILE_SIZE,
+						v, enemy.name, false)
+				end
+			end
+		end
+	end
+	if BESTIARY[enemy.name].cooldown > 0.0 and enemy.cooling <= 0.0 then
+		enemy.cooling = enemy.cooling + BESTIARY[enemy.name].cooldown
 	end
 end
 
@@ -730,13 +750,17 @@ function startLevel()
 	combatants = {}
 	makeCombatant(startX, startY, "player")
 	local mapX, mapY
-	for e = 1, 8 + (level * 2) do
+	for e = 1, 6 + (level * 2) do
 		mapX, mapY = findVacantSpot(5, 5, MAP_SIZE - 2, MAP_SIZE - 2)
 		makeCombatant(mapX * TILE_SIZE, mapY * TILE_SIZE, "spider")
 	end
-	for e = 1, 8 + (level * 2) do
+	for e = 1, 6 + (level * 2) do
 		mapX, mapY = findVacantSpot(5, 5, MAP_SIZE - 2, MAP_SIZE - 2)
 		makeCombatant(mapX * TILE_SIZE, mapY * TILE_SIZE, "wasp")
+	end
+	for e = 1, 6 + (level * 2) do
+		mapX, mapY = findVacantSpot(5, 5, MAP_SIZE - 2, MAP_SIZE - 2)
+		makeCombatant(mapX * TILE_SIZE, mapY * TILE_SIZE, "turret")
 	end
 	missiles = {}
 	blasts = {}
@@ -761,10 +785,10 @@ function printCenteredText(coloredText, x, y, scale)
 end
 
 function resetPlayer()
-	combatants[1].x = START_POSITION.x
-	combatants[1].y = START_POSITION.y
-	combatants[1].dX = START_POSITION.x
-	combatants[1].dY = START_POSITION.y
+	combatants[1].x = startX
+	combatants[1].y = startY
+	combatants[1].dX = startX
+	combatants[1].dY = startY
 	combatants[1].frame = 1
 	combatants[1].animation = 0.0
 	combatants[1].waiting = true
