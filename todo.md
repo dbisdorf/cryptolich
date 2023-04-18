@@ -13,8 +13,10 @@
 [x] enemy becomes combatants[1] bug
 [x] Cube farm level design
 [x] random starting corner
-[ ] turret enemy & sounds
-[ ] random starting cooldowns
+[x] turret enemy
+[x] random starting cooldowns
+[ ] video/audio feedback for when missile splashes harmlessly
+[ ] automatic build
 
 # Future features
 

@@ -687,6 +687,8 @@ function runEnemyLogic(enemy, delta)
 						v, enemy.name, false)
 				end
 			end
+		elseif enemy.cooling < 2.0 then
+			enemy.frame = math.floor((enemy.cooling - 1.0) / 0.25) + 1
 		end
 	end
 	if BESTIARY[enemy.name].cooldown > 0.0 and enemy.cooling <= 0.0 then
