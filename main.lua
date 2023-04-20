@@ -97,6 +97,7 @@ function love.load()
 	spriteQuads["life"] = love.graphics.newQuad(0, 224, TILE_SIZE, TILE_SIZE, textures)
 	spriteQuads["blastH"] = love.graphics.newQuad(16, 224, TILE_SIZE, TILE_SIZE, textures)
 	spriteQuads["blastV"] = love.graphics.newQuad(32, 224, TILE_SIZE, TILE_SIZE, textures)
+	spriteQuads["blastS"] = love.graphics.newQuad(48, 224, TILE_SIZE, TILE_SIZE, textures)
 
 	for t = 1, 6 do
 		tileQuads[t] = love.graphics.newQuad((t - 1) * TILE_SIZE, 240, TILE_SIZE, TILE_SIZE, textures)
@@ -150,7 +151,7 @@ function love.update(delta)
 	else
 		-- do player and enemy stuff
 		if killed then
-			makeBlast(player.x, player.y)
+			makeBlast(player.x, player.y, true)
 			sounds["boom"]:play()
 			lives = lives - 1
 			if lives == 0 then
@@ -261,17 +262,24 @@ function love.update(delta)
 	local blastDistance
 	local blastName = "blastH"
 	for i, b in ipairs(blasts) do
-		blastDistance = (b.time / BLAST_TIME) * BLAST_SIZE
-		for v = 1, 4 do
-			spriteBatch:add(
-				spriteQuads[blastName], 
-				b.x + (VECTORS[v].x * blastDistance) - player.x + SCREEN_CENTER.x, 
-				b.y + (VECTORS[v].y * blastDistance) - player.y + SCREEN_CENTER.y)
-			if blastName == "blastH" then
-				blastName = "blastV"
-			else
-				blastName = "blastH"
+		if b.big then
+			blastDistance = (b.time / BLAST_TIME) * BLAST_SIZE
+			for v = 1, 4 do
+				spriteBatch:add(
+					spriteQuads[blastName], 
+					b.x + (VECTORS[v].x * blastDistance) - player.x + SCREEN_CENTER.x, 
+					b.y + (VECTORS[v].y * blastDistance) - player.y + SCREEN_CENTER.y)
+				if blastName == "blastH" then
+					blastName = "blastV"
+				else
+					blastName = "blastH"
+				end
 			end
+		else
+			spriteBatch:add(
+				spriteQuads["blastS"], 
+				b.x - player.x + SCREEN_CENTER.x,
+				b.y - player.y + SCREEN_CENTER.y)
 		end
 	end
 
@@ -440,10 +448,11 @@ function makeMissile(startX, startY, facing, shooter, friendly)
 		destroyed = false})
 end
 
-function makeBlast(startX, startY)
+function makeBlast(startX, startY, big)
 	table.insert(blasts, {
 		x = startX,
 		y = startY,
+		big = big,
 		time = 0.0,
 		destroyed = false})
 end
@@ -527,10 +536,12 @@ function moveMissile(missile, delta)
 	missile.y = missile.y + (VECTORS[missile.facing].y * ARMORY[missile.name].speed * delta)
 	local centerX = missile.x + TILE_CENTER
 	local centerY = missile.y + TILE_CENTER
+	local fizzle = false
 
 	-- this is insufficient because it could skip through walls or targets if delta is high enough
 	if pointIsObstructed(centerX, centerY, missile.friendly) then
 		missile.destroyed = true
+		fizzle = true
 	else
 		for i, c in ipairs(combatants) do
 			if (i == 1 and not missile.friendly) or (i > 1 and missile.friendly) then
@@ -541,12 +552,18 @@ function moveMissile(missile, delta)
 						end
 					else
 						takeHits(c, 1)
+						if not c.destroyed then
+							fizzle = true
+						end
 					end
 					missile.destroyed = true
 					break
 				end
 			end
 		end
+	end
+	if fizzle and missile.friendly then
+		makeBlast(missile.x, missile.y, false)
 	end
 end
 
@@ -598,7 +615,7 @@ function takeHits(combatant, hits)
 		combatant.hits = combatant.hits - hits
 		if combatant.hits <= 0 then
 			combatant.destroyed = true
-			makeBlast(combatant.x, combatant.y)
+			makeBlast(combatant.x, combatant.y, true)
 			sounds["boom"]:play()
 			awardPoints(BESTIARY[combatant.name].points)
 		end
