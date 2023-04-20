@@ -108,6 +108,8 @@ function love.load()
 
 	sounds["zap"] = love.audio.newSource("zap.wav", "static")
 	sounds["boom"] = love.audio.newSource("boom.wav", "static")
+	sounds["unlock"] = love.audio.newSource("unlock.wav", "static")
+	sounds["level"] = love.audio.newSource("level.wav", "static")
 
 	--startGame()
 end
@@ -163,6 +165,7 @@ function love.update(delta)
 			awardPoints(LEVEL_POINTS)
 			stalling = STALL_TIME
 			advancing = true
+			sounds["level"]:play()
 		end
 
 		-- player commands
@@ -586,6 +589,7 @@ function checkLocks()
 			redrawMapTile(mapX, mapY)
 			unlocked = unlocked + 1
 			awardPoints(LOCK_POINTS)
+			sounds["unlock"]:play()
 		end
 	end
 end
@@ -755,6 +759,7 @@ function startTitle()
 end
 
 function startGame()
+	score = 0
 	level = 1
 	lives = STARTING_LIVES
 	gameOver = false

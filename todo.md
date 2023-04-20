@@ -15,7 +15,7 @@
 [x] random starting corner
 [x] turret enemy
 [x] random starting cooldowns
-[ ] video/audio feedback for when missile splashes harmlessly
+[x] video feedback for when missile splashes harmlessly
 [ ] automatic build
 
 # Future features
