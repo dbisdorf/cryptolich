@@ -1,4 +1,4 @@
-# Sprint 1
+# 0.1.0
 
 [x] Start screen
 [x] Decent sprites
@@ -8,7 +8,7 @@
 [x] death VFX
 [x] level transition
 
-# Sprint 2
+# 0.2.0
 
 [x] enemy becomes combatants[1] bug
 [x] Cube farm level design
@@ -18,11 +18,13 @@
 [x] video feedback for when missile splashes harmlessly
 [x] automatic build
 
-# Sprint 3
+# 0.3.0
 
 [ ] Death cloud
 [ ] Random enemy selection
-[ ] Instructions text
+[x] Instructions text
+[x] Credits
+[ ] Controlled exit from title
 [ ] Constrain delta in updates due to this bug?
 
 Error: main.lua:604: attempt to index a nil value
@@ -52,6 +54,7 @@ Options / key help
 # Tuning
 
 spiders aren't much of a threat
+intro screen gloss / formatting / color
 
 # Outstanding bugs
 

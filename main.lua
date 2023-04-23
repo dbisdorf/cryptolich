@@ -14,7 +14,9 @@ UNLOCKED_TEXT = {{0.5, 1.0, 0.5}, "SECURITY UNLOCKED"}
 PREPARE_TEXT = {{0.5, 1.0, 0.5}, "PREPARE FOR"}
 LEVEL_TEXT = {{0.5, 1.0, 0.5}, "NEXT LEVEL"}
 BACK_TEXT = {{0.5, 1.0, 0.5}, "PRESS Z"}
-INSTRUCTIONS_TEXT = {{1.0, 1.0, 1.0}, "THE CRYPTOLICH HAS SEIZED CONTROL OF THE WORLD'S WEALTH AND TECHNOLOGY.\n\nYOU ARE DELTA, THE ONLY HACKER WITH ENOUGH SKILL TO INFILTRATE THE CRYPTOLICH'S MEGATOWER AND SAVE HUMANITY.\n\nGOOD LUCK DELTA!\n\nARROW KEYS TO MOVE\nZ TO SHOOT\nX TO HOLD AIM DIRECTION"}
+INSTRUCTIONS_TEXT = {{1.0, 1.0, 1.0}, "THE CRYPTOLICH HAS SEIZED CONTROL OF THE WORLD'S TECHNOLOGY.\n\nYOU ARE DELTA, THE ONLY HACKER WITH ENOUGH SKILL TO INFILTRATE THE CRYPTOLICH'S MEGATOWER AND SAVE HUMANITY.\n\nGOOD LUCK DELTA!\n\nARROW KEYS TO MOVE\nZ TO SHOOT\nX TO HOLD AIM DIRECTION"}
+LEFT_CREDITS_TEXT = {{1.0, 1.0, 1.0}, "PROGRAMMING AND ART\n\nENGINE\n\nGRAPHICS\n\nSOUND EFFECTS\n\nFONT"}
+RIGHT_CREDITS_TEXT = {{0.7, 0.7, 1.0}, "DON BISDORF\ndonbisdorf.com\nLOVE2D\nlove2d.org\nKRITA\nkrita.org\nCHIPTONE\nsfbgames.itch.io/chiptone\nMx437_IBM_BIOS.ttf\nint10h.org/oldschool-pc-fonts"}
 SHOT_COOLDOWN = 0.5
 RIGHT_INDEX = 1
 DOWN_INDEX = 2
@@ -69,6 +71,7 @@ locks = 0
 unlocked = 0
 title = true
 instructions = false
+credits = false
 oldKeys = false
 level = 0
 stalling = 0.0
@@ -131,15 +134,20 @@ function love.update(delta)
 				title = false
 				instructions = true
 				checkOldKeys()
+			elseif love.keyboard.isDown("x") then
+				title = false
+				credits = true
+				checkOldKeys()
 			end
 		end
 		return
-	elseif instructions then
+	elseif instructions or credits then
 		if oldKeys then
 			checkOldKeys()
 		else
 			if love.keyboard.isDown("z") then
 				instructions = false
+				credits = false
 				title = true
 				checkOldKeys()
 			end
@@ -317,6 +325,8 @@ function love.draw()
 		drawTitle()
 	elseif instructions then
 		drawInstructions()
+	elseif credits then
+		drawCredits()
 	else
 		if gameOver or advancing then
 			love.graphics.setColor(COLOR_FADE)
@@ -350,6 +360,12 @@ end
 
 function drawInstructions()
 	love.graphics.printf(INSTRUCTIONS_TEXT, 20, 50, 360, "center")
+	love.graphics.printf(BACK_TEXT, 0, 280, 400, "center")
+end
+
+function drawCredits()
+	love.graphics.printf(LEFT_CREDITS_TEXT, 20, 50, 360, "left")
+	love.graphics.printf(RIGHT_CREDITS_TEXT, 20, 50, 360, "right")
 	love.graphics.printf(BACK_TEXT, 0, 280, 400, "center")
 end
 
