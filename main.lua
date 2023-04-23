@@ -7,12 +7,14 @@ COLOR_FADE = {1.0, 1.0, 1.0, 0.5}
 COLOR_WHITE = {1.0, 1.0, 1.0, 1.0}
 COLOR_BLACK = {0.0, 0.0, 0.0, 1.0}
 TITLE_TEXT = {{0.5, 0.5, 1.0}, "TOWER OF THE CRYPTOLICH"}
-VERSION_TEXT = {{0.4, 0.4, 0.4}, "VERSION 0.1.0"}
-START_TEXT = {{0.8, 0.8, 0.8}, "PRESS ENTER TO START"}
+VERSION_TEXT = {{0.4, 0.4, 0.4}, "VERSION 0.3.0"}
+START_TEXT = {{0.8, 0.8, 0.8}, "PRESS ENTER TO START\nPRESS Z FOR INSTRUCTIONS\nPRESS X FOR CREDITS"}
 GAME_OVER_TEXT = {{1.0, 0.2, 0.2}, "GAME OVER"}
 UNLOCKED_TEXT = {{0.5, 1.0, 0.5}, "SECURITY UNLOCKED"}
 PREPARE_TEXT = {{0.5, 1.0, 0.5}, "PREPARE FOR"}
 LEVEL_TEXT = {{0.5, 1.0, 0.5}, "NEXT LEVEL"}
+BACK_TEXT = {{0.5, 1.0, 0.5}, "PRESS Z"}
+INSTRUCTIONS_TEXT = {{1.0, 1.0, 1.0}, "THE CRYPTOLICH HAS SEIZED CONTROL OF THE WORLD'S WEALTH AND TECHNOLOGY.\n\nYOU ARE DELTA, THE ONLY HACKER WITH ENOUGH SKILL TO INFILTRATE THE CRYPTOLICH'S MEGATOWER AND SAVE HUMANITY.\n\nGOOD LUCK DELTA!\n\nARROW KEYS TO MOVE\nZ TO SHOOT\nX TO HOLD AIM DIRECTION"}
 SHOT_COOLDOWN = 0.5
 RIGHT_INDEX = 1
 DOWN_INDEX = 2
@@ -66,7 +68,8 @@ gameOver = false
 locks = 0
 unlocked = 0
 title = true
-oldReturn = false
+instructions = false
+oldKeys = false
 level = 0
 stalling = 0.0
 advancing = false
@@ -81,6 +84,7 @@ function love.load()
 	love.graphics.setDefaultFilter("nearest", "nearest")
 
 	font = love.graphics.newFont("Mx437_IBM_BIOS.ttf", 8, "mono")
+	font:setLineHeight(2.0)
 	love.graphics.setFont(font)
 
 	textures = love.graphics.newImage("textures.png")
@@ -117,14 +121,27 @@ end
 function love.update(delta)
 	-- this is where bookkeeping happens
 	if title then
-		if love.keyboard.isDown("return") then
-			if not oldReturn then
+		if oldKeys then
+			checkOldKeys()
+		else
+			if love.keyboard.isDown("return") then
 				title = false
 				startGame()
+			elseif love.keyboard.isDown("z") then
+				title = false
+				instructions = true
+				checkOldKeys()
 			end
+		end
+		return
+	elseif instructions then
+		if oldKeys then
+			checkOldKeys()
 		else
-			if oldReturn then
-				oldReturn = false
+			if love.keyboard.isDown("z") then
+				instructions = false
+				title = true
+				checkOldKeys()
 			end
 		end
 		return
@@ -297,9 +314,9 @@ function love.draw()
 	love.graphics.scale(2.0, 2.0)
 
 	if title then
-		printCenteredText(TITLE_TEXT, SCREEN_CENTER.x, 110, 2.0)
-		printCenteredText(START_TEXT, SCREEN_CENTER.x, 180, 1.0)
-		printCenteredText(VERSION_TEXT, SCREEN_CENTER.x, 280, 1.0)
+		drawTitle()
+	elseif instructions then
+		drawInstructions()
 	else
 		if gameOver or advancing then
 			love.graphics.setColor(COLOR_FADE)
@@ -310,12 +327,12 @@ function love.draw()
 
 		if gameOver then
 			love.graphics.setColor(COLOR_WHITE)
-			printCenteredText(GAME_OVER_TEXT, SCREEN_CENTER.x, SCREEN_CENTER.y, 2.0)
+			love.graphics.printf(GAME_OVER_TEXT, 0, 150, 200, "center", 0, 2.0, 2.0)
 		elseif advancing then
 			love.graphics.setColor(COLOR_WHITE)
-			printCenteredText(UNLOCKED_TEXT, SCREEN_CENTER.x, 70, 2.0)
-			printCenteredText(PREPARE_TEXT, SCREEN_CENTER.x, 140, 2.0)
-			printCenteredText(LEVEL_TEXT, SCREEN_CENTER.x, 210, 2.0)
+			love.graphics.printf(UNLOCKED_TEXT, 0, 70, 200, "center", 0, 2.0, 2.0)
+			love.graphics.printf(PREPARE_TEXT, 0, 140, 200, "center", 0, 2.0, 2.0)
+			love.graphics.printf(LEVEL_TEXT, 0, 210, 200, "center", 0, 2.0, 2.0)
 		end
 
 		love.graphics.print(string.format("%06d", score), 0, 0)
@@ -323,6 +340,17 @@ function love.draw()
 	end
 
 	love.graphics.origin()
+end
+
+function drawTitle()
+	love.graphics.printf(TITLE_TEXT, 0, 110, 200, "center", 0, 2.0, 2.0)
+	love.graphics.printf(START_TEXT, 0, 180, 400, "center")
+	love.graphics.printf(VERSION_TEXT, 0, 280, 400, "center")
+end
+
+function drawInstructions()
+	love.graphics.printf(INSTRUCTIONS_TEXT, 20, 50, 360, "center")
+	love.graphics.printf(BACK_TEXT, 0, 280, 400, "center")
 end
 
 function loadWalkingSprites(name, y)
@@ -753,9 +781,13 @@ function findVacantSpot(minX, minY, maxX, maxY)
 	return tryMapX, tryMapY
 end
 
+function checkOldKeys()
+	oldKeys = love.keyboard.isDown("return") or love.keyboard.isDown("z") or love.keyboard.isDown("x")
+end
+
 function startTitle()
 	title = true
-	oldReturn = love.keyboard.isDown("return")
+	checkOldKeys()
 end
 
 function startGame()
@@ -800,12 +832,6 @@ function awardPoints(points)
 	if math.floor(score / 10000) > tenThousands then
 		lives = lives + 1
 	end
-end
-
-function printCenteredText(coloredText, x, y, scale)
-	local w = font:getWidth(coloredText[2])
-	local h = font:getHeight()
-	love.graphics.print(coloredText, x, y, 0, scale, scale, w / 2, h / 2)
 end
 
 function resetPlayer()

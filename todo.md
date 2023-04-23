@@ -16,14 +16,30 @@
 [x] turret enemy
 [x] random starting cooldowns
 [x] video feedback for when missile splashes harmlessly
-[ ] automatic build
+[x] automatic build
+
+# Sprint 3
+
+[ ] Death cloud
+[ ] Random enemy selection
+[ ] Instructions text
+[ ] Constrain delta in updates due to this bug?
+
+Error: main.lua:604: attempt to index a nil value
+stack traceback:
+	[love "boot.lua"]:345: in function '__index'
+	main.lua:604: in function 'pointIsObstructed'
+	main.lua:545: in function 'moveMissile'
+	main.lua:242: in function 'update'
+	[love "callbacks.lua"]:162: in function <[love "callbacks.lua"]:144>
+	[C]: in function 'xpcall'
+
 
 # Future features
 
 Level design
 More enemies
 - Steamroller
-- Turret
 - Fire trail
 - Missile launcher
 - Death cloud
@@ -43,5 +59,4 @@ sprites don't fade during game-over
 ought to reset all player-related timers (like cooldowns) between levels/kills
 cooldown should have time ADDED after it hits zero, shouldn't just jump up to full time
 do we really need the strafe key?
-enemy shot cooldown tracks should be randomized at spawn
-you should die if you move into an enemy
+you should die if you move into an enemy - moving into an enemy right now is buggy
