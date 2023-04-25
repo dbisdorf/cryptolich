@@ -55,6 +55,7 @@ BLAST_TIME = 1.0
 BLAST_SIZE = 400.0
 STALL_TIME = 1.5
 TICK_TIME = 0.2
+DEFAULT_HIGH_SCORE = 10000
 
 -- globals
 
@@ -73,6 +74,7 @@ cooldown = 0.0
 killed = false
 lives = 0
 score = 0
+highScore = 0
 gameOver = false
 locks = 0
 unlocked = 0
@@ -127,6 +129,8 @@ function love.load()
 	sounds["boom"] = love.audio.newSource("boom.wav", "static")
 	sounds["unlock"] = love.audio.newSource("unlock.wav", "static")
 	sounds["level"] = love.audio.newSource("level.wav", "static")
+
+	readHighScore()
 end
 
 function love.update(delta)
@@ -169,8 +173,9 @@ function love.draw()
 			love.graphics.printf(LEVEL_TEXT, 0, 210, 200, "center", 0, 2.0, 2.0)
 		end
 
-		love.graphics.print(string.format("%06d", score), 0, 0)
-		love.graphics.print(string.format("LEVEL %02d", level), 160)
+		love.graphics.print(string.format("%06d", score), 0, 4)
+		love.graphics.print(string.format("LEVEL %02d", level), 80, 4)
+		love.graphics.print(string.format("HIGH %06d", highScore), 220, 4)
 	end
 
 	love.graphics.origin()
@@ -243,6 +248,10 @@ function tick(delta)
 			lives = lives - 1
 			if lives == 0 then
 				gameOver = true
+				if score > highScore then
+					highScore = score
+					writeHighScore()
+				end
 			else
 				stalling = STALL_TIME
 			end
@@ -906,3 +915,25 @@ function resetPlayer()
 	cooldown = 0.0
 	blasts = {}
 end
+
+function readHighScore()
+	local file, ioError
+	file, ioError = love.filesystem.newFile("highscore", "r")
+	if file then
+		local highString, bytes = file:read()
+		highScore = tonumber(highString)
+		file:close()
+	else
+		highScore = DEFAULT_HIGH_SCORE
+	end
+end
+
+function writeHighScore()
+	local file, ioError
+	file, ioError = love.filesystem.newFile("highscore", "w")
+	if file then
+		file:write(tostring(highScore))
+		file:close()
+	end
+end
+

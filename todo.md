@@ -20,13 +20,14 @@
 
 # 0.3.0
 
+[x] High score
 [x] Death cloud
 [x] Random enemy selection
 [x] Instructions text
 [x] Credits
 [x] Controlled exit from title
 [x] Explain the digital nature of the fight?
-[ ] Constrain delta in updates due to this bug?
+[x] Constrain delta in updates due to this bug?
 
 Error: main.lua:604: attempt to index a nil value
 stack traceback:
@@ -40,14 +41,18 @@ stack traceback:
 
 # Future features
 
+Gamepad
 Level design
+- atrium level
+- assembly line level
+- boss level
 More enemies
 - Steamroller
 - Fire trail
 - Missile launcher
-High score
+- boss enemies (?)
 More sounds
-Options / key help
+Options
 Exit from middle of game? Maybe after prompt?
 
 # Tuning
