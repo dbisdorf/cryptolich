@@ -1,3 +1,5 @@
+-- constants
+
 TILE_SIZE = 16
 MAP_SIZE = 32
 TILE_CENTER = 8
@@ -8,7 +10,7 @@ COLOR_WHITE = {1.0, 1.0, 1.0, 1.0}
 COLOR_BLACK = {0.0, 0.0, 0.0, 1.0}
 TITLE_TEXT = {{0.5, 0.5, 1.0}, "TOWER OF THE CRYPTOLICH"}
 VERSION_TEXT = {{0.4, 0.4, 0.4}, "VERSION 0.3.0"}
-START_TEXT = {{0.8, 0.8, 0.8}, "PRESS ENTER TO START\nPRESS Z FOR INSTRUCTIONS\nPRESS X FOR CREDITS"}
+START_TEXT = {{0.8, 0.8, 0.8}, "PRESS ENTER TO START\nPRESS Z FOR INSTRUCTIONS\nPRESS X FOR CREDITS\n\nPRESS ESC TO QUIT"}
 GAME_OVER_TEXT = {{1.0, 0.2, 0.2}, "GAME OVER"}
 UNLOCKED_TEXT = {{0.5, 1.0, 0.5}, "SECURITY UNLOCKED"}
 PREPARE_TEXT = {{0.5, 1.0, 0.5}, "PREPARE FOR"}
@@ -52,6 +54,9 @@ START_POSITION = {x = 16, y = 16}
 BLAST_TIME = 1.0
 BLAST_SIZE = 400.0
 STALL_TIME = 1.5
+TICK_TIME = 0.2
+
+-- globals
 
 font = nil
 textures = nil
@@ -80,6 +85,8 @@ stalling = 0.0
 advancing = false
 startX = 0
 startY = 0
+
+-- LOVE callbacks
 
 function love.load()
 	-- this is where we initialize
@@ -120,12 +127,60 @@ function love.load()
 	sounds["boom"] = love.audio.newSource("boom.wav", "static")
 	sounds["unlock"] = love.audio.newSource("unlock.wav", "static")
 	sounds["level"] = love.audio.newSource("level.wav", "static")
-
-	--startGame()
 end
 
 function love.update(delta)
-	-- this is where bookkeeping happens
+	local elapsed = delta
+	while elapsed > TICK_TIME do
+		tick(TICK_TIME)
+		elapsed = elapsed - TICK_TIME
+	end
+	if elapsed > 0.0 then
+		tick(elapsed)
+	end
+end
+
+function love.draw()
+	-- this is where we draw
+	
+	love.graphics.scale(2.0, 2.0)
+
+	if title then
+		drawTitle()
+	elseif instructions then
+		drawInstructions()
+	elseif credits then
+		drawCredits()
+	else
+		if gameOver or advancing then
+			love.graphics.setColor(COLOR_FADE)
+		end
+		
+		love.graphics.draw(mapCanvas, SCREEN_CENTER.x - combatants[1].x, SCREEN_CENTER.y - combatants[1].y)
+		love.graphics.draw(spriteBatch)
+
+		if gameOver then
+			love.graphics.setColor(COLOR_WHITE)
+			love.graphics.printf(GAME_OVER_TEXT, 0, 150, 200, "center", 0, 2.0, 2.0)
+		elseif advancing then
+			love.graphics.setColor(COLOR_WHITE)
+			love.graphics.printf(UNLOCKED_TEXT, 0, 70, 200, "center", 0, 2.0, 2.0)
+			love.graphics.printf(PREPARE_TEXT, 0, 140, 200, "center", 0, 2.0, 2.0)
+			love.graphics.printf(LEVEL_TEXT, 0, 210, 200, "center", 0, 2.0, 2.0)
+		end
+
+		love.graphics.print(string.format("%06d", score), 0, 0)
+		love.graphics.print(string.format("LEVEL %02d", level), 160)
+	end
+
+	love.graphics.origin()
+end
+
+-- other game functions
+
+function tick(delta)
+	-- process the maximum allowable game time
+	
 	if title then
 		if oldKeys then
 			checkOldKeys()
@@ -133,6 +188,8 @@ function love.update(delta)
 			if love.keyboard.isDown("return") then
 				title = false
 				startGame()
+			elseif love.keyboard.isDown("escape") then
+				love.event.quit(0)
 			elseif love.keyboard.isDown("z") then
 				title = false
 				instructions = true
@@ -317,42 +374,6 @@ function love.update(delta)
 	for l = 1, lives do
 		spriteBatch:add(spriteQuads["life"], SCREEN_MAX.x - (l * TILE_SIZE), 0)
 	end
-end
-
-function love.draw()
-	-- this is where we draw
-	
-	love.graphics.scale(2.0, 2.0)
-
-	if title then
-		drawTitle()
-	elseif instructions then
-		drawInstructions()
-	elseif credits then
-		drawCredits()
-	else
-		if gameOver or advancing then
-			love.graphics.setColor(COLOR_FADE)
-		end
-		
-		love.graphics.draw(mapCanvas, SCREEN_CENTER.x - combatants[1].x, SCREEN_CENTER.y - combatants[1].y)
-		love.graphics.draw(spriteBatch)
-
-		if gameOver then
-			love.graphics.setColor(COLOR_WHITE)
-			love.graphics.printf(GAME_OVER_TEXT, 0, 150, 200, "center", 0, 2.0, 2.0)
-		elseif advancing then
-			love.graphics.setColor(COLOR_WHITE)
-			love.graphics.printf(UNLOCKED_TEXT, 0, 70, 200, "center", 0, 2.0, 2.0)
-			love.graphics.printf(PREPARE_TEXT, 0, 140, 200, "center", 0, 2.0, 2.0)
-			love.graphics.printf(LEVEL_TEXT, 0, 210, 200, "center", 0, 2.0, 2.0)
-		end
-
-		love.graphics.print(string.format("%06d", score), 0, 0)
-		love.graphics.print(string.format("LEVEL %02d", level), 160)
-	end
-
-	love.graphics.origin()
 end
 
 function drawTitle()
@@ -810,7 +831,7 @@ function findVacantSpot(minX, minY, maxX, maxY)
 end
 
 function checkOldKeys()
-	oldKeys = love.keyboard.isDown("return") or love.keyboard.isDown("z") or love.keyboard.isDown("x")
+	oldKeys = love.keyboard.isDown("return") or love.keyboard.isDown("z") or love.keyboard.isDown("x") or love.keyboard.isDown("escape")
 end
 
 function startTitle()
