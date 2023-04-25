@@ -20,6 +20,7 @@
 
 # 0.3.0
 
+[x] Gamepad
 [x] High score
 [x] Death cloud
 [x] Random enemy selection
@@ -41,7 +42,6 @@ stack traceback:
 
 # Future features
 
-Gamepad
 Level design
 - atrium level
 - assembly line level
@@ -59,6 +59,7 @@ Exit from middle of game? Maybe after prompt?
 
 spiders aren't much of a threat
 text gloss / formatting / color
+sounds & more visual flair for harmless shot impact
 
 # Outstanding bugs
 

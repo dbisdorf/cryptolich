@@ -10,7 +10,8 @@ COLOR_WHITE = {1.0, 1.0, 1.0, 1.0}
 COLOR_BLACK = {0.0, 0.0, 0.0, 1.0}
 TITLE_TEXT = {{0.5, 0.5, 1.0}, "TOWER OF THE CRYPTOLICH"}
 VERSION_TEXT = {{0.4, 0.4, 0.4}, "VERSION 0.3.0"}
-START_TEXT = {{0.8, 0.8, 0.8}, "PRESS ENTER TO START\nPRESS Z FOR INSTRUCTIONS\nPRESS X FOR CREDITS\n\nPRESS ESC TO QUIT"}
+START_TEXT = {{0.8, 0.8, 0.8}, "PRESS ENTER TO PLAY\nPRESS Z FOR INSTRUCTIONS\nPRESS X FOR CREDITS\n\nPRESS ESC TO QUIT"}
+PAD_START_TEXT = {{0.8, 0.8, 0.8}, "PRESS [START] TO PLAY\nPRESS [A] BUTTON FOR INSTRUCTIONS\nPRESS [X] BUTTON FOR CREDITS\n\nPRESS [BACK] TO QUIT"}
 GAME_OVER_TEXT = {{1.0, 0.2, 0.2}, "GAME OVER"}
 UNLOCKED_TEXT = {{0.5, 1.0, 0.5}, "SECURITY UNLOCKED"}
 PREPARE_TEXT = {{0.5, 1.0, 0.5}, "PREPARE FOR"}
@@ -81,12 +82,13 @@ unlocked = 0
 title = true
 instructions = false
 credits = false
-oldKeys = false
+oldButtons = false
 level = 0
 stalling = 0.0
 advancing = false
 startX = 0
 startY = 0
+gamepad = nil
 
 -- LOVE callbacks
 
@@ -131,6 +133,8 @@ function love.load()
 	sounds["level"] = love.audio.newSource("level.wav", "static")
 
 	readHighScore()
+
+	gamepad = getGamepad()
 end
 
 function love.update(delta)
@@ -187,34 +191,34 @@ function tick(delta)
 	-- process the maximum allowable game time
 	
 	if title then
-		if oldKeys then
-			checkOldKeys()
+		if oldButtons then
+			checkOldButtons()
 		else
-			if love.keyboard.isDown("return") then
+			if startButton() then
 				title = false
 				startGame()
-			elseif love.keyboard.isDown("escape") then
+			elseif backButton() then
 				love.event.quit(0)
-			elseif love.keyboard.isDown("z") then
+			elseif shootButton() then
 				title = false
 				instructions = true
-				checkOldKeys()
-			elseif love.keyboard.isDown("x") then
+				checkOldButtons()
+			elseif aimButton() then
 				title = false
 				credits = true
-				checkOldKeys()
+				checkOldButtons()
 			end
 		end
 		return
 	elseif instructions or credits then
-		if oldKeys then
-			checkOldKeys()
+		if oldButtons then
+			checkOldButtons()
 		else
-			if love.keyboard.isDown("z") then
+			if shootButton() then
 				instructions = false
 				credits = false
 				title = true
-				checkOldKeys()
+				checkOldButtons()
 			end
 		end
 		return
@@ -224,7 +228,7 @@ function tick(delta)
 
 	if gameOver then
 		-- wait until start
-		if love.keyboard.isDown("return") then
+		if startButton() then
 			startTitle()
 			return
 		end
@@ -266,28 +270,28 @@ function tick(delta)
 		-- this could be simpler too
 		local turn = nil
 		local go = false
-		if love.keyboard.isDown("right") then
+		if rightButton() then
 			turn = RIGHT_INDEX
 			if player.waiting then
 				go = true
 			end
-		elseif love.keyboard.isDown("left") then
+		elseif leftButton() then
 			turn = LEFT_INDEX
 			if player.waiting then
 				go = true
 			end
-		elseif love.keyboard.isDown("up") then
+		elseif upButton() then
 			turn = UP_INDEX
 			if player.waiting then
 				go = true
 			end
-		elseif love.keyboard.isDown("down") then
+		elseif downButton() then
 			turn = DOWN_INDEX
 			if player.waiting then
 				go = true
 			end
 		end
-		if turn and not love.keyboard.isDown("x") then
+		if turn and not aimButton() then
 			player.facing = turn
 		end
 		if go then
@@ -306,7 +310,7 @@ function tick(delta)
 				cooldown = 0.0
 			end
 		else
-			if love.keyboard.isDown("z") then
+			if shootButton() then
 				cooldown = SHOT_COOLDOWN
 				makeMissile(
 					player.x + (VECTORS[player.facing].x * TILE_CENTER), 
@@ -387,7 +391,11 @@ end
 
 function drawTitle()
 	love.graphics.printf(TITLE_TEXT, 0, 110, 200, "center", 0, 2.0, 2.0)
-	love.graphics.printf(START_TEXT, 0, 180, 400, "center")
+	if gamepad then
+		love.graphics.printf(PAD_START_TEXT, 0, 180, 400, "center")
+	else
+		love.graphics.printf(START_TEXT, 0, 180, 400, "center")
+	end
 	love.graphics.printf(VERSION_TEXT, 0, 280, 400, "center")
 end
 
@@ -839,13 +847,13 @@ function findVacantSpot(minX, minY, maxX, maxY)
 	return tryMapX, tryMapY
 end
 
-function checkOldKeys()
-	oldKeys = love.keyboard.isDown("return") or love.keyboard.isDown("z") or love.keyboard.isDown("x") or love.keyboard.isDown("escape")
+function checkOldButtons()
+	oldButtons = startButton() or shootButton() or aimButton() or backButton()
 end
 
 function startTitle()
 	title = true
-	checkOldKeys()
+	checkOldButtons()
 end
 
 function startGame()
@@ -937,3 +945,78 @@ function writeHighScore()
 	end
 end
 
+function getGamepad()
+	local pad = nil
+	local joysticks = love.joystick.getJoysticks()
+	for i, j in ipairs(joysticks) do
+		if j:isGamepad() then
+			pad = j
+			break
+		end
+	end
+	return pad
+end
+
+function downButton()
+	if gamepad then
+		return gamepad:getGamepadAxis("lefty") > 0.5
+	else
+		return love.keyboard.isDown("down")
+	end
+end
+
+function upButton()
+	if gamepad then
+		return gamepad:getGamepadAxis("lefty") < -0.5
+	else
+		return love.keyboard.isDown("up")
+	end
+end
+
+function leftButton()
+	if gamepad then
+		return gamepad:getGamepadAxis("leftx") < -0.5
+	else
+		return love.keyboard.isDown("left")
+	end
+end
+
+function rightButton()
+	if gamepad then
+		return gamepad:getGamepadAxis("leftx") > 0.5
+	else
+		return love.keyboard.isDown("right")
+	end
+end
+
+function startButton()
+	if gamepad then
+		return gamepad:isGamepadDown("start")
+	else
+		return love.keyboard.isDown("return")
+	end
+end
+
+function backButton()
+	if gamepad then
+		return gamepad:isGamepadDown("back")
+	else
+		return love.keyboard.isDown("escape")
+	end
+end
+
+function shootButton()
+	if gamepad then
+		return gamepad:isGamepadDown("a")
+	else
+		return love.keyboard.isDown("z")
+	end
+end
+
+function aimButton()
+	if gamepad then
+		return gamepad:isGamepadDown("x")
+	else
+		return love.keyboard.isDown("x")
+	end
+end
