@@ -20,11 +20,12 @@
 
 # 0.3.0
 
-[ ] Death cloud
+[x] Death cloud
 [ ] Random enemy selection
 [x] Instructions text
 [x] Credits
 [ ] Controlled exit from title
+[x] Explain the digital nature of the fight?
 [ ] Constrain delta in updates due to this bug?
 
 Error: main.lua:604: attempt to index a nil value

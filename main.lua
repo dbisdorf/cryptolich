@@ -14,7 +14,7 @@ UNLOCKED_TEXT = {{0.5, 1.0, 0.5}, "SECURITY UNLOCKED"}
 PREPARE_TEXT = {{0.5, 1.0, 0.5}, "PREPARE FOR"}
 LEVEL_TEXT = {{0.5, 1.0, 0.5}, "NEXT LEVEL"}
 BACK_TEXT = {{0.5, 1.0, 0.5}, "PRESS Z"}
-INSTRUCTIONS_TEXT = {{1.0, 1.0, 1.0}, "THE CRYPTOLICH HAS SEIZED CONTROL OF THE WORLD'S TECHNOLOGY.\n\nYOU ARE DELTA, THE ONLY HACKER WITH ENOUGH SKILL TO INFILTRATE THE CRYPTOLICH'S MEGATOWER AND SAVE HUMANITY.\n\nGOOD LUCK DELTA!\n\nARROW KEYS TO MOVE\nZ TO SHOOT\nX TO HOLD AIM DIRECTION"}
+INSTRUCTIONS_TEXT = {{1.0, 1.0, 1.0}, "THE CRYPTOLICH HAS SEIZED CONTROL OF THE WORLD'S TECHNOLOGY.\n\nYOU ARE DELTA, THE ONLY HACKER WITH ENOUGH SKILL TO INFILTRATE THE CRYPTOLICH'S MEGATOWER, CONFRONT ITS CYBERDIGITAL GUARDIANS, AND SAVE HUMANITY.\n\nGOOD LUCK DELTA!\n\nARROW KEYS TO MOVE\nZ TO SHOOT\nX TO HOLD AIM DIRECTION"}
 LEFT_CREDITS_TEXT = {{1.0, 1.0, 1.0}, "PROGRAMMING AND ART\n\nENGINE\n\nGRAPHICS\n\nSOUND EFFECTS\n\nFONT"}
 RIGHT_CREDITS_TEXT = {{0.7, 0.7, 1.0}, "DON BISDORF\ndonbisdorf.com\nLOVE2D\nlove2d.org\nKRITA\nkrita.org\nCHIPTONE\nsfbgames.itch.io/chiptone\nMx437_IBM_BIOS.ttf\nint10h.org/oldschool-pc-fonts"}
 SHOT_COOLDOWN = 0.5
@@ -22,13 +22,15 @@ RIGHT_INDEX = 1
 DOWN_INDEX = 2
 LEFT_INDEX = 3
 UP_INDEX = 4
+INSUBSTANTIAL = 1000
 INVULNERABLE = 999
 VECTORS = {{x = 1.0, y = 0.0}, {x = 0.0, y = 1.0}, {x = -1.0, y = 0.0}, {x = 0.0, y = -1.0}}
 BESTIARY = {
 	["player"] = {speed = 64.0, spf = 0.25, points = 0, cooldown = 0.0, hits = 0},
-	["spider"] = {speed = 16.0, spf = 0.2, points = 10, cooldown = 0.0, hits = 1},
-	["wasp"] = {speed = 8.0, spf = 0.05, points = 10, cooldown = 3.0, hits = 1},
-	["turret"] = {speed = 0.0, spf = 0.25, points = 10, cooldown = 10.0, hits = INVULNERABLE}
+	["spider"] = {speed = 16.0, spf = 0.2, points = 10, cooldown = 0.0, hits = 1, level1 = 5, eachLevel = 2},
+	["wasp"] = {speed = 8.0, spf = 0.05, points = 10, cooldown = 3.0, hits = 1, level1 = 5, eachLevel = 2},
+	["turret"] = {speed = 0.0, spf = 0.25, points = 10, cooldown = 10.0, hits = INVULNERABLE, level1 = 5, eachLevel = 2},
+	["ghost"] = {speed = 16.0, spf = 0.25, points = 0, cooldown = 0.0, hits = INSUBSTANTIAL, level1 = 1, eachLevel = 0.5}
 }
 ARMORY = {
 	["playerM"] = {speed = 256.0},
@@ -96,6 +98,7 @@ function love.load()
 	loadWalkingSprites("spider", 16)
 	loadWalkingSprites("wasp", 32)
 	loadWalkingSprites("turret", 48)
+	loadWalkingSprites("ghost", 64)
 
 	loadMissileSprites("playerM", 0, 208)
 	loadMissileSprites("waspM", 64, 208)
@@ -591,7 +594,7 @@ function moveMissile(missile, delta)
 		fizzle = true
 	else
 		for i, c in ipairs(combatants) do
-			if (i == 1 and not missile.friendly) or (i > 1 and missile.friendly) then
+			if (i == 1 and not missile.friendly) or (i > 1 and missile.friendly and c.hits ~= INSUBSTANTIAL) then
 				if centerX >= c.x and centerX < c.x + TILE_SIZE and centerY >= c.y and centerY < c.y + TILE_SIZE then
 					if i == 1 then
 						if not killed then
@@ -676,88 +679,97 @@ function runEnemyLogic(enemy, delta)
 	if enemy.cooling > 0.0 then
 		enemy.cooling = enemy.cooling - delta
 	end
-	if enemy.name == "spider" then
-		-- walker logic
-		if enemy.waiting then
-			local vX = 0.0
-			local vY = 0.0
-			local facing = RIGHT_INDEX
-			if math.abs(rangeX) + math.abs(rangeY) <= TILE_SIZE then
-				killed = true
-			else
-				if math.abs(rangeX) > math.abs(rangeY) then
-					vX = rangeX / math.abs(rangeX)
-				else
-					vY = rangeY / math.abs(rangeY)
-				end
-				for f = 1, 4 do
-					if vX == VECTORS[f].x and vY == VECTORS[f].y then
-						facing = f
-					end
-				end
-				enemy.facing = facing
-				local futureX = enemy.x + (vX * TILE_SIZE)
-				local futureY = enemy.y + (vY * TILE_SIZE)
-				if not pointIsObstructed(futureX, futureY, false) then
-					pushCombatant(enemy, facing)
-				end
-			end
-		end
+	if enemy.name == "spider" or enemy.name == "ghost" then
+		runEnemyWalkerLogic(enemy, delta, rangeX, rangeY)
 	elseif enemy.name == "wasp" then
-		-- patrolling shooter logic
-		if enemy.waiting then
-			if math.abs(rangeX) + math.abs(rangeY) <= TILE_SIZE then
-				killed = true
-			else
-				enemy.facing = math.random(1, 4)
-				local futureX = enemy.x + (VECTORS[enemy.facing].x * TILE_SIZE)
-				local futureY = enemy.y + (VECTORS[enemy.facing].y * TILE_SIZE)
-				if not pointIsObstructed(futureX, futureY, false) then
-					pushCombatant(enemy, enemy.facing)
-				end
-			end
-		end
-		if enemy.cooling <= 0.0 then
-			local fireFacing
-			if math.abs(rangeX) > math.abs(rangeY) then
-				if rangeX < 0 then
-					fireFacing = LEFT_INDEX
-				else
-					fireFacing = RIGHT_INDEX
-				end
-			else
-				if rangeY < 0 then
-					fireFacing = UP_INDEX
-				else
-					fireFacing = DOWN_INDEX
-				end
-			end
-			makeMissile(
-				enemy.x + VECTORS[fireFacing].x * TILE_SIZE, 
-				enemy.y + VECTORS[fireFacing].y * TILE_SIZE,
-				fireFacing,
-				enemy.name,
-				false)
-		end
+		runEnemyShooterLogic(enemy, delta, rangeX, rangeY)
 	else
-		-- rotating turret logic
-		if enemy.cooling < 1.0 then
-			local i1 = math.floor(enemy.cooling / 0.2)
-			local i2 = math.floor((enemy.cooling + delta) / 0.2)
-			if i1 ~= i2 then
-				for v = 1, 4 do
-					makeMissile(
-						enemy.x + VECTORS[v].x * TILE_SIZE,
-						enemy.y + VECTORS[v].y * TILE_SIZE,
-						v, enemy.name, false)
-				end
-			end
-		elseif enemy.cooling < 2.0 then
-			enemy.frame = math.floor((enemy.cooling - 1.0) / 0.25) + 1
-		end
+		runEnemyTurretLogic(enemy, delta, rangeX, rangeY)
 	end
 	if BESTIARY[enemy.name].cooldown > 0.0 and enemy.cooling <= 0.0 then
 		enemy.cooling = enemy.cooling + BESTIARY[enemy.name].cooldown
+	end
+end
+
+function runEnemyWalkerLogic(enemy, delta, rangeX, rangeY)
+	if enemy.waiting then
+		local vX = 0.0
+		local vY = 0.0
+		local facing = RIGHT_INDEX
+		if math.abs(rangeX) + math.abs(rangeY) <= TILE_SIZE then
+			killed = true
+		else
+			if math.abs(rangeX) > math.abs(rangeY) then
+				vX = rangeX / math.abs(rangeX)
+			else
+				vY = rangeY / math.abs(rangeY)
+			end
+			for f = 1, 4 do
+				if vX == VECTORS[f].x and vY == VECTORS[f].y then
+					facing = f
+				end
+			end
+			enemy.facing = facing
+			local futureX = enemy.x + (vX * TILE_SIZE)
+			local futureY = enemy.y + (vY * TILE_SIZE)
+			if enemy.hits == INSUBSTANTIAL or not pointIsObstructed(futureX, futureY, false) then
+				pushCombatant(enemy, facing)
+			end
+		end
+	end
+end
+
+function runEnemyShooterLogic(enemy, delta, rangeX, rangeY)
+	if enemy.waiting then
+		if math.abs(rangeX) + math.abs(rangeY) <= TILE_SIZE then
+			killed = true
+		else
+			enemy.facing = math.random(1, 4)
+			local futureX = enemy.x + (VECTORS[enemy.facing].x * TILE_SIZE)
+			local futureY = enemy.y + (VECTORS[enemy.facing].y * TILE_SIZE)
+			if not pointIsObstructed(futureX, futureY, false) then
+				pushCombatant(enemy, enemy.facing)
+			end
+		end
+	end
+	if enemy.cooling <= 0.0 then
+		local fireFacing
+		if math.abs(rangeX) > math.abs(rangeY) then
+			if rangeX < 0 then
+				fireFacing = LEFT_INDEX
+			else
+				fireFacing = RIGHT_INDEX
+			end
+		else
+			if rangeY < 0 then
+				fireFacing = UP_INDEX
+			else
+				fireFacing = DOWN_INDEX
+			end
+		end
+		makeMissile(
+			enemy.x + VECTORS[fireFacing].x * TILE_SIZE, 
+			enemy.y + VECTORS[fireFacing].y * TILE_SIZE,
+			fireFacing,
+			enemy.name,
+			false)
+	end
+end
+
+function runEnemyTurretLogic(enemy, delta, rangeX, rangeY)
+	if enemy.cooling < 1.0 then
+		local i1 = math.floor(enemy.cooling / 0.2)
+		local i2 = math.floor((enemy.cooling + delta) / 0.2)
+		if i1 ~= i2 then
+			for v = 1, 4 do
+				makeMissile(
+					enemy.x + VECTORS[v].x * TILE_SIZE,
+					enemy.y + VECTORS[v].y * TILE_SIZE,
+					v, enemy.name, false)
+			end
+		end
+	elseif enemy.cooling < 2.0 then
+		enemy.frame = math.floor((enemy.cooling - 1.0) / 0.25) + 1
 	end
 end
 
@@ -815,6 +827,23 @@ function startGame()
 	startLevel()
 end
 
+function chooseRandomEnemies()
+	local keys = {}
+	for k in pairs(BESTIARY) do
+		if k ~= "player" then
+			table.insert(keys, k)
+		end
+	end
+	local chosen = {}
+	local r = 0
+	while table.getn(chosen) < 3 do
+		r = math.random(table.getn(chosen))
+		table.insert(chosen, keys[r])
+		table.remove(keys, r)
+	end
+	return chosen
+end
+
 function startLevel()
 	buildMap()
 	mapCanvas:renderTo(drawMap)
@@ -822,17 +851,12 @@ function startLevel()
 	combatants = {}
 	makeCombatant(startX, startY, "player")
 	local mapX, mapY
-	for e = 1, 6 + (level * 2) do
-		mapX, mapY = findVacantSpot(5, 5, MAP_SIZE - 2, MAP_SIZE - 2)
-		makeCombatant(mapX * TILE_SIZE, mapY * TILE_SIZE, "spider")
-	end
-	for e = 1, 6 + (level * 2) do
-		mapX, mapY = findVacantSpot(5, 5, MAP_SIZE - 2, MAP_SIZE - 2)
-		makeCombatant(mapX * TILE_SIZE, mapY * TILE_SIZE, "wasp")
-	end
-	for e = 1, 6 + (level * 2) do
-		mapX, mapY = findVacantSpot(5, 5, MAP_SIZE - 2, MAP_SIZE - 2)
-		makeCombatant(mapX * TILE_SIZE, mapY * TILE_SIZE, "turret")
+	local chosenEnemies = chooseRandomEnemies()
+	for i, e in ipairs(chosenEnemies) do
+		for n = 1, BESTIARY[e].level1 + math.floor(level * BESTIARY[e].eachLevel) do
+			mapX, mapY = findVacantSpot(2, 2, MAP_SIZE - 2, MAP_SIZE - 2)
+			makeCombatant(mapX * TILE_SIZE, mapY * TILE_SIZE, e)
+		end
 	end
 	missiles = {}
 	blasts = {}
