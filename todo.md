@@ -21,7 +21,7 @@
 # 0.3.0
 
 [x] Death cloud
-[ ] Random enemy selection
+[x] Random enemy selection
 [x] Instructions text
 [x] Credits
 [ ] Controlled exit from title
