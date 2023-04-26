@@ -20,10 +20,15 @@
 
 # 0.3.0
 
-[ ] Assembly line level
+[x] Assembly line level
+[x] Tank enemy
+[ ] Sometimes the tank gets stuck? Why?
+[ ] Visual effect for damaging hit
+[ ] Implement steps logic for wasps
 [x] Gamepad
 [x] High score
 [x] Death cloud
+[ ] ghost shouldn't go into safe zone
 [x] Random enemy selection
 [x] Instructions text
 [x] Credits

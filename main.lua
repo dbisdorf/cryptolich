@@ -33,7 +33,8 @@ BESTIARY = {
 	["spider"] = {speed = 16.0, spf = 0.2, points = 10, cooldown = 0.0, hits = 1, level1 = 5, eachLevel = 2},
 	["wasp"] = {speed = 8.0, spf = 0.05, points = 10, cooldown = 3.0, hits = 1, level1 = 5, eachLevel = 2},
 	["turret"] = {speed = 0.0, spf = 0.25, points = 10, cooldown = 10.0, hits = INVULNERABLE, level1 = 5, eachLevel = 2},
-	["ghost"] = {speed = 16.0, spf = 0.25, points = 0, cooldown = 0.0, hits = INSUBSTANTIAL, level1 = 1, eachLevel = 0.5}
+	["ghost"] = {speed = 16.0, spf = 0.25, points = 0, cooldown = 0.0, hits = INSUBSTANTIAL, level1 = 1, eachLevel = 0.5},
+	["tank"] = {speed = 64.0, spf = 0.15, points = 25, cooldown = 3.0, steps = 10, hits = 10, level1 = 3, eachLevel = 1}
 }
 ARMORY = {
 	["playerM"] = {speed = 256.0},
@@ -112,6 +113,7 @@ function love.load()
 	loadWalkingSprites("wasp", 32)
 	loadWalkingSprites("turret", 48)
 	loadWalkingSprites("ghost", 64)
+	loadWalkingSprites("tank", 80)
 
 	loadMissileSprites("playerM", 0, 208)
 	loadMissileSprites("waspM", 64, 208)
@@ -583,6 +585,7 @@ function makeCombatant(startX, startY, name)
 		waiting = true, 
 		name = name,
 		cooling = math.random() * BESTIARY[name].cooldown,
+		stepping = 0,
 		hits = BESTIARY[name].hits,
 		destroyed = false})
 end
@@ -782,6 +785,8 @@ function runEnemyLogic(enemy, delta)
 		runEnemyWalkerLogic(enemy, delta, rangeX, rangeY)
 	elseif enemy.name == "wasp" then
 		runEnemyShooterLogic(enemy, delta, rangeX, rangeY)
+	elseif enemy.name == "tank" then
+		runEnemyRammerLogic(enemy, delta, rangeX, rangeY)
 	else
 		runEnemyTurretLogic(enemy, delta, rangeX, rangeY)
 	end
@@ -796,8 +801,10 @@ function runEnemyWalkerLogic(enemy, delta, rangeX, rangeY)
 		local vY = 0.0
 		local facing = RIGHT_INDEX
 		if math.abs(rangeX) + math.abs(rangeY) <= TILE_SIZE then
+			-- seems like this condition is common to all enemies
 			killed = true
 		else
+			-- and this is shared with the rammer logic
 			if math.abs(rangeX) > math.abs(rangeY) then
 				vX = rangeX / math.abs(rangeX)
 			else
@@ -852,6 +859,46 @@ function runEnemyShooterLogic(enemy, delta, rangeX, rangeY)
 			fireFacing,
 			enemy.name,
 			false)
+	end
+end
+
+function runEnemyRammerLogic(enemy, delta, rangeX, rangeY)
+	if enemy.waiting then
+		if enemy.stepping == 0 then
+			if enemy.cooling <= 0.0 then
+				local vX = 0.0
+				local vY = 0.0
+				if math.abs(rangeX) > math.abs(rangeY) then
+					vX = rangeX / math.abs(rangeX)
+				else
+					vY = rangeY / math.abs(rangeY)
+				end
+				local facing = RIGHT_INDEX
+				for f = 1, 4 do
+					if vX == VECTORS[f].x and vY == VECTORS[f].y then
+						facing = f
+					end
+				end
+				enemy.facing = facing
+				enemy.waiting = false
+				enemy.stepping = BESTIARY[enemy.name].steps
+				enemy.cooling = enemy.cooling + BESTIARY[enemy.name].cooldown
+			end
+		end
+		if enemy.stepping > 0 then
+			if math.abs(rangeX) + math.abs(rangeY) <= TILE_SIZE then
+				killed = true
+			else
+				local futureX = enemy.x + (VECTORS[enemy.facing].x * TILE_SIZE)
+				local futureY = enemy.y + (VECTORS[enemy.facing].y * TILE_SIZE)
+				if not pointIsObstructed(futureX, futureY, false) then
+					pushCombatant(enemy, enemy.facing)
+					enemy.stepping = enemy.stepping - 1
+				else
+					enemy.stepping = 0
+				end
+			end
+		end
 	end
 end
 
@@ -940,6 +987,7 @@ function chooseRandomEnemies()
 		table.insert(chosen, keys[r])
 		table.remove(keys, r)
 	end
+	table.insert(chosen, "tank")
 	return chosen
 end
 
