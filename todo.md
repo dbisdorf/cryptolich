@@ -20,6 +20,7 @@
 
 # 0.3.0
 
+[ ] Assembly line level
 [x] Gamepad
 [x] High score
 [x] Death cloud

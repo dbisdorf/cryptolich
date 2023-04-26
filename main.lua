@@ -46,7 +46,9 @@ TERRAIN = {
 	{playerPass = false, enemyPass = false},
 	{playerPass = false, enemyPass = false},
 	{playerPass = false, enemyPass = false},
-	{playerPass = true, enemyPass = false}
+	{playerPass = true, enemyPass = false},
+	{playerPass = false, enemyPass = false},
+	{playerPass = false, enemyPass = false}
 }
 STARTING_LIVES = 3
 LOCK_POINTS = 100
@@ -120,7 +122,7 @@ function love.load()
 	spriteQuads["blastV"] = love.graphics.newQuad(32, 224, TILE_SIZE, TILE_SIZE, textures)
 	spriteQuads["blastS"] = love.graphics.newQuad(48, 224, TILE_SIZE, TILE_SIZE, textures)
 
-	for t = 1, 6 do
+	for t = 1, 8 do
 		tileQuads[t] = love.graphics.newQuad((t - 1) * TILE_SIZE, 240, TILE_SIZE, TILE_SIZE, textures)
 	end
 
@@ -429,7 +431,7 @@ function loadMissileSprites(name, x, y)
 	end
 end
 
-function buildMap()
+function buildOfficeMap()
 	mapInfo = {}
 
 	-- cube farm
@@ -476,6 +478,65 @@ function buildMap()
 			mapX, mapY = findVacantSpot(2, 5, 29, 29)
 		end
 		mapInfo[mapX][mapY] = 3
+	end
+	if corner == 1 then
+		startX = TILE_SIZE
+		startY = TILE_SIZE
+	elseif corner == 2 then
+		startX = 30 * TILE_SIZE
+		startY = TILE_SIZE
+	elseif corner == 3 then
+		startX = TILE_SIZE
+		startY = 30 * TILE_SIZE
+	else
+		startX = 30 * TILE_SIZE
+		startY = 30 * TILE_SIZE
+	end
+end
+
+function buildServerMap()
+	mapInfo = {}
+
+	-- cube farm
+	local corner = math.random(1, 4)
+	local x1 = math.random(12, 20)
+	local x2 = math.random(12, 20)
+	local y1 = math.random(12, 20)
+	local y2 = math.random(12, 20)
+	for x = 0, MAP_SIZE - 1 do
+		mapInfo[x] = {}
+		for y = 0, MAP_SIZE - 1 do
+			if x == 0 or x == MAP_SIZE - 1 or y == 0 or y == MAP_SIZE - 1 then
+				-- exterior walls
+				mapInfo[x][y] = 2
+			elseif (corner == 1 and x < 4 and y < 4) or
+				(corner == 2 and x > 27 and y < 4) or
+				(corner == 3 and x < 4 and y > 27) or
+				(corner == 4 and x > 27 and y > 27) then
+				-- safe starting zone
+				mapInfo[x][y] = 6
+			else
+				mapInfo[x][y] = 1
+			end
+		end
+	end
+	local mapX, mapY
+	for s = 1, 12 do
+		mapX = math.random(5, 25)
+		mapY = (s * 2) + 2
+		for x = mapX - 2, mapX + 2 do
+			if mapInfo[x][mapY] == 1 then
+				if x == mapX and (s == 3 or s == 7 or s == 11) then
+					mapInfo[x][mapY] = 4
+				else
+					if math.random(5) == 1 then
+						mapInfo[x][mapY] = 8
+					else
+						mapInfo[x][mapY] = 7
+					end
+				end
+			end
+		end
 	end
 	if corner == 1 then
 		startX = TILE_SIZE
@@ -883,7 +944,12 @@ function chooseRandomEnemies()
 end
 
 function startLevel()
-	buildMap()
+	local algorithm = math.random(2)
+	if algorithm == 1 then
+		buildOfficeMap()
+	else
+		buildServerMap()
+	end
 	mapCanvas:renderTo(drawMap)
 
 	combatants = {}
