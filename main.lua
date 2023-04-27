@@ -718,7 +718,7 @@ function moveMissile(missile, delta)
 							killed = true
 						end
 					else
-						if c.hits ~= INVULERNABLE then
+						if c.hits ~= INVULNERABLE then
 							takeHits(c, 1)
 						end
 					end
