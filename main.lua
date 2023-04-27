@@ -890,9 +890,7 @@ function runEnemyRammerLogic(enemy, delta, rangeX, rangeY)
 					end
 				end
 				enemy.facing = facing
-				enemy.waiting = false
 				enemy.stepping = BESTIARY[enemy.name].steps
-				enemy.cooling = enemy.cooling + BESTIARY[enemy.name].cooldown
 			end
 		end
 		if enemy.stepping > 0 then
@@ -906,6 +904,9 @@ function runEnemyRammerLogic(enemy, delta, rangeX, rangeY)
 					enemy.stepping = enemy.stepping - 1
 				else
 					enemy.stepping = 0
+				end
+				if enemy.stepping == 0 then
+					enemy.cooling = BESTIARY[enemy.name].cooldown
 				end
 			end
 		end

@@ -22,7 +22,7 @@
 
 [x] Assembly line level
 [x] Tank enemy
-[ ] Sometimes the tank gets stuck? Why?
+[x] Sometimes the tank gets stuck? Why?
 [x] Visual effect for damaging hit
 [ ] Implement steps logic for wasps
 [x] Gamepad
@@ -65,6 +65,7 @@ Exit from middle of game? Maybe after prompt?
 spiders aren't much of a threat
 text gloss / formatting / color
 sounds & more visual flair for harmless shot impact
+prevent cube farm level conditions where there's only a single-square gap
 
 # Outstanding bugs
 
