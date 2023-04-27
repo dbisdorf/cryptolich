@@ -32,7 +32,7 @@ VECTORS = {{x = 1.0, y = 0.0}, {x = 0.0, y = 1.0}, {x = -1.0, y = 0.0}, {x = 0.0
 BESTIARY = {
 	["player"] = {speed = 64.0, spf = 0.25, points = 0, cooldown = 0.0, hits = 0},
 	["spider"] = {speed = 16.0, spf = 0.2, points = 10, cooldown = 0.0, hits = 1, level1 = 5, eachLevel = 2},
-	["wasp"] = {speed = 8.0, spf = 0.05, points = 10, cooldown = 3.0, hits = 1, level1 = 5, eachLevel = 2},
+	["wasp"] = {speed = 8.0, spf = 0.05, points = 10, cooldown = 3.0, steps = 5, hits = 1, level1 = 5, eachLevel = 2},
 	["turret"] = {speed = 0.0, spf = 0.25, points = 10, cooldown = 10.0, hits = INVULNERABLE, level1 = 5, eachLevel = 2},
 	["ghost"] = {speed = 16.0, spf = 0.25, points = 0, cooldown = 0.0, hits = INSUBSTANTIAL, level1 = 1, eachLevel = 0.5},
 	["tank"] = {speed = 64.0, spf = 0.15, points = 25, cooldown = 3.0, steps = 10, hits = 10, level1 = 3, eachLevel = 1}
@@ -689,6 +689,12 @@ function moveCombatant(combatant, delta)
 		if combatant.waiting and combatant.name == "player" then
 			checkLocks()
 		end
+		if combatant.name ~= "player" then
+			if math.abs(combatant.x - combatants[1].x) < TILE_SIZE and
+				math.abs(combatant.y - combatants[1].y) < TILE_SIZE then
+				killed = true
+			end
+		end
 	end
 end
 
@@ -810,42 +816,39 @@ function runEnemyWalkerLogic(enemy, delta, rangeX, rangeY)
 		local vX = 0.0
 		local vY = 0.0
 		local facing = RIGHT_INDEX
-		if math.abs(rangeX) + math.abs(rangeY) <= TILE_SIZE then
-			-- seems like this condition is common to all enemies
-			killed = true
+		-- this is shared with the rammer logic
+		if math.abs(rangeX) > math.abs(rangeY) then
+			vX = rangeX / math.abs(rangeX)
 		else
-			-- and this is shared with the rammer logic
-			if math.abs(rangeX) > math.abs(rangeY) then
-				vX = rangeX / math.abs(rangeX)
-			else
-				vY = rangeY / math.abs(rangeY)
+			vY = rangeY / math.abs(rangeY)
+		end
+		for f = 1, 4 do
+			if vX == VECTORS[f].x and vY == VECTORS[f].y then
+				facing = f
 			end
-			for f = 1, 4 do
-				if vX == VECTORS[f].x and vY == VECTORS[f].y then
-					facing = f
-				end
-			end
-			enemy.facing = facing
-			local futureX = enemy.x + (vX * TILE_SIZE)
-			local futureY = enemy.y + (vY * TILE_SIZE)
-			if enemy.hits == INSUBSTANTIAL or not pointIsObstructed(futureX, futureY, false) then
-				pushCombatant(enemy, facing)
-			end
+		end
+		enemy.facing = facing
+		local futureX = enemy.x + (vX * TILE_SIZE)
+		local futureY = enemy.y + (vY * TILE_SIZE)
+		if enemy.hits == INSUBSTANTIAL or not pointIsObstructed(futureX, futureY, false) then
+			pushCombatant(enemy, facing)
 		end
 	end
 end
 
 function runEnemyShooterLogic(enemy, delta, rangeX, rangeY)
 	if enemy.waiting then
-		if math.abs(rangeX) + math.abs(rangeY) <= TILE_SIZE then
-			killed = true
-		else
+		if enemy.stepping == 0 then
 			enemy.facing = math.random(1, 4)
-			local futureX = enemy.x + (VECTORS[enemy.facing].x * TILE_SIZE)
-			local futureY = enemy.y + (VECTORS[enemy.facing].y * TILE_SIZE)
-			if not pointIsObstructed(futureX, futureY, false) then
-				pushCombatant(enemy, enemy.facing)
-			end
+			enemy.stepping = BESTIARY[enemy.name].steps
+		end
+		local futureX = enemy.x + (VECTORS[enemy.facing].x * TILE_SIZE)
+		local futureY = enemy.y + (VECTORS[enemy.facing].y * TILE_SIZE)
+		if not pointIsObstructed(futureX, futureY, false) then
+			pushCombatant(enemy, enemy.facing)
+			enemy.stepping = enemy.stepping - 1
+		else
+			enemy.stepping = 0
 		end
 	end
 	if enemy.cooling <= 0.0 then
@@ -894,20 +897,16 @@ function runEnemyRammerLogic(enemy, delta, rangeX, rangeY)
 			end
 		end
 		if enemy.stepping > 0 then
-			if math.abs(rangeX) + math.abs(rangeY) <= TILE_SIZE then
-				killed = true
+			local futureX = enemy.x + (VECTORS[enemy.facing].x * TILE_SIZE)
+			local futureY = enemy.y + (VECTORS[enemy.facing].y * TILE_SIZE)
+			if not pointIsObstructed(futureX, futureY, false) then
+				pushCombatant(enemy, enemy.facing)
+				enemy.stepping = enemy.stepping - 1
 			else
-				local futureX = enemy.x + (VECTORS[enemy.facing].x * TILE_SIZE)
-				local futureY = enemy.y + (VECTORS[enemy.facing].y * TILE_SIZE)
-				if not pointIsObstructed(futureX, futureY, false) then
-					pushCombatant(enemy, enemy.facing)
-					enemy.stepping = enemy.stepping - 1
-				else
-					enemy.stepping = 0
-				end
-				if enemy.stepping == 0 then
-					enemy.cooling = BESTIARY[enemy.name].cooldown
-				end
+				enemy.stepping = 0
+			end
+			if enemy.stepping == 0 then
+				enemy.cooling = BESTIARY[enemy.name].cooldown
 			end
 		end
 	end
@@ -998,7 +997,6 @@ function chooseRandomEnemies()
 		table.insert(chosen, keys[r])
 		table.remove(keys, r)
 	end
-	table.insert(chosen, "tank")
 	return chosen
 end
 

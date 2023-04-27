@@ -66,6 +66,7 @@ spiders aren't much of a threat
 text gloss / formatting / color
 sounds & more visual flair for harmless shot impact
 prevent cube farm level conditions where there's only a single-square gap
+tanks won't always collide with you / collision should occur during movement
 
 # Outstanding bugs
 
@@ -75,3 +76,5 @@ cooldowns and other timers should have time ADDED after it hits zero, shouldn't 
 do we really need the strafe key?
 you should die if you move into an enemy - moving into an enemy right now is buggy
 the game will run forever if you don't leave the safe zone
+allow keypresses AND gamepad controls
+
