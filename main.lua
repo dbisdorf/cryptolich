@@ -8,6 +8,7 @@ SCREEN_MAX = {x = 400, y = 300}
 COLOR_FADE = {1.0, 1.0, 1.0, 0.5}
 COLOR_WHITE = {1.0, 1.0, 1.0, 1.0}
 COLOR_BLACK = {0.0, 0.0, 0.0, 1.0}
+COLOR_FLASH = {1.0, 0.0, 0.0, 1.0}
 TITLE_TEXT = {{0.5, 0.5, 1.0}, "TOWER OF THE CRYPTOLICH"}
 VERSION_TEXT = {{0.4, 0.4, 0.4}, "VERSION 0.3.0"}
 START_TEXT = {{0.8, 0.8, 0.8}, "PRESS ENTER TO PLAY\nPRESS Z FOR INSTRUCTIONS\nPRESS X FOR CREDITS\n\nPRESS ESC TO QUIT"}
@@ -59,6 +60,7 @@ BLAST_TIME = 1.0
 BLAST_SIZE = 400.0
 STALL_TIME = 1.5
 TICK_TIME = 0.2
+FLASH_TIME = 0.2
 DEFAULT_HIGH_SCORE = 10000
 
 -- globals
@@ -358,7 +360,13 @@ function tick(delta)
 	-- player xy offset should be calculated only once
 	for i, c in ipairs(combatants) do
 		if i > 1 or not killed then
+			if c.flashing > 0.0 then
+				spriteBatch:setColor(COLOR_FLASH[1], COLOR_FLASH[2], COLOR_FLASH[3], COLOR_FLASH[4])
+			end
 			spriteBatch:add(spriteQuads[c.name][c.facing][c.frame], c.x - player.x + SCREEN_CENTER.x, c.y - player.y + SCREEN_CENTER.y)
+			if c.flashing > 0.0 then
+				spriteBatch:setColor(COLOR_WHITE)
+			end
 		end
 	end
 	for i, m in ipairs(missiles) do
@@ -586,6 +594,7 @@ function makeCombatant(startX, startY, name)
 		name = name,
 		cooling = math.random() * BESTIARY[name].cooldown,
 		stepping = 0,
+		flashing = 0.0,
 		hits = BESTIARY[name].hits,
 		destroyed = false})
 end
@@ -703,9 +712,8 @@ function moveMissile(missile, delta)
 							killed = true
 						end
 					else
-						takeHits(c, 1)
-						if not c.destroyed then
-							fizzle = true
+						if c.hits ~= INVULERNABLE then
+							takeHits(c, 1)
 						end
 					end
 					missile.destroyed = true
@@ -764,14 +772,13 @@ function pointIsObstructed(x, y, fromPlayer)
 end
 
 function takeHits(combatant, hits)
-	if BESTIARY[combatant.name].hits ~= INVULNERABLE then
-		combatant.hits = combatant.hits - hits
-		if combatant.hits <= 0 then
-			combatant.destroyed = true
-			makeBlast(combatant.x, combatant.y, true)
-			sounds["boom"]:play()
-			awardPoints(BESTIARY[combatant.name].points)
-		end
+	combatant.flashing = FLASH_TIME
+	combatant.hits = combatant.hits - hits
+	if combatant.hits <= 0 then
+		combatant.destroyed = true
+		makeBlast(combatant.x, combatant.y, true)
+		sounds["boom"]:play()
+		awardPoints(BESTIARY[combatant.name].points)
 	end
 end
 
@@ -780,6 +787,9 @@ function runEnemyLogic(enemy, delta)
 	local rangeY = combatants[1].y - enemy.y
 	if enemy.cooling > 0.0 then
 		enemy.cooling = enemy.cooling - delta
+	end
+	if enemy.flashing > 0.0 then
+		enemy.flashing = enemy.flashing - delta
 	end
 	if enemy.name == "spider" or enemy.name == "ghost" then
 		runEnemyWalkerLogic(enemy, delta, rangeX, rangeY)

@@ -23,7 +23,7 @@
 [x] Assembly line level
 [x] Tank enemy
 [ ] Sometimes the tank gets stuck? Why?
-[ ] Visual effect for damaging hit
+[x] Visual effect for damaging hit
 [ ] Implement steps logic for wasps
 [x] Gamepad
 [x] High score
@@ -53,7 +53,6 @@ Level design
 - assembly line level
 - boss level
 More enemies
-- Steamroller
 - Fire trail
 - Missile launcher
 - boss enemies (?)
@@ -74,4 +73,4 @@ ought to reset all player-related timers (like cooldowns) between levels/kills
 cooldowns and other timers should have time ADDED after it hits zero, shouldn't just jump up to full time
 do we really need the strafe key?
 you should die if you move into an enemy - moving into an enemy right now is buggy
-
+the game will run forever if you don't leave the safe zone
