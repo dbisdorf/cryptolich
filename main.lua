@@ -43,14 +43,14 @@ ARMORY = {
 	["turretM"] = {speed = 80.0}
 }
 TERRAIN = {
-	{playerPass = true, enemyPass = true},
-	{playerPass = false, enemyPass = false},
-	{playerPass = false, enemyPass = false},
-	{playerPass = false, enemyPass = false},
-	{playerPass = false, enemyPass = false},
-	{playerPass = true, enemyPass = false},
-	{playerPass = false, enemyPass = false},
-	{playerPass = false, enemyPass = false}
+	{solid = false, safe = false},
+	{solid = true, safe = false},
+	{solid = true, safe = false},
+	{solid = true, safe = false},
+	{solid = true, safe = false},
+	{solid = false, safe = true},
+	{solid = true, safe = false},
+	{solid = true, safe = false}
 }
 STARTING_LIVES = 3
 LOCK_POINTS = 100
@@ -304,7 +304,7 @@ function tick(delta)
 			if not pointIsObstructed(
 				player.x + (VECTORS[turn].x * TILE_SIZE), 
 				player.y + (VECTORS[turn].y * TILE_SIZE), 
-				true) then
+				true, false) then
 				pushCombatant(player, turn)
 			end
 		end
@@ -706,7 +706,7 @@ function moveMissile(missile, delta)
 	local fizzle = false
 
 	-- this is insufficient because it could skip through walls or targets if delta is high enough
-	if pointIsObstructed(centerX, centerY, missile.friendly) then
+	if pointIsObstructed(centerX, centerY, missile.friendly, false) then
 		missile.destroyed = true
 		fizzle = true
 	else
@@ -761,10 +761,12 @@ function convertToMapCoords(x, y)
 	return math.floor(x / TILE_SIZE), math.floor(y / TILE_SIZE)
 end
 
-function pointIsObstructed(x, y, fromPlayer)
+function pointIsObstructed(x, y, fromPlayer, insubstantial)
 	local obstructed = false
 	local mapX, mapY = convertToMapCoords(x, y)
-	if (fromPlayer and (not TERRAIN[mapInfo[mapX][mapY]].playerPass)) or (not fromPlayer and (not TERRAIN[mapInfo[mapX][mapY]].enemyPass)) then
+	if (fromPlayer and TERRAIN[mapInfo[mapX][mapY]].solid) or 
+		(not fromPlayer and not insubstantial and TERRAIN[mapInfo[mapX][mapY]].solid) or
+		(not fromPlayer and TERRAIN[mapInfo[mapX][mapY]].safe) then
 		obstructed = true
 	else
 		for i, c in ipairs(combatants) do
@@ -830,7 +832,7 @@ function runEnemyWalkerLogic(enemy, delta, rangeX, rangeY)
 		enemy.facing = facing
 		local futureX = enemy.x + (vX * TILE_SIZE)
 		local futureY = enemy.y + (vY * TILE_SIZE)
-		if enemy.hits == INSUBSTANTIAL or not pointIsObstructed(futureX, futureY, false) then
+		if not pointIsObstructed(futureX, futureY, false, enemy.hits == INSUBSTANTIAL) then
 			pushCombatant(enemy, facing)
 		end
 	end
@@ -844,7 +846,7 @@ function runEnemyShooterLogic(enemy, delta, rangeX, rangeY)
 		end
 		local futureX = enemy.x + (VECTORS[enemy.facing].x * TILE_SIZE)
 		local futureY = enemy.y + (VECTORS[enemy.facing].y * TILE_SIZE)
-		if not pointIsObstructed(futureX, futureY, false) then
+		if not pointIsObstructed(futureX, futureY, false, enemy.hits == INSUBSTANTIAL) then
 			pushCombatant(enemy, enemy.facing)
 			enemy.stepping = enemy.stepping - 1
 		else
@@ -899,7 +901,7 @@ function runEnemyRammerLogic(enemy, delta, rangeX, rangeY)
 		if enemy.stepping > 0 then
 			local futureX = enemy.x + (VECTORS[enemy.facing].x * TILE_SIZE)
 			local futureY = enemy.y + (VECTORS[enemy.facing].y * TILE_SIZE)
-			if not pointIsObstructed(futureX, futureY, false) then
+			if not pointIsObstructed(futureX, futureY, false, enemy.hits == INSUBSTANTIAL) then
 				pushCombatant(enemy, enemy.facing)
 				enemy.stepping = enemy.stepping - 1
 			else
@@ -942,7 +944,7 @@ function findVacantSpot(minX, minY, maxX, maxY)
 	while searching do
 		x = tryMapX * TILE_SIZE
 		y = tryMapY * TILE_SIZE
-		if not pointIsObstructed(x, y, false) then
+		if not pointIsObstructed(x, y, false, false) then
 			searching = false
 			for i, c in ipairs(combatants) do
 				if x == c.x and y == c.y then

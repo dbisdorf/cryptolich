@@ -24,11 +24,11 @@
 [x] Tank enemy
 [x] Sometimes the tank gets stuck? Why?
 [x] Visual effect for damaging hit
-[ ] Implement steps logic for wasps
+[x] Implement steps logic for wasps
 [x] Gamepad
 [x] High score
 [x] Death cloud
-[ ] ghost shouldn't go into safe zone
+[x] ghost shouldn't go into safe zone
 [x] Random enemy selection
 [x] Instructions text
 [x] Credits
@@ -66,7 +66,7 @@ spiders aren't much of a threat
 text gloss / formatting / color
 sounds & more visual flair for harmless shot impact
 prevent cube farm level conditions where there's only a single-square gap
-tanks won't always collide with you / collision should occur during movement
+i'm no longer as thrilled about grid movement for the player
 
 # Outstanding bugs
 
@@ -75,6 +75,6 @@ ought to reset all player-related timers (like cooldowns) between levels/kills
 cooldowns and other timers should have time ADDED after it hits zero, shouldn't just jump up to full time
 do we really need the strafe key?
 you should die if you move into an enemy - moving into an enemy right now is buggy
-the game will run forever if you don't leave the safe zone
+the game will run forever if you don't leave the safe zone - safe zone should time out?
 allow keypresses AND gamepad controls
 
