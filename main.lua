@@ -35,22 +35,27 @@ BESTIARY = {
 	["wasp"] = {speed = 8.0, spf = 0.05, points = 10, cooldown = 3.0, steps = 5, hits = 1, level1 = 5, eachLevel = 2},
 	["turret"] = {speed = 0.0, spf = 0.25, points = 10, cooldown = 10.0, hits = INVULNERABLE, level1 = 5, eachLevel = 2},
 	["ghost"] = {speed = 16.0, spf = 0.25, points = 0, cooldown = 0.0, hits = INSUBSTANTIAL, level1 = 1, eachLevel = 0.5},
-	["tank"] = {speed = 64.0, spf = 0.15, points = 25, cooldown = 3.0, steps = 10, hits = 10, level1 = 3, eachLevel = 1}
+	["tank"] = {speed = 64.0, spf = 0.15, points = 25, cooldown = 3.0, steps = 10, hits = 10, level1 = 3, eachLevel = 1},
+	["slider"] = {speed = 32.0, spf = 0.0, points = 0, cooldown = 2.0, steps = 20, hits = INVULNERABLE},
+	["shield"] = {spf = 0.25, points = 0, cooldown = 0.0, hits = INVULNERABLE, passive = true},
+	["battery"] = {spf = 0.5, points = 50, cooldown = 0.0, hits = 3, passive = true}
 }
 ARMORY = {
 	["playerM"] = {speed = 256.0},
 	["waspM"] = {speed = 80.0},
-	["turretM"] = {speed = 80.0}
+	["turretM"] = {speed = 80.0},
+	["sliderM"] = {speed = 96.0}
 }
 TERRAIN = {
-	{solid = false, safe = false},
-	{solid = true, safe = false},
-	{solid = true, safe = false},
-	{solid = true, safe = false},
-	{solid = true, safe = false},
-	{solid = false, safe = true},
-	{solid = true, safe = false},
-	{solid = true, safe = false}
+	{solid = false, safe = false, nogo = false},
+	{solid = true, safe = false, nogo = false},
+	{solid = true, safe = false, nogo = false},
+	{solid = true, safe = false, nogo = false},
+	{solid = true, safe = false, nogo = false},
+	{solid = false, safe = true, nogo = false},
+	{solid = true, safe = false, nogo = false},
+	{solid = true, safe = false, nogo = false},
+	{solid = false, safe = false, nogo = true}
 }
 STARTING_LIVES = 3
 LOCK_POINTS = 100
@@ -62,6 +67,14 @@ STALL_TIME = 1.5
 TICK_TIME = 0.2
 FLASH_TIME = 0.2
 DEFAULT_HIGH_SCORE = 10000
+LAST_LEVEL = 1
+BOSS_SPEED = 16.0
+BOSS_MIN_X = 13 * TILE_SIZE
+BOSS_MAX_X = 16 * TILE_SIZE
+SLIDER_MIN_X = 2 * TILE_SIZE
+SLIDER_MAX_X = 29 * TILE_SIZE
+SLIDER_MIN_Y = 9 * TILE_SIZE
+SLIDER_MAX_Y = 30 * TILE_SIZE
 
 -- globals
 
@@ -94,6 +107,9 @@ advancing = false
 startX = 0
 startY = 0
 gamepad = nil
+bossX = 0
+bossY = 0
+bossRight = true
 
 -- LOVE callbacks
 
@@ -116,17 +132,23 @@ function love.load()
 	loadWalkingSprites("turret", 48)
 	loadWalkingSprites("ghost", 64)
 	loadWalkingSprites("tank", 80)
+	loadWalkingSprites("slider", 144)
+	loadWalkingSprites("shield", 176)
+	loadWalkingSprites("battery", 192)
+
+	spriteQuads["skull"] = love.graphics.newQuad(208, 160, 48, 48, textures)
 
 	loadMissileSprites("playerM", 0, 208)
 	loadMissileSprites("waspM", 64, 208)
 	loadMissileSprites("turretM", 128, 208)
+	loadMissileSprites("sliderM", 192, 208)
 
 	spriteQuads["life"] = love.graphics.newQuad(0, 224, TILE_SIZE, TILE_SIZE, textures)
 	spriteQuads["blastH"] = love.graphics.newQuad(16, 224, TILE_SIZE, TILE_SIZE, textures)
 	spriteQuads["blastV"] = love.graphics.newQuad(32, 224, TILE_SIZE, TILE_SIZE, textures)
 	spriteQuads["blastS"] = love.graphics.newQuad(48, 224, TILE_SIZE, TILE_SIZE, textures)
 
-	for t = 1, 8 do
+	for t = 1, 9 do
 		tileQuads[t] = love.graphics.newQuad((t - 1) * TILE_SIZE, 240, TILE_SIZE, TILE_SIZE, textures)
 	end
 
@@ -339,6 +361,11 @@ function tick(delta)
 		for i, c in ipairs(combatants) do
 			moveCombatant(c, delta)
 		end
+
+		-- move boss
+		if level == LAST_LEVEL then
+			moveBoss(delta)
+		end
 	end
 
 	-- move the missiles around
@@ -358,19 +385,24 @@ function tick(delta)
 	spriteBatch:clear()
 
 	-- player xy offset should be calculated only once
+	local offsetX = player.x - SCREEN_CENTER.x
+	local offsetY = player.y - SCREEN_CENTER.y
 	for i, c in ipairs(combatants) do
 		if i > 1 or not killed then
 			if c.flashing > 0.0 then
 				spriteBatch:setColor(COLOR_FLASH[1], COLOR_FLASH[2], COLOR_FLASH[3], COLOR_FLASH[4])
 			end
-			spriteBatch:add(spriteQuads[c.name][c.facing][c.frame], c.x - player.x + SCREEN_CENTER.x, c.y - player.y + SCREEN_CENTER.y)
+			spriteBatch:add(spriteQuads[c.name][c.facing][c.frame], c.x - offsetX, c.y - offsetY)
 			if c.flashing > 0.0 then
 				spriteBatch:setColor(COLOR_WHITE)
 			end
 		end
 	end
+	if level == LAST_LEVEL then
+		spriteBatch:add(spriteQuads["skull"], bossX - offsetX, bossY - offsetY)
+	end
 	for i, m in ipairs(missiles) do
-		spriteBatch:add(spriteQuads[m.name][m.facing], m.x - player.x + SCREEN_CENTER.x, m.y - player.y + SCREEN_CENTER.y)
+		spriteBatch:add(spriteQuads[m.name][m.facing], m.x - offsetX, m.y - offsetY)
 	end
 	local blastDistance
 	local blastName = "blastH"
@@ -380,8 +412,8 @@ function tick(delta)
 			for v = 1, 4 do
 				spriteBatch:add(
 					spriteQuads[blastName], 
-					b.x + (VECTORS[v].x * blastDistance) - player.x + SCREEN_CENTER.x, 
-					b.y + (VECTORS[v].y * blastDistance) - player.y + SCREEN_CENTER.y)
+					b.x + (VECTORS[v].x * blastDistance) - offsetX, 
+					b.y + (VECTORS[v].y * blastDistance) - offsetY)
 				if blastName == "blastH" then
 					blastName = "blastV"
 				else
@@ -391,8 +423,8 @@ function tick(delta)
 		else
 			spriteBatch:add(
 				spriteQuads["blastS"], 
-				b.x - player.x + SCREEN_CENTER.x,
-				b.y - player.y + SCREEN_CENTER.y)
+				b.x - offsetX,
+				b.y - offsetY)
 		end
 	end
 
@@ -563,6 +595,39 @@ function buildServerMap()
 	end
 end
 
+function buildBossMap()
+	mapInfo = {}
+
+	-- boss level
+	for x = 0, MAP_SIZE - 1 do
+		mapInfo[x] = {}
+		for y = 0, MAP_SIZE - 1 do
+			if x == 0 or x == MAP_SIZE - 1 or y == 0 or y == MAP_SIZE - 1 then
+				-- exterior walls
+				mapInfo[x][y] = 2
+			elseif (x == 12 or x == 19) and y < 7 then
+				-- boss walls
+				mapInfo[x][y] = 2
+			elseif (y == 8 and (x >= 2 and x <= MAP_SIZE - 3)) or (y > 8 and (x == 2 or x == MAP_SIZE - 3)) then
+				-- no go zone
+				mapInfo[x][y] = 9
+			elseif x >= 14 and x <= 17 and y >= 29 then
+				-- safe zone
+				mapInfo[x][y] = 6
+			else
+				-- empty space
+				mapInfo[x][y] = 1
+			end
+		end
+	end
+	for s = 1, 20 do
+		mapX, mapY = findVacantSpot(3, 10, 28, 27)
+		mapInfo[mapX][mapY] = 7
+	end
+	startX = 16 * TILE_SIZE
+	startY = 30 * TILE_SIZE
+end
+
 function drawMap()
 	love.graphics.clear()
 	for x = 0, MAP_SIZE - 1 do
@@ -588,6 +653,7 @@ function makeCombatant(startX, startY, name)
 		dX = startX, 
 		dY = startY, 
 		facing = RIGHT_INDEX, 
+		sliding = RIGHT_INDEX,
 		animation = 0.0,
 		frame = 1,
 		waiting = true, 
@@ -644,7 +710,7 @@ end
 function moveCombatant(combatant, delta)
 	-- this could be more succinct
 
-	if not combatant.waiting then
+	if not combatant.waiting or BESTIARY[combatant.name].passive then
 		if combatant.animation > 0.0 then
 			combatant.animation = combatant.animation - delta
 		end
@@ -655,6 +721,8 @@ function moveCombatant(combatant, delta)
 				combatant.frame = 1
 			end
 		end
+	end
+	if not combatant.waiting then
 		movement = BESTIARY[combatant.name].speed * delta
 		if combatant.x < combatant.dX then
 			if combatant.x + movement >= combatant.dX then
@@ -705,8 +773,7 @@ function moveMissile(missile, delta)
 	local centerY = missile.y + TILE_CENTER
 	local fizzle = false
 
-	-- this is insufficient because it could skip through walls or targets if delta is high enough
-	if pointIsObstructed(centerX, centerY, missile.friendly, false) then
+	if pointIsObstructed(centerX, centerY, false, false) then
 		missile.destroyed = true
 		fizzle = true
 	else
@@ -740,6 +807,22 @@ function moveBlast(blast, delta)
 	end
 end
 
+function moveBoss(delta)
+	if bossRight then
+		bossX = bossX + (BOSS_SPEED * delta)
+		if bossX > BOSS_MAX_X then
+			bossRight = false
+			bossX = BOSS_MAX_X - (bossX - BOSS_MAX_X)
+		end
+	else
+		bossX = bossX - (BOSS_SPEED * delta)
+		if bossX < BOSS_MIN_X then
+			bossRight = true
+			bossX = BOSS_MIN_X + (BOSS_MIN_X - bossX)
+		end
+	end
+end
+
 function checkLocks()
 	local checkX, checkY
 	local mapX, mapY
@@ -756,6 +839,17 @@ function checkLocks()
 		end
 	end
 end
+
+function killBattery()
+	unlocked = unlocked + 1
+	if unlocked == 20 then
+		for i, c in ipairs(combatants) do
+			if c.name == "shield" then
+				takeHits(c, INVULNERABLE)
+			end
+		end
+	end
+end
 		
 function convertToMapCoords(x, y)
 	return math.floor(x / TILE_SIZE), math.floor(y / TILE_SIZE)
@@ -764,7 +858,7 @@ end
 function pointIsObstructed(x, y, fromPlayer, insubstantial)
 	local obstructed = false
 	local mapX, mapY = convertToMapCoords(x, y)
-	if (fromPlayer and TERRAIN[mapInfo[mapX][mapY]].solid) or 
+	if (fromPlayer and (TERRAIN[mapInfo[mapX][mapY]].solid or TERRAIN[mapInfo[mapX][mapY]].nogo)) or 
 		(not fromPlayer and not insubstantial and TERRAIN[mapInfo[mapX][mapY]].solid) or
 		(not fromPlayer and TERRAIN[mapInfo[mapX][mapY]].safe) then
 		obstructed = true
@@ -787,6 +881,9 @@ function takeHits(combatant, hits)
 		makeBlast(combatant.x, combatant.y, true)
 		sounds["boom"]:play()
 		awardPoints(BESTIARY[combatant.name].points)
+		if combatant.name == "battery" then
+			killBattery()
+		end
 	end
 end
 
@@ -805,6 +902,8 @@ function runEnemyLogic(enemy, delta)
 		runEnemyShooterLogic(enemy, delta, rangeX, rangeY)
 	elseif enemy.name == "tank" then
 		runEnemyRammerLogic(enemy, delta, rangeX, rangeY)
+	elseif enemy.name == "slider" then
+		runEnemySliderLogic(enemy, delta)
 	else
 		runEnemyTurretLogic(enemy, delta, rangeX, rangeY)
 	end
@@ -914,6 +1013,32 @@ function runEnemyRammerLogic(enemy, delta, rangeX, rangeY)
 	end
 end
 
+function runEnemySliderLogic(enemy, delta)
+	if enemy.cooling <= 0.0 then
+		makeMissile(
+			enemy.x + VECTORS[enemy.facing].x * TILE_SIZE, 
+			enemy.y + VECTORS[enemy.facing].y * TILE_SIZE,
+			enemy.facing,
+			enemy.name,
+			false)
+	end
+	if enemy.waiting then
+		if enemy.stepping == 0 then
+			enemy.stepping = BESTIARY[enemy.name].steps
+		end
+		if enemy.stepping > 0 then
+			pushCombatant(enemy, enemy.sliding)
+			enemy.stepping = enemy.stepping - 1
+			if enemy.stepping == 0 then
+				enemy.sliding = enemy.sliding + 2
+				if enemy.sliding > 4 then
+					enemy.sliding = enemy.sliding - 4
+				end
+			end
+		end
+	end
+end
+
 function runEnemyTurretLogic(enemy, delta, rangeX, rangeY)
 	if enemy.cooling < 1.0 then
 		local i1 = math.floor(enemy.cooling / 0.2)
@@ -1003,30 +1128,63 @@ function chooseRandomEnemies()
 end
 
 function startLevel()
-	local algorithm = math.random(2)
-	if algorithm == 1 then
-		buildOfficeMap()
-	else
-		buildServerMap()
-	end
-	mapCanvas:renderTo(drawMap)
-
 	combatants = {}
-	makeCombatant(startX, startY, "player")
-	local mapX, mapY
-	local chosenEnemies = chooseRandomEnemies()
-	for i, e in ipairs(chosenEnemies) do
-		for n = 1, BESTIARY[e].level1 + math.floor(level * BESTIARY[e].eachLevel) do
-			mapX, mapY = findVacantSpot(2, 2, MAP_SIZE - 2, MAP_SIZE - 2)
-			makeCombatant(mapX * TILE_SIZE, mapY * TILE_SIZE, e)
-		end
-	end
 	missiles = {}
 	blasts = {}
 	killed = false
 	advancing = false
-	locks = 3
 	unlocked = 0
+
+	local mapX, mapY
+	if level == LAST_LEVEL then
+		buildBossMap()
+		makeCombatant(startX, startY, "player")
+		for i = 1, 20 do
+			if i < 11 then
+				mapX, mapY = findVacantSpot(3, 1, 10, 5)
+			else
+				mapX, mapY = findVacantSpot(MAP_SIZE - 11, 1, MAP_SIZE - 4, 5)
+			end
+			makeCombatant(mapX * TILE_SIZE, mapY * TILE_SIZE, "battery")
+			combatants[table.getn(combatants)].frame = math.random(4)
+		end
+		for i = 1, 6 do
+			mapX = (12 + i) * TILE_SIZE
+			makeCombatant(mapX, 6 * TILE_SIZE, "shield")
+			makeCombatant(mapX, TILE_SIZE, "battery")
+			combatants[table.getn(combatants)].frame = math.random(4)
+		end
+		makeCombatant(TILE_SIZE, (MAP_SIZE - 2) * TILE_SIZE, "slider")
+		combatants[table.getn(combatants)].facing = RIGHT_INDEX
+		combatants[table.getn(combatants)].sliding = UP_INDEX
+		makeCombatant(6 * TILE_SIZE, 7 * TILE_SIZE, "slider")
+		combatants[table.getn(combatants)].facing = DOWN_INDEX
+		combatants[table.getn(combatants)].sliding = RIGHT_INDEX
+		makeCombatant((MAP_SIZE - 2) * TILE_SIZE, 8 * TILE_SIZE, "slider")
+		combatants[table.getn(combatants)].facing = LEFT_INDEX
+		combatants[table.getn(combatants)].sliding = DOWN_INDEX
+		bossX = 13 * TILE_SIZE
+		bossY = 2 * TILE_SIZE
+		bossRight = true
+		locks = 26
+	else
+		local algorithm = math.random(2)
+		if algorithm == 1 then
+			buildOfficeMap()
+		else
+			buildServerMap()
+		end
+		makeCombatant(startX, startY, "player")
+		local chosenEnemies = chooseRandomEnemies()
+		for i, e in ipairs(chosenEnemies) do
+			for n = 1, BESTIARY[e].level1 + math.floor(level * BESTIARY[e].eachLevel) do
+				mapX, mapY = findVacantSpot(2, 2, MAP_SIZE - 2, MAP_SIZE - 2)
+				makeCombatant(mapX * TILE_SIZE, mapY * TILE_SIZE, e)
+			end
+		end
+		locks = 3
+	end
+	mapCanvas:renderTo(drawMap)
 end
 
 function awardPoints(points)

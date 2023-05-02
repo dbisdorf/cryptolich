@@ -45,12 +45,21 @@ stack traceback:
 	[love "callbacks.lua"]:162: in function <[love "callbacks.lua"]:144>
 	[C]: in function 'xpcall'
 
+# 0.4.0
+
+[ ] Boss level, which includes:
+[ ] Big boss sprite
+[ ] and its missile
+[ ] Vulnerable servers
+[ ] Crawling side turrets
+[ ] and their missiles
+[ ] Random tech obstacles
+[ ] Disappearing shield
 
 # Future features
 
 Level design
 - atrium level
-- assembly line level
 - boss level
 More enemies
 - Fire trail
@@ -59,6 +68,7 @@ More enemies
 More sounds
 Options
 Exit from middle of game? Maybe after prompt?
+Victory screen
 
 # Tuning
 
@@ -67,6 +77,8 @@ text gloss / formatting / color
 sounds & more visual flair for harmless shot impact
 prevent cube farm level conditions where there's only a single-square gap
 i'm no longer as thrilled about grid movement for the player
+impact zone for big missiles
+should building combatants be part of building levels?
 
 # Outstanding bugs
 
@@ -76,5 +88,7 @@ cooldowns and other timers should have time ADDED after it hits zero, shouldn't 
 do we really need the strafe key?
 you should die if you move into an enemy - moving into an enemy right now is buggy
 the game will run forever if you don't leave the safe zone - safe zone should time out?
+any level will run forever if you can find a safe place to hunker down
 allow keypresses AND gamepad controls
+pointIsObstructed is incorrect for missiles (could detect obstruction from combatant)
 
