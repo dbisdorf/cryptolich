@@ -27,25 +27,23 @@ RIGHT_INDEX = 1
 DOWN_INDEX = 2
 LEFT_INDEX = 3
 UP_INDEX = 4
-INSUBSTANTIAL = 1000
-INVULNERABLE = 999
 VECTORS = {{x = 1.0, y = 0.0}, {x = 0.0, y = 1.0}, {x = -1.0, y = 0.0}, {x = 0.0, y = -1.0}}
 BESTIARY = {
-	["player"] = {speed = 64.0, spf = 0.25, points = 0, cooldown = 0.0, hits = 0},
-	["spider"] = {speed = 16.0, spf = 0.2, points = 10, cooldown = 0.0, hits = 1, level1 = 5, eachLevel = 2},
-	["wasp"] = {speed = 8.0, spf = 0.05, points = 10, cooldown = 3.0, steps = 5, hits = 1, level1 = 5, eachLevel = 2},
-	["turret"] = {speed = 0.0, spf = 0.25, points = 10, cooldown = 10.0, hits = INVULNERABLE, level1 = 5, eachLevel = 2},
-	["ghost"] = {speed = 16.0, spf = 0.25, points = 0, cooldown = 0.0, hits = INSUBSTANTIAL, level1 = 1, eachLevel = 0.5},
-	["tank"] = {speed = 64.0, spf = 0.15, points = 25, cooldown = 3.0, steps = 10, hits = 10, level1 = 3, eachLevel = 1},
-	["slider"] = {speed = 32.0, spf = 0.0, points = 0, cooldown = 2.0, steps = 20, hits = INVULNERABLE},
-	["shield"] = {spf = 0.25, points = 0, cooldown = 0.0, hits = INVULNERABLE, passive = true},
-	["battery"] = {spf = 0.5, points = 50, cooldown = 0.0, hits = 3, passive = true}
+	["player"] = {speed = 64.0, spf = 0.25, points = 0, cooldown = 0.0, collision = "player", hits = 0},
+	["spider"] = {speed = 16.0, spf = 0.2, points = 10, cooldown = 0.0, collision = "enemy", hits = 1, level1 = 5, eachLevel = 2},
+	["wasp"] = {speed = 8.0, spf = 0.05, points = 10, cooldown = 3.0, steps = 5, collision = "enemy", hits = 1, level1 = 5, eachLevel = 2},
+	["turret"] = {speed = 0.0, spf = 0.25, points = 10, cooldown = 10.0, collision = "invulnerable", hits = 0, level1 = 5, eachLevel = 2},
+	["ghost"] = {speed = 16.0, spf = 0.25, points = 0, cooldown = 0.0, collision = "insubstantial", hits = 0, level1 = 1, eachLevel = 0.5},
+	["tank"] = {speed = 64.0, spf = 0.15, points = 25, cooldown = 3.0, steps = 10, collision = "enemy", hits = 10, level1 = 3, eachLevel = 1},
+	["slider"] = {speed = 32.0, spf = 0.0, points = 0, cooldown = 2.0, steps = 20, collision = "invulnerable", hits = 0},
+	["shield"] = {spf = 0.25, points = 0, cooldown = 0.0, collision = "invulnerable", hits = 1, passive = true},
+	["battery"] = {spf = 0.5, points = 50, cooldown = 0.0, collision = "enemy", hits = 3, passive = true}
 }
 ARMORY = {
-	["playerM"] = {speed = 256.0},
-	["waspM"] = {speed = 80.0},
-	["turretM"] = {speed = 80.0},
-	["sliderM"] = {speed = 96.0}
+	["playerM"] = {speed = 256.0, collision = "playerMissile"},
+	["waspM"] = {speed = 80.0, collision = "enemy"},
+	["turretM"] = {speed = 80.0, collision = "enemy"},
+	["sliderM"] = {speed = 96.0, collision = "enemy"}
 }
 TERRAIN = {
 	{solid = false, safe = false, nogo = false},
@@ -331,7 +329,7 @@ function tick(delta)
 			if not pointIsObstructed(
 				player.x + (VECTORS[turn].x * TILE_SIZE), 
 				player.y + (VECTORS[turn].y * TILE_SIZE), 
-				true, false) then
+				"player") then
 				pushCombatant(player, turn)
 			end
 		end
@@ -682,7 +680,6 @@ function makeMissile(startX, startY, facing, shooter, friendly)
 		y = startY, 
 		facing = facing, 
 		name = shooter .. "M",
-		friendly = friendly,
 		destroyed = false})
 end
 
@@ -784,19 +781,20 @@ function moveMissile(missile, delta)
 	local centerY = missile.y + TILE_CENTER
 	local fizzle = false
 
-	if pointIsObstructed(centerX, centerY, false, false) then
+	if pointIsObstructed(centerX, centerY, ARMORY[missile.name].collision) then
 		missile.destroyed = true
 		fizzle = true
 	else
 		for i, c in ipairs(combatants) do
-			if (i == 1 and not missile.friendly) or (i > 1 and missile.friendly and c.hits ~= INSUBSTANTIAL) then
+			if (i == 1 and ARMORY[missile.name].collsion ~= "playerMissile") or 
+				(i > 1 and ARMORY[missile.name].collision == "playerMissile" and BESTIARY[c.name].collision ~= "insubstantial") then
 				if centerX >= c.x and centerX < c.x + TILE_SIZE and centerY >= c.y and centerY < c.y + TILE_SIZE then
 					if i == 1 then
 						if not killed then
 							killed = true
 						end
 					else
-						if c.hits ~= INVULNERABLE then
+						if BESTIARY[c.name].collsion ~= "invulnerable" then
 							takeHits(c, 1)
 						end
 					end
@@ -862,7 +860,7 @@ function killBattery()
 	if unlocked == 20 then
 		for i, c in ipairs(combatants) do
 			if c.name == "shield" then
-				takeHits(c, INVULNERABLE)
+				takeHits(c, 1)
 			end
 		end
 	end
@@ -872,12 +870,13 @@ function convertToMapCoords(x, y)
 	return math.floor(x / TILE_SIZE), math.floor(y / TILE_SIZE)
 end
 
-function pointIsObstructed(x, y, fromPlayer, insubstantial)
+function pointIsObstructed(x, y, from)
 	local obstructed = false
 	local mapX, mapY = convertToMapCoords(x, y)
-	if (fromPlayer and (TERRAIN[mapInfo[mapX][mapY]].solid or TERRAIN[mapInfo[mapX][mapY]].nogo)) or 
-		(not fromPlayer and not insubstantial and TERRAIN[mapInfo[mapX][mapY]].solid) or
-		(not fromPlayer and TERRAIN[mapInfo[mapX][mapY]].safe) then
+	if (from == "player" and (TERRAIN[mapInfo[mapX][mapY]].solid or TERRAIN[mapInfo[mapX][mapY]].nogo)) or 
+		(from == "playerMissile" and TERRAIN[mapInfo[mapX][mapY].solid) or
+		(from == "enemy" and (TERRAIN[mapInfo[mapX][mapY]].solid or TERRAIN[mapInfo[mapX][mapY].safe)) or
+		(from == "insubstantial" and TERRAIN[mapInfo[mapX][mapY]].safe) then
 		obstructed = true
 	else
 		for i, c in ipairs(combatants) do
@@ -948,7 +947,7 @@ function runEnemyWalkerLogic(enemy, delta, rangeX, rangeY)
 		enemy.facing = facing
 		local futureX = enemy.x + (vX * TILE_SIZE)
 		local futureY = enemy.y + (vY * TILE_SIZE)
-		if not pointIsObstructed(futureX, futureY, false, enemy.hits == INSUBSTANTIAL) then
+		if not pointIsObstructed(futureX, futureY, BESTIARY[enemy.name].collision) then
 			pushCombatant(enemy, facing)
 		end
 	end
@@ -962,7 +961,7 @@ function runEnemyShooterLogic(enemy, delta, rangeX, rangeY)
 		end
 		local futureX = enemy.x + (VECTORS[enemy.facing].x * TILE_SIZE)
 		local futureY = enemy.y + (VECTORS[enemy.facing].y * TILE_SIZE)
-		if not pointIsObstructed(futureX, futureY, false, enemy.hits == INSUBSTANTIAL) then
+		if not pointIsObstructed(futureX, futureY, BESTIARY[enemy.name].collision) then
 			pushCombatant(enemy, enemy.facing)
 			enemy.stepping = enemy.stepping - 1
 		else
@@ -1017,7 +1016,7 @@ function runEnemyRammerLogic(enemy, delta, rangeX, rangeY)
 		if enemy.stepping > 0 then
 			local futureX = enemy.x + (VECTORS[enemy.facing].x * TILE_SIZE)
 			local futureY = enemy.y + (VECTORS[enemy.facing].y * TILE_SIZE)
-			if not pointIsObstructed(futureX, futureY, false, enemy.hits == INSUBSTANTIAL) then
+			if not pointIsObstructed(futureX, futureY, BESTIARY[enemy.name].collision) then
 				pushCombatant(enemy, enemy.facing)
 				enemy.stepping = enemy.stepping - 1
 			else
@@ -1086,7 +1085,7 @@ function findVacantSpot(minX, minY, maxX, maxY)
 	while searching do
 		x = tryMapX * TILE_SIZE
 		y = tryMapY * TILE_SIZE
-		if not pointIsObstructed(x, y, false, false) then
+		if not pointIsObstructed(x, y, "enemy") then
 			searching = false
 			for i, c in ipairs(combatants) do
 				if x == c.x and y == c.y then
