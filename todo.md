@@ -48,13 +48,14 @@ stack traceback:
 # 0.4.0
 
 [ ] Boss level, which includes:
-[ ] Big boss sprite
+[x] Big boss sprite
 [ ] and its missile
-[ ] Vulnerable servers
-[ ] Crawling side turrets
-[ ] and their missiles
-[ ] Random tech obstacles
-[ ] Disappearing shield
+[x] Vulnerable servers
+[x] Crawling side turrets
+[x] and their missiles
+[x] Random tech obstacles
+[x] Disappearing shield
+[ ] Victory text
 
 # Future features
 
@@ -79,6 +80,7 @@ prevent cube farm level conditions where there's only a single-square gap
 i'm no longer as thrilled about grid movement for the player
 impact zone for big missiles
 should building combatants be part of building levels?
+special blasts for shields and boss
 
 # Outstanding bugs
 

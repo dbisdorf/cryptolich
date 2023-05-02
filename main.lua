@@ -21,6 +21,7 @@ BACK_TEXT = {{0.5, 1.0, 0.5}, "PRESS Z"}
 INSTRUCTIONS_TEXT = {{1.0, 1.0, 1.0}, "THE CRYPTOLICH HAS SEIZED CONTROL OF THE WORLD'S TECHNOLOGY.\n\nYOU ARE DELTA, THE ONLY HACKER WITH ENOUGH SKILL TO INFILTRATE THE CRYPTOLICH'S MEGATOWER, CONFRONT ITS CYBERDIGITAL GUARDIANS, AND SAVE HUMANITY.\n\nGOOD LUCK DELTA!\n\nARROW KEYS TO MOVE\nZ TO SHOOT\nX TO HOLD AIM DIRECTION"}
 LEFT_CREDITS_TEXT = {{1.0, 1.0, 1.0}, "PROGRAMMING AND ART\n\nENGINE\n\nGRAPHICS\n\nSOUND EFFECTS\n\nFONT"}
 RIGHT_CREDITS_TEXT = {{0.7, 0.7, 1.0}, "DON BISDORF\ndonbisdorf.com\nLOVE2D\nlove2d.org\nKRITA\nkrita.org\nCHIPTONE\nsfbgames.itch.io/chiptone\nMx437_IBM_BIOS.ttf\nint10h.org/oldschool-pc-fonts"}
+VICTORY_TEXT = {{0.5, 0.5, 1.0}, "AS THE MEGATOWER COLLAPSES, YOU LEARN THAT THE CRYPTOLICH HAS BACKED UP HIS CONSCIOUSNESS ELSEWHERE.\n\nIN A DISTANT CITY, ANOTHER MEGATOWER RISES.\nDELTA, YOUR WORK IS NOT YET DONE..."}
 SHOT_COOLDOWN = 0.5
 RIGHT_INDEX = 1
 DOWN_INDEX = 2
@@ -200,9 +201,13 @@ function love.draw()
 			love.graphics.printf(GAME_OVER_TEXT, 0, 150, 200, "center", 0, 2.0, 2.0)
 		elseif advancing then
 			love.graphics.setColor(COLOR_WHITE)
-			love.graphics.printf(UNLOCKED_TEXT, 0, 70, 200, "center", 0, 2.0, 2.0)
-			love.graphics.printf(PREPARE_TEXT, 0, 140, 200, "center", 0, 2.0, 2.0)
-			love.graphics.printf(LEVEL_TEXT, 0, 210, 200, "center", 0, 2.0, 2.0)
+			if level == LAST_LEVEL then
+				love.graphics.printf(VICTORY_TEXT, 0, 40, 200, "center")
+			else
+				love.graphics.printf(UNLOCKED_TEXT, 0, 70, 200, "center", 0, 2.0, 2.0)
+				love.graphics.printf(PREPARE_TEXT, 0, 140, 200, "center", 0, 2.0, 2.0)
+				love.graphics.printf(LEVEL_TEXT, 0, 210, 200, "center", 0, 2.0, 2.0)
+			end
 		end
 
 		love.graphics.print(string.format("%06d", score), 0, 4)
