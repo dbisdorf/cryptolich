@@ -68,7 +68,7 @@ STALL_TIME = 1.5
 TICK_TIME = 0.2
 FLASH_TIME = 0.2
 DEFAULT_HIGH_SCORE = 10000
-LAST_LEVEL = 1
+LAST_LEVEL = 10
 BOSS_SPEED = 16.0
 BOSS_MIN_X = 13 * TILE_SIZE
 BOSS_MAX_X = 16 * TILE_SIZE
@@ -202,7 +202,7 @@ function love.draw()
 		elseif advancing then
 			love.graphics.setColor(COLOR_WHITE)
 			if level == LAST_LEVEL then
-				love.graphics.printf(VICTORY_TEXT, 0, 40, 200, "center")
+				love.graphics.printf(VICTORY_TEXT, 0, 40, 400, "center")
 			else
 				love.graphics.printf(UNLOCKED_TEXT, 0, 70, 200, "center", 0, 2.0, 2.0)
 				love.graphics.printf(PREPARE_TEXT, 0, 140, 200, "center", 0, 2.0, 2.0)
@@ -539,6 +539,9 @@ function buildOfficeMap()
 		startX = 30 * TILE_SIZE
 		startY = 30 * TILE_SIZE
 	end
+
+	makeCombatant(startX, startY, "player")
+	placeRandomEnemies()
 end
 
 function buildServerMap()
@@ -598,6 +601,9 @@ function buildServerMap()
 		startX = 30 * TILE_SIZE
 		startY = 30 * TILE_SIZE
 	end
+
+	makeCombatant(startX, startY, "player")
+	placeRandomEnemies()
 end
 
 function buildBossMap()
@@ -797,6 +803,12 @@ function moveMissile(missile, delta)
 					missile.destroyed = true
 					break
 				end
+			end
+		end
+		if level == LAST_LEVEL then
+			if centerX >= bossX and centerX <= bossX + TILE_SIZE * 3 and centerY >= bossY and centerY <= bossY + TILE_SIZE * 3 then
+				missile.destroyed = true
+				fizzle = true
 			end
 		end
 	end
@@ -1115,10 +1127,10 @@ function startGame()
 	startLevel()
 end
 
-function chooseRandomEnemies()
+function placeRandomEnemies()
 	local keys = {}
 	for k in pairs(BESTIARY) do
-		if k ~= "player" then
+		if k ~= "player" and k ~= "shield" and k~= "slider" then
 			table.insert(keys, k)
 		end
 	end
@@ -1129,7 +1141,13 @@ function chooseRandomEnemies()
 		table.insert(chosen, keys[r])
 		table.remove(keys, r)
 	end
-	return chosen
+
+	for i, e in ipairs(chosen) do
+		for n = 1, BESTIARY[e].level1 + math.floor(level * BESTIARY[e].eachLevel) do
+			mapX, mapY = findVacantSpot(2, 2, MAP_SIZE - 2, MAP_SIZE - 2)
+			makeCombatant(mapX * TILE_SIZE, mapY * TILE_SIZE, e)
+		end
+	end
 end
 
 function startLevel()
@@ -1178,14 +1196,6 @@ function startLevel()
 			buildOfficeMap()
 		else
 			buildServerMap()
-		end
-		makeCombatant(startX, startY, "player")
-		local chosenEnemies = chooseRandomEnemies()
-		for i, e in ipairs(chosenEnemies) do
-			for n = 1, BESTIARY[e].level1 + math.floor(level * BESTIARY[e].eachLevel) do
-				mapX, mapY = findVacantSpot(2, 2, MAP_SIZE - 2, MAP_SIZE - 2)
-				makeCombatant(mapX * TILE_SIZE, mapY * TILE_SIZE, e)
-			end
 		end
 		locks = 3
 	end
