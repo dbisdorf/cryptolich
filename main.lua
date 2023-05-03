@@ -274,6 +274,7 @@ function tick(delta)
 			end
 			if startButton() then
 				level = 1
+				print("level looped back to 1 and starting")
 				startLevel()
 			end
 		else
@@ -283,6 +284,7 @@ function tick(delta)
 					killed = false
 				else
 					level = level + 1
+					print("level advanced and starting")
 					startLevel()
 				end
 			end
@@ -1198,6 +1200,7 @@ function startLevel()
 	killed = false
 	advancing = false
 	unlocked = 0
+	stalling = 0.0
 
 	local mapX, mapY
 	if level == LAST_LEVEL then
