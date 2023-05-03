@@ -56,6 +56,9 @@ TERRAIN = {
 	{solid = false, safe = true, nogo = false},
 	{solid = true, safe = false, nogo = false},
 	{solid = true, safe = false, nogo = false},
+	{solid = false, safe = false, nogo = true},
+	{solid = false, safe = false, nogo = true},
+	{solid = false, safe = false, nogo = true},
 	{solid = false, safe = false, nogo = true}
 }
 STARTING_LIVES = 3
@@ -141,7 +144,7 @@ function love.load()
 	spriteQuads["blastV"] = love.graphics.newQuad(32, 224, TILE_SIZE, TILE_SIZE, textures)
 	spriteQuads["blastS"] = love.graphics.newQuad(48, 224, TILE_SIZE, TILE_SIZE, textures)
 
-	for t = 1, 9 do
+	for t = 1, 12 do
 		tileQuads[t] = love.graphics.newQuad((t - 1) * TILE_SIZE, 240, TILE_SIZE, TILE_SIZE, textures)
 	end
 
@@ -605,9 +608,18 @@ function buildBossMap()
 			elseif (x == 12 or x == 19) and y < 7 then
 				-- boss walls
 				mapInfo[x][y] = 2
-			elseif (y == 8 and (x >= 2 and x <= MAP_SIZE - 3)) or (y > 8 and (x == 2 or x == MAP_SIZE - 3)) then
-				-- no go zone
+			elseif y == 8 and x > 2 and x < MAP_SIZE - 3 then
+				-- no go horizontal
 				mapInfo[x][y] = 9
+			elseif y > 8 and (x == 2 or x == MAP_SIZE - 3) then
+				-- no go vertical
+				mapInfo[x][y] = 12
+			elseif y == 8 and x == 2 then
+				-- no go upper left
+				mapInfo[x][y] = 10
+			elseif y == 8 and x == MAP_SIZE - 3 then
+				-- no go upper right
+				mapInfo[x][y] = 11
 			elseif x >= 14 and x <= 17 and y >= 29 then
 				-- safe zone
 				mapInfo[x][y] = 6
