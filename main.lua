@@ -627,8 +627,8 @@ function buildBossMap()
 	makeCombatant(13 * TILE_SIZE, 2 * TILE_SIZE, "skull")
 	combatants[table.getn(combatants)].facing = DOWN_INDEX
 	combatants[table.getn(combatants)].sliding = RIGHT_INDEX
-	for i = 1, 20 do
-		if i < 11 then
+	for i = 1, SHIELD_LOCKS do
+		if i <= SHIELD_LOCKS / 2 then
 			mapX, mapY = findVacantSpot(3, 1, 10, 5)
 		else
 			mapX, mapY = findVacantSpot(MAP_SIZE - 11, 1, MAP_SIZE - 4, 5)
@@ -815,7 +815,7 @@ function moveMissile(missile, delta)
 							killed = true
 						end
 					else
-						if BESTIARY[c.name].collsion ~= "invulnerable" then
+						if BESTIARY[c.name].collision ~= "invulnerable" then
 							takeHits(c, 1)
 						end
 					end
@@ -1031,6 +1031,16 @@ end
 function runEnemySliderLogic(enemy, delta)
 	if enemy.name == "skull" then
 		if unlocked >= SHIELD_LOCKS then
+			if enemy.cooling < 1.0 then
+				local i1 = math.floor(enemy.cooling / 0.1)
+				local i2 = math.floor((enemy.cooling + delta) / 0.1)
+				if i1 ~= i2 then
+					makeMissile(
+						enemy.x + TILE_SIZE + (math.random() * TILE_SIZE),
+						enemy.y + TILE_SIZE * 3,
+						DOWN_INDEX, enemy.name, false)
+				end
+			end
 		end
 	else
 		if enemy.cooling <= 0.0 then
