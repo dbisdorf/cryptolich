@@ -21,7 +21,7 @@ BACK_TEXT = {{0.5, 1.0, 0.5}, "PRESS Z"}
 INSTRUCTIONS_TEXT = {{1.0, 1.0, 1.0}, "THE CRYPTOLICH HAS SEIZED CONTROL OF THE WORLD'S TECHNOLOGY.\n\nYOU ARE DELTA, THE ONLY HACKER WITH ENOUGH SKILL TO INFILTRATE THE CRYPTOLICH'S MEGATOWER, CONFRONT ITS CYBERDIGITAL GUARDIANS, AND SAVE HUMANITY.\n\nGOOD LUCK DELTA!\n\nARROW KEYS TO MOVE\nZ TO SHOOT\nX TO HOLD AIM DIRECTION"}
 LEFT_CREDITS_TEXT = {{1.0, 1.0, 1.0}, "PROGRAMMING AND ART\n\nENGINE\n\nGRAPHICS\n\nSOUND EFFECTS\n\nFONT"}
 RIGHT_CREDITS_TEXT = {{0.7, 0.7, 1.0}, "DON BISDORF\ndonbisdorf.com\nLOVE2D\nlove2d.org\nKRITA\nkrita.org\nCHIPTONE\nsfbgames.itch.io/chiptone\nMx437_IBM_BIOS.ttf\nint10h.org/oldschool-pc-fonts"}
-VICTORY_TEXT = {{0.5, 0.5, 1.0}, "AS THE MEGATOWER COLLAPSES, YOU LEARN THAT THE CRYPTOLICH HAS BACKED UP HIS CONSCIOUSNESS ELSEWHERE.\n\nIN A DISTANT CITY, ANOTHER MEGATOWER RISES.\nDELTA, YOUR WORK IS NOT YET DONE..."}
+VICTORY_TEXT = {{0.5, 0.5, 1.0}, "AS THE MEGATOWER COLLAPSES, YOU LEARN THAT THE CRYPTOLICH HAS BACKED UP HIS CONSCIOUSNESS ELSEWHERE.\n\nIN A DISTANT CITY, ANOTHER MEGATOWER RISES.\n\nDELTA, YOUR WORK IS NOT YET DONE..."}
 SHOT_COOLDOWN = 0.5
 RIGHT_INDEX = 1
 DOWN_INDEX = 2
@@ -61,13 +61,13 @@ TERRAIN = {
 	{solid = false, safe = false, nogo = true},
 	{solid = false, safe = false, nogo = true}
 }
-STARTING_LIVES = 3
+STARTING_LIVES = 10
 LOCK_POINTS = 100
 LEVEL_POINTS = 1000
 START_POSITION = {x = 16, y = 16}
 BLAST_TIME = 1.0
 BLAST_SIZE = 400.0
-STALL_TIME = 1.5
+STALL_TIME = 2.0
 TICK_TIME = 0.2
 FLASH_TIME = 0.2
 DEFAULT_HIGH_SCORE = 10000
@@ -185,7 +185,12 @@ function love.draw()
 		drawCredits()
 	else
 		if gameOver or advancing then
-			love.graphics.setColor(COLOR_FADE)
+			if advancing and level == LAST_LEVEL then
+				local dim = stalling / STALL_TIME
+				love.graphics.setColor(dim, dim, dim, 1.0)
+			else
+				love.graphics.setColor(COLOR_FADE)
+			end
 		end
 		
 		love.graphics.draw(mapCanvas, SCREEN_CENTER.x - combatants[1].x, SCREEN_CENTER.y - combatants[1].y)
@@ -197,7 +202,7 @@ function love.draw()
 		elseif advancing then
 			love.graphics.setColor(COLOR_WHITE)
 			if level == LAST_LEVEL then
-				love.graphics.printf(VICTORY_TEXT, 0, 40, 400, "center")
+				love.graphics.printf(VICTORY_TEXT, 0, 70, 400, "center")
 			else
 				love.graphics.printf(UNLOCKED_TEXT, 0, 70, 200, "center", 0, 2.0, 2.0)
 				love.graphics.printf(PREPARE_TEXT, 0, 140, 200, "center", 0, 2.0, 2.0)
@@ -263,13 +268,23 @@ function tick(delta)
 	elseif stalling > 0.0 then
 		-- don't do much if we're stalling
 		stalling = stalling - delta
-		if stalling <= 0.0 then
-			if killed then
-				resetPlayer()
-				killed = false
-			else
-				level = level + 1
+		if advancing and level == LAST_LEVEL then
+			if stalling <= 0.0 then
+				stalling = 0.01
+			end
+			if startButton() then
+				level = 1
 				startLevel()
+			end
+		else
+			if stalling <= 0.0 then
+				if killed then
+					resetPlayer()
+					killed = false
+				else
+					level = level + 1
+					startLevel()
+				end
 			end
 		end
 	else
@@ -339,6 +354,7 @@ function tick(delta)
 			end
 		else
 			if shootButton() then
+				unlocked = locks
 				cooldown = SHOT_COOLDOWN
 				makeMissile(
 					player.x + (VECTORS[player.facing].x * TILE_CENTER), 

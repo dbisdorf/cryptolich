@@ -49,7 +49,7 @@ stack traceback:
 
 [ ] Boss level, which includes:
 [x] Big boss sprite
-[ ] and its missile
+[x] and its missile
 [x] Vulnerable servers
 [x] Crawling side turrets
 [x] and their missiles
@@ -81,6 +81,8 @@ i'm no longer as thrilled about grid movement for the player
 impact zone for big missiles
 should building combatants be part of building levels?
 special blasts for shields and boss
+make "press something to continue" key consistent
+points and sound for victory
 
 # Outstanding bugs
 
