@@ -68,8 +68,10 @@ START_POSITION = {x = 16, y = 16}
 BLAST_TIME = 1.0
 BLAST_SIZE = 400.0
 STALL_TIME = 2.0
-TICK_TIME = 0.2
+TICK_TIME = 0.1
 FLASH_TIME = 0.2
+VICTORY_FULL_TIME = 6.0
+VICTORY_BOOM_TIME = 3.0
 DEFAULT_HIGH_SCORE = 10000
 LAST_LEVEL = 10
 SHIELD_LOCKS = 20
@@ -105,6 +107,7 @@ advancing = false
 startX = 0
 startY = 0
 gamepad = nil
+boss = nil
 
 -- LOVE callbacks
 
@@ -187,8 +190,10 @@ function love.draw()
 	else
 		if gameOver or advancing then
 			if advancing and level == LAST_LEVEL then
-				local dim = stalling / STALL_TIME
-				love.graphics.setColor(dim, dim, dim, 1.0)
+				if stalling < VICTORY_BOOM_TIME then
+					local dim = stalling / VICTORY_BOOM_TIME
+					love.graphics.setColor(dim, dim, dim, 1.0)
+				end
 			else
 				love.graphics.setColor(COLOR_FADE)
 			end
@@ -203,7 +208,9 @@ function love.draw()
 		elseif advancing then
 			love.graphics.setColor(COLOR_WHITE)
 			if level == LAST_LEVEL then
-				love.graphics.printf(VICTORY_TEXT, 0, 70, 400, "center")
+				if stalling < VICTORY_BOOM_TIME then
+					love.graphics.printf(VICTORY_TEXT, 0, 70, 400, "center")
+				end
 			else
 				love.graphics.printf(UNLOCKED_TEXT, 0, 70, 200, "center", 0, 2.0, 2.0)
 				love.graphics.printf(PREPARE_TEXT, 0, 140, 200, "center", 0, 2.0, 2.0)
@@ -270,14 +277,31 @@ function tick(delta)
 		-- don't do much if we're stalling
 		stalling = stalling - delta
 		if advancing and level == LAST_LEVEL then
-			if stalling <= 0.0 then
-				stalling = 0.01
+			-- extra effects for stalling during last level
+			if stalling > VICTORY_BOOM_TIME then
+				demise(delta)
+			else
+				if boss then
+					sounds["boom"]:play()
+					for b = 1, 10 do
+						makeBlast(
+							boss.x + (TILE_SIZE * 3.0 * math.random()),
+							boss.y + (TILE_SIZE * 3.0 * math.random()),
+							true)
+					end
+					boss.destroyed = true
+					boss = nil
+				end
+				if stalling <= 0.0 then
+					stalling = 0.01
+				end
 			end
 			if startButton() then
 				level = 1
 				startLevel()
 			end
 		else
+			-- normally just a brief wait to reset the level
 			if stalling <= 0.0 then
 				if killed then
 					resetPlayer()
@@ -305,9 +329,13 @@ function tick(delta)
 			end
 		elseif unlocked == locks then
 			awardPoints(LEVEL_POINTS)
-			stalling = STALL_TIME
+			if level == LAST_LEVEL then
+				stalling = VICTORY_FULL_TIME
+			else
+				sounds["level"]:play()
+				stalling = STALL_TIME
+			end
 			advancing = true
-			sounds["level"]:play()
 		end
 
 		-- player commands
@@ -355,7 +383,7 @@ function tick(delta)
 			end
 		else
 			if shootButton() then
-				-- unlocked = locks
+				unlocked = locks
 				cooldown = SHOT_COOLDOWN
 				makeMissile(
 					player.x + (VECTORS[player.facing].x * TILE_CENTER), 
@@ -655,8 +683,9 @@ function buildBossMap()
 	startY = 30 * TILE_SIZE
 	makeCombatant(startX, startY, "player")
 	makeCombatant(13 * TILE_SIZE, 2 * TILE_SIZE, "skull")
-	combatants[table.getn(combatants)].facing = DOWN_INDEX
-	combatants[table.getn(combatants)].sliding = RIGHT_INDEX
+	boss = combatants[table.getn(combatants)]
+	boss.facing = DOWN_INDEX
+	boss.sliding = RIGHT_INDEX
 	for i = 1, SHIELD_LOCKS do
 		if i <= SHIELD_LOCKS / 2 then
 			mapX, mapY = findVacantSpot(3, 1, 10, 5)
@@ -1119,6 +1148,17 @@ function runEnemyTurretLogic(enemy, delta, rangeX, rangeY)
 		end
 	elseif enemy.cooling < 2.0 then
 		enemy.frame = math.floor((enemy.cooling - 1.0) / 0.25) + 1
+	end
+end
+
+function demise(delta)
+	local i1 = math.floor(stalling / 0.1)
+	local i2 = math.floor((stalling + delta) / 0.1)
+	if i1 ~= i2 then
+		makeBlast(
+			boss.x + (TILE_SIZE * 3.0 * math.random()),
+			boss.y + (TILE_SIZE * 3.0 * math.random()),
+			false)
 	end
 end
 

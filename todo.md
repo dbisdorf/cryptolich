@@ -56,7 +56,8 @@ stack traceback:
 [x] Random tech obstacles
 [x] Disappearing shield
 [x] Victory text
-[ ] Boss explosion
+[x] Boss explosion
+[ ] Error when advancing past boss level
 
 # Future features
 
@@ -78,7 +79,6 @@ prevent cube farm level conditions where there's only a single-square gap
 i'm no longer as thrilled about grid movement for the player
 impact zone for big missiles (or don't have any big missiles ... break up the turret missile)
 should building combatants be part of building levels?
-special blasts for shields
 make "press something to continue" key consistent
 points and sound for victory
 victory fade shouldn't fade hearts
@@ -86,6 +86,7 @@ do we really need the strafe key?
 the game will run forever if you don't leave the safe zone - safe zone should time out?
 any level will run forever if you can find a safe place to hunker down
 adjust scores so you could get a bonus life before lvl 10
+heartbeat sound and startup sound(s)
 
 # Outstanding bugs
 
