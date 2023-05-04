@@ -164,10 +164,13 @@ function love.load()
 	sounds["level"] = love.audio.newSource("level.wav", "static")
 	sounds["heartbeat"] = love.audio.newSource("heartbeat.wav", "static")
 	sounds["begin"] = love.audio.newSource("begin.wav", "static")
+	sounds["startup"] = love.audio.newSource("startup.wav", "static")
 
 	readHighScore()
 
 	gamepad = getGamepad()
+
+	startTitle()
 end
 
 function love.update(delta)
@@ -1217,6 +1220,7 @@ end
 function startTitle()
 	title = true
 	checkOldButtons()
+	sounds["startup"]:play()
 end
 
 function startGame()

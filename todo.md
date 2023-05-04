@@ -59,6 +59,8 @@ stack traceback:
 [x] Boss explosion
 [x] Error when advancing past boss level
 
+[ ] New sounds (heartbeat, spawn, ?)
+
 # Future features
 
 Level design
@@ -77,18 +79,18 @@ Exit from middle of game? Maybe after prompt?
 
 spiders aren't much of a threat
 text gloss / formatting / color
-sounds & more visual flair for harmless shot impact
+sounds harmless shot impact?
 prevent cube farm level conditions where there's only a single-square gap
 i'm no longer as thrilled about grid movement for the player
 impact zone for big missiles (or don't have any big missiles ... break up the turret missile)
-should building combatants be part of building levels?
 make "press something to continue" key consistent
-points and sound for victory
+points and sounds for victory
 victory fade shouldn't fade hearts
 do we really need the strafe key?
 the game will run forever if you don't leave the safe zone - safe zone should time out?
 any level will run forever if you can find a safe place to hunker down
 adjust scores so you could get a bonus life before lvl 10
+better startup sound
 
 # Outstanding bugs
 
