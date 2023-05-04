@@ -61,7 +61,7 @@ TERRAIN = {
 	{solid = false, safe = false, nogo = true},
 	{solid = false, safe = false, nogo = true}
 }
-STARTING_LIVES = 10
+STARTING_LIVES = 3
 LOCK_POINTS = 100
 LEVEL_POINTS = 1000
 START_POSITION = {x = 16, y = 16}
@@ -71,7 +71,7 @@ STALL_TIME = 2.0
 TICK_TIME = 0.2
 FLASH_TIME = 0.2
 DEFAULT_HIGH_SCORE = 10000
-LAST_LEVEL = 1
+LAST_LEVEL = 10
 SHIELD_LOCKS = 20
 
 -- globals
@@ -142,7 +142,8 @@ function love.load()
 	spriteQuads["life"] = love.graphics.newQuad(0, 224, TILE_SIZE, TILE_SIZE, textures)
 	spriteQuads["blastH"] = love.graphics.newQuad(16, 224, TILE_SIZE, TILE_SIZE, textures)
 	spriteQuads["blastV"] = love.graphics.newQuad(32, 224, TILE_SIZE, TILE_SIZE, textures)
-	spriteQuads["blastS"] = love.graphics.newQuad(48, 224, TILE_SIZE, TILE_SIZE, textures)
+	spriteQuads["blastHS"] = love.graphics.newQuad(64, 224, TILE_SIZE, TILE_SIZE, textures)
+	spriteQuads["blastVS"] = love.graphics.newQuad(80, 224, TILE_SIZE, TILE_SIZE, textures)
 
 	for t = 1, 12 do
 		tileQuads[t] = love.graphics.newQuad((t - 1) * TILE_SIZE, 240, TILE_SIZE, TILE_SIZE, textures)
@@ -274,7 +275,6 @@ function tick(delta)
 			end
 			if startButton() then
 				level = 1
-				print("level looped back to 1 and starting")
 				startLevel()
 			end
 		else
@@ -284,7 +284,6 @@ function tick(delta)
 					killed = false
 				else
 					level = level + 1
-					print("level advanced and starting")
 					startLevel()
 				end
 			end
@@ -356,14 +355,13 @@ function tick(delta)
 			end
 		else
 			if shootButton() then
-				unlocked = locks
+				-- unlocked = locks
 				cooldown = SHOT_COOLDOWN
 				makeMissile(
 					player.x + (VECTORS[player.facing].x * TILE_CENTER), 
 					player.y + (VECTORS[player.facing].y * TILE_CENTER), 
 					player.facing,
-					"player",
-					true)
+					"player")
 				sounds["zap"]:play()
 			end
 		end
@@ -417,26 +415,28 @@ function tick(delta)
 		spriteBatch:add(spriteQuads[m.name][m.facing], m.x - offsetX, m.y - offsetY)
 	end
 	local blastDistance
-	local blastName = "blastH"
+	local blastName
 	for i, b in ipairs(blasts) do
 		if b.big then
-			blastDistance = (b.time / BLAST_TIME) * BLAST_SIZE
-			for v = 1, 4 do
-				spriteBatch:add(
-					spriteQuads[blastName], 
-					b.x + (VECTORS[v].x * blastDistance) - offsetX, 
-					b.y + (VECTORS[v].y * blastDistance) - offsetY)
-				if blastName == "blastH" then
-					blastName = "blastV"
-				else
-					blastName = "blastH"
-				end
-			end
+			blastName = "blastH"
 		else
+			blastName = "blastHS"
+		end
+		blastDistance = (b.time / BLAST_TIME) * b.size
+		for v = 1, 4 do
 			spriteBatch:add(
-				spriteQuads["blastS"], 
-				b.x - offsetX,
-				b.y - offsetY)
+				spriteQuads[blastName], 
+				b.x + (VECTORS[v].x * blastDistance) - offsetX, 
+				b.y + (VECTORS[v].y * blastDistance) - offsetY)
+			if blastName == "blastH" then
+				blastName = "blastV"
+			elseif blastName == "blastV" then
+				blastName = "blastH"
+			elseif blastName == "blastHS" then
+				blastName = "blastVS"
+			else
+				blastName = "blastHS"
+			end
 		end
 	end
 
@@ -721,7 +721,7 @@ function makeCombatant(startX, startY, name)
 		destroyed = false})
 end
 
-function makeMissile(startX, startY, facing, shooter, friendly)
+function makeMissile(startX, startY, facing, shooter)
 	table.insert(missiles, {
 		x = startX, 
 		y = startY, 
@@ -731,11 +731,19 @@ function makeMissile(startX, startY, facing, shooter, friendly)
 end
 
 function makeBlast(startX, startY, big)
+	local duration = BLAST_TIME
+	local size = BLAST_SIZE
+	if not big then
+		duration = duration / 5.0
+		size = size / 5.0
+	end
 	table.insert(blasts, {
 		x = startX,
 		y = startY,
 		big = big,
 		time = 0.0,
+		duration = duration,
+		size = size,
 		destroyed = false})
 end
 
@@ -855,14 +863,14 @@ function moveMissile(missile, delta)
 			end
 		end
 	end
-	if fizzle and missile.friendly then
+	if fizzle and missile.name == "playerM" then
 		makeBlast(missile.x, missile.y, false)
 	end
 end
 
 function moveBlast(blast, delta)
 	blast.time = blast.time + delta
-	if blast.time > BLAST_TIME then
+	if blast.time > blast.duration then
 		blast.destroyed = true
 	end
 end
@@ -923,7 +931,7 @@ function takeHits(combatant, hits)
 	combatant.hits = combatant.hits - hits
 	if combatant.hits <= 0 then
 		combatant.destroyed = true
-		makeBlast(combatant.x, combatant.y, true)
+		makeBlast(combatant.x, combatant.y, combatant.name ~= "shield")
 		sounds["boom"]:play()
 		awardPoints(BESTIARY[combatant.name].points)
 		if combatant.name == "battery" then
@@ -1016,8 +1024,7 @@ function runEnemyShooterLogic(enemy, delta, rangeX, rangeY)
 			enemy.x + VECTORS[fireFacing].x * TILE_SIZE, 
 			enemy.y + VECTORS[fireFacing].y * TILE_SIZE,
 			fireFacing,
-			enemy.name,
-			false)
+			enemy.name)
 	end
 end
 
@@ -1068,7 +1075,7 @@ function runEnemySliderLogic(enemy, delta)
 					makeMissile(
 						enemy.x + TILE_SIZE + (math.random() * TILE_SIZE),
 						enemy.y + TILE_SIZE * 3,
-						DOWN_INDEX, enemy.name, false)
+						DOWN_INDEX, enemy.name)
 				end
 			end
 		end
@@ -1078,8 +1085,7 @@ function runEnemySliderLogic(enemy, delta)
 				enemy.x + VECTORS[enemy.facing].x * TILE_SIZE, 
 				enemy.y + VECTORS[enemy.facing].y * TILE_SIZE,
 				enemy.facing,
-				enemy.name,
-				false)
+				enemy.name)
 		end
 	end
 	if enemy.waiting then
@@ -1108,7 +1114,7 @@ function runEnemyTurretLogic(enemy, delta, rangeX, rangeY)
 				makeMissile(
 					enemy.x + VECTORS[v].x * TILE_SIZE,
 					enemy.y + VECTORS[v].y * TILE_SIZE,
-					v, enemy.name, false)
+					v, enemy.name)
 			end
 		end
 	elseif enemy.cooling < 2.0 then
@@ -1163,7 +1169,7 @@ end
 
 function startGame()
 	score = 0
-	level = 1
+	level = 10
 	lives = STARTING_LIVES
 	gameOver = false
 	killed = false
