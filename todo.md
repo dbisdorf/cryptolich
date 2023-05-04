@@ -47,7 +47,7 @@ stack traceback:
 
 # 0.4.0
 
-[ ] Boss level, which includes:
+[x] Boss level, which includes:
 [x] Big boss sprite
 [x] and its missile
 [x] Vulnerable servers
@@ -57,7 +57,7 @@ stack traceback:
 [x] Disappearing shield
 [x] Victory text
 [x] Boss explosion
-[ ] Error when advancing past boss level
+[x] Error when advancing past boss level
 
 # Future features
 
@@ -67,6 +67,9 @@ More enemies
 - Fire trail
 - Missile launcher
 More sounds
+- Heartbeat
+- Program startup
+- Player spawns
 Options
 Exit from middle of game? Maybe after prompt?
 
@@ -86,7 +89,6 @@ do we really need the strafe key?
 the game will run forever if you don't leave the safe zone - safe zone should time out?
 any level will run forever if you can find a safe place to hunker down
 adjust scores so you could get a bonus life before lvl 10
-heartbeat sound and startup sound(s)
 
 # Outstanding bugs
 

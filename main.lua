@@ -1209,7 +1209,7 @@ end
 
 function startGame()
 	score = 0
-	level = 10
+	level = 1
 	lives = STARTING_LIVES
 	gameOver = false
 	killed = false
@@ -1219,7 +1219,7 @@ end
 function placeRandomEnemies()
 	local keys = {}
 	for k in pairs(BESTIARY) do
-		if k ~= "player" and k ~= "shield" and k~= "slider" then
+		if BESTIARY[k].eachLevel then
 			table.insert(keys, k)
 		end
 	end
