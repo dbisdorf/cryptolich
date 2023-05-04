@@ -30,11 +30,11 @@ UP_INDEX = 4
 VECTORS = {{x = 1.0, y = 0.0}, {x = 0.0, y = 1.0}, {x = -1.0, y = 0.0}, {x = 0.0, y = -1.0}}
 BESTIARY = {
 	["player"] = {speed = 64.0, spf = 0.25, points = 0, cooldown = 0.0, collision = "player", hits = 0},
-	["spider"] = {speed = 16.0, spf = 0.2, points = 10, cooldown = 0.0, collision = "enemy", hits = 1, level1 = 5, eachLevel = 2},
-	["wasp"] = {speed = 8.0, spf = 0.05, points = 10, cooldown = 3.0, steps = 5, collision = "enemy", hits = 1, level1 = 5, eachLevel = 2},
-	["turret"] = {speed = 0.0, spf = 0.25, points = 10, cooldown = 10.0, collision = "invulnerable", hits = 0, level1 = 5, eachLevel = 2},
+	["spider"] = {speed = 16.0, spf = 0.2, points = 10, cooldown = 0.0, collision = "enemy", hits = 1, level1 = 4, eachLevel = 2},
+	["wasp"] = {speed = 8.0, spf = 0.05, points = 10, cooldown = 3.0, steps = 5, collision = "enemy", hits = 1, level1 = 4, eachLevel = 2},
+	["turret"] = {speed = 0.0, spf = 0.25, points = 10, cooldown = 10.0, collision = "invulnerable", hits = 0, level1 = 4, eachLevel = 2},
 	["ghost"] = {speed = 16.0, spf = 0.25, points = 0, cooldown = 0.0, collision = "insubstantial", hits = 0, level1 = 1, eachLevel = 0.5},
-	["tank"] = {speed = 64.0, spf = 0.15, points = 25, cooldown = 3.0, steps = 10, collision = "enemy", hits = 10, level1 = 3, eachLevel = 1},
+	["tank"] = {speed = 64.0, spf = 0.15, points = 25, cooldown = 3.0, steps = 10, collision = "enemy", hits = 10, level1 = 2, eachLevel = 0.5},
 	["slider"] = {speed = 32.0, spf = 0.0, points = 0, cooldown = 2.0, steps = 20, collision = "invulnerable", hits = 0},
 	["shield"] = {spf = 0.25, points = 0, cooldown = 0.0, collision = "invulnerable", hits = 1, passive = true},
 	["battery"] = {spf = 0.5, points = 50, cooldown = 0.0, collision = "enemy", hits = 3, passive = true},
@@ -75,6 +75,8 @@ VICTORY_BOOM_TIME = 3.0
 DEFAULT_HIGH_SCORE = 10000
 LAST_LEVEL = 10
 SHIELD_LOCKS = 20
+MAX_BEAT_TIME = 2.5
+BEAT_PER_LEVEL = 0.1
 
 -- globals
 
@@ -108,6 +110,7 @@ startX = 0
 startY = 0
 gamepad = nil
 boss = nil
+beat = 0.0
 
 -- LOVE callbacks
 
@@ -159,6 +162,8 @@ function love.load()
 	sounds["boom"] = love.audio.newSource("boom.wav", "static")
 	sounds["unlock"] = love.audio.newSource("unlock.wav", "static")
 	sounds["level"] = love.audio.newSource("level.wav", "static")
+	sounds["heartbeat"] = love.audio.newSource("heartbeat.wav", "static")
+	sounds["begin"] = love.audio.newSource("begin.wav", "static")
 
 	readHighScore()
 
@@ -313,6 +318,13 @@ function tick(delta)
 			end
 		end
 	else
+		-- hearbeat
+		beat = beat - delta
+		if beat <= 0.0 then
+			sounds["heartbeat"]:play()
+			resetHeartbeat()
+		end
+
 		-- do player and enemy stuff
 		if killed then
 			makeBlast(player.x, player.y, true)
@@ -383,7 +395,7 @@ function tick(delta)
 			end
 		else
 			if shootButton() then
-				unlocked = locks
+				-- unlocked = locks
 				cooldown = SHOT_COOLDOWN
 				makeMissile(
 					player.x + (VECTORS[player.facing].x * TILE_CENTER), 
@@ -1261,6 +1273,8 @@ function startLevel()
 		locks = 3
 	end
 	mapCanvas:renderTo(drawMap)
+	resetHeartbeat()
+	sounds["begin"]:play()
 end
 
 function awardPoints(points)
@@ -1281,6 +1295,8 @@ function resetPlayer()
 	combatants[1].waiting = true
 	cooldown = 0.0
 	blasts = {}
+	resetHeartbeat()
+	sounds["begin"]:play()
 end
 
 function readHighScore()
@@ -1303,6 +1319,12 @@ function writeHighScore()
 		file:close()
 	end
 end
+
+function resetHeartbeat()
+	beat = MAX_BEAT_TIME - ((level - 1) * BEAT_PER_LEVEL)
+end
+
+-- gamepad and keyboard functions
 
 function getGamepad()
 	local pad = nil
