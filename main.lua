@@ -22,14 +22,13 @@ INSTRUCTIONS_TEXT = {{1.0, 1.0, 1.0}, "THE CRYPTOLICH HAS SEIZED CONTROL OF THE 
 LEFT_CREDITS_TEXT = {{1.0, 1.0, 1.0}, "PROGRAMMING AND ART\n\nENGINE\n\nGRAPHICS\n\nSOUND EFFECTS\n\nFONT"}
 RIGHT_CREDITS_TEXT = {{0.7, 0.7, 1.0}, "DON BISDORF\ndonbisdorf.com\nLOVE2D\nlove2d.org\nKRITA\nkrita.org\nCHIPTONE\nsfbgames.itch.io/chiptone\nMx437_IBM_BIOS.ttf\nint10h.org/oldschool-pc-fonts"}
 VICTORY_TEXT = {{0.5, 0.5, 1.0}, "AS THE MEGATOWER COLLAPSES, YOU LEARN THAT THE CRYPTOLICH HAS BACKED UP HIS CONSCIOUSNESS ELSEWHERE.\n\nIN A DISTANT CITY, ANOTHER MEGATOWER RISES.\n\nDELTA, YOUR WORK IS NOT YET DONE..."}
-SHOT_COOLDOWN = 0.5
 RIGHT_INDEX = 1
 DOWN_INDEX = 2
 LEFT_INDEX = 3
 UP_INDEX = 4
 VECTORS = {{x = 1.0, y = 0.0}, {x = 0.0, y = 1.0}, {x = -1.0, y = 0.0}, {x = 0.0, y = -1.0}}
 BESTIARY = {
-	["player"] = {speed = 64.0, spf = 0.25, points = 0, cooldown = 0.0, collision = "player", hits = 0},
+	["player"] = {speed = 64.0, spf = 0.25, points = 0, cooldown = 0.5, collision = "player", hits = 0},
 	["spider"] = {speed = 16.0, spf = 0.2, points = 10, cooldown = 0.0, collision = "enemy", hits = 1, level1 = 4, eachLevel = 2},
 	["wasp"] = {speed = 8.0, spf = 0.05, points = 10, cooldown = 3.0, steps = 5, collision = "enemy", hits = 1, level1 = 4, eachLevel = 2},
 	["turret"] = {speed = 0.0, spf = 0.25, points = 10, cooldown = 10.0, collision = "invulnerable", hits = 0, level1 = 4, eachLevel = 2},
@@ -91,7 +90,6 @@ spriteBatch = nil
 combatants = {}
 missiles = {}
 blasts = {}
-cooldown = 0.0
 killed = false
 lives = 0
 score = 0
@@ -391,15 +389,15 @@ function tick(delta)
 		end
 
 		-- abilities and cooldowns
-		if cooldown > 0.0 then
-			cooldown = cooldown - delta
-			if cooldown < 0.0 then
-				cooldown = 0.0
+		if player.cooling > 0.0 then
+			player.cooling = player.cooling - delta
+			if player.cooling < 0.0 then
+				player.cooling = 0.0
 			end
 		else
 			if shootButton() then
 				-- unlocked = locks
-				cooldown = SHOT_COOLDOWN
+				player.cooling = BESTIARY["player"].cooldown
 				makeMissile(
 					player.x + (VECTORS[player.facing].x * TILE_CENTER), 
 					player.y + (VECTORS[player.facing].y * TILE_CENTER), 
@@ -1279,6 +1277,8 @@ function startLevel()
 		locks = 3
 	end
 	mapCanvas:renderTo(drawMap)
+
+	combatants[1].cooling = 0.0
 	resetHeartbeat()
 	sounds["begin"]:play()
 end
@@ -1299,7 +1299,7 @@ function resetPlayer()
 	combatants[1].frame = 1
 	combatants[1].animation = 0.0
 	combatants[1].waiting = true
-	cooldown = 0.0
+	combatants[1].cooling = 0.0
 	blasts = {}
 	resetHeartbeat()
 	sounds["begin"]:play()

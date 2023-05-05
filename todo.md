@@ -60,6 +60,7 @@ stack traceback:
 [x] Error when advancing past boss level
 
 [x] New sounds (heartbeat, spawn, ?)
+[x] Fix player/enemy collision bugs
 
 # 0.5.0
 
@@ -82,7 +83,7 @@ Exit from middle of game? Maybe after prompt?
 
 spiders aren't much of a threat - faster?
 text gloss / formatting / color
-sounds harmless shot impact?
+sound for harmless shot impact?
 prevent cube farm level conditions where there's only a single-square gap
 i'm no longer as thrilled about grid movement for the player
 make "press something to continue" key consistent
@@ -98,7 +99,6 @@ better startup sound
 
 ought to reset all player-related timers (like cooldowns) between levels/kills
 cooldowns and other timers should have time ADDED after it hits zero, shouldn't just jump up to full time
-you should die if you move into an enemy - enemy should die if they move into you - moving into an enemy right now is buggy
 allow keypresses AND gamepad controls
 pointIsObstructed is incorrect for missiles (could detect obstruction from combatant)
 
