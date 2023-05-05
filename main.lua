@@ -17,8 +17,11 @@ GAME_OVER_TEXT = {{1.0, 0.2, 0.2}, "GAME OVER"}
 UNLOCKED_TEXT = {{0.5, 1.0, 0.5}, "SECURITY UNLOCKED"}
 PREPARE_TEXT = {{0.5, 1.0, 0.5}, "PREPARE FOR"}
 LEVEL_TEXT = {{0.5, 1.0, 0.5}, "NEXT LEVEL"}
-BACK_TEXT = {{0.5, 1.0, 0.5}, "PRESS Z"}
-INSTRUCTIONS_TEXT = {{1.0, 1.0, 1.0}, "THE CRYPTOLICH HAS SEIZED CONTROL OF THE WORLD'S TECHNOLOGY.\n\nYOU ARE DELTA, THE ONLY HACKER WITH ENOUGH SKILL TO INFILTRATE THE CRYPTOLICH'S MEGATOWER, CONFRONT ITS CYBERDIGITAL GUARDIANS, AND SAVE HUMANITY.\n\nGOOD LUCK DELTA!\n\nARROW KEYS TO MOVE\nZ TO SHOOT\nX TO HOLD AIM DIRECTION"}
+BACK_TEXT = {{0.5, 1.0, 0.5}, "PRESS ESC"}
+PAD_BACK_TEXT = {{0.5, 1.0, 0.5}, "PRESS [BACK]"}
+LORE_TEXT = {{1.0, 1.0, 1.0}, "THE CRYPTOLICH HAS SEIZED CONTROL OF THE WORLD'S TECHNOLOGY.\n\nYOU ARE DELTA, THE ONLY HACKER WITH ENOUGH SKILL TO INFILTRATE THE CRYPTOLICH'S MEGATOWER, CONFRONT ITS CYBERDIGITAL GUARDIANS, AND SAVE HUMANITY.\n\nGOOD LUCK DELTA!"}
+INSTRUCTIONS_TEXT = {{0.7, 0.7, 1.0}, "ARROW KEYS TO MOVE\nZ TO SHOOT\nX TO HOLD AIM DIRECTION"}
+PAD_INSTRUCTIONS_TEXT = {{0.7, 0.7, 1.0}, "JOYSTICK TO MOVE\n[A] TO SHOOT\n[X] TO HOLD AIM DIRECTION"}
 LEFT_CREDITS_TEXT = {{1.0, 1.0, 1.0}, "PROGRAMMING AND ART\n\nENGINE\n\nGRAPHICS\n\nSOUND EFFECTS\n\nFONT"}
 RIGHT_CREDITS_TEXT = {{0.7, 0.7, 1.0}, "DON BISDORF\ndonbisdorf.com\nLOVE2D\nlove2d.org\nKRITA\nkrita.org\nCHIPTONE\nsfbgames.itch.io/chiptone\nMx437_IBM_BIOS.ttf\nint10h.org/oldschool-pc-fonts"}
 VICTORY_TEXT = {{0.5, 0.5, 1.0}, "AS THE MEGATOWER COLLAPSES, YOU LEARN THAT THE CRYPTOLICH HAS BACKED UP HIS CONSCIOUSNESS ELSEWHERE.\n\nIN A DISTANT CITY, ANOTHER MEGATOWER RISES.\n\nDELTA, YOUR WORK IS NOT YET DONE..."}
@@ -261,7 +264,7 @@ function tick(delta)
 		if oldButtons then
 			checkOldButtons()
 		else
-			if shootButton() then
+			if backButton() then
 				instructions = false
 				credits = false
 				title = true
@@ -497,14 +500,24 @@ function drawTitle()
 end
 
 function drawInstructions()
-	love.graphics.printf(INSTRUCTIONS_TEXT, 20, 50, 360, "center")
-	love.graphics.printf(BACK_TEXT, 0, 280, 400, "center")
+	love.graphics.printf(LORE_TEXT, 20, 50, 360, "center")
+	if gamepad then
+		love.graphics.printf(PAD_INSTRUCTIONS_TEXT, 20, 210, 360, "center")
+		love.graphics.printf(PAD_BACK_TEXT, 0, 280, 400, "center")
+	else
+		love.graphics.printf(INSTRUCTIONS_TEXT, 20, 210, 360, "center")
+		love.graphics.printf(BACK_TEXT, 0, 280, 400, "center")
+	end
 end
 
 function drawCredits()
 	love.graphics.printf(LEFT_CREDITS_TEXT, 20, 50, 360, "left")
 	love.graphics.printf(RIGHT_CREDITS_TEXT, 20, 50, 360, "right")
-	love.graphics.printf(BACK_TEXT, 0, 280, 400, "center")
+	if gamepad then
+		love.graphics.printf(PAD_BACK_TEXT, 0, 280, 400, "center")
+	else
+		love.graphics.printf(BACK_TEXT, 0, 280, 400, "center")
+	end
 end
 
 function loadWalkingSprites(name, y)

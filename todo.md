@@ -86,6 +86,7 @@ text gloss / formatting / color
 sound for harmless shot impact?
 prevent cube farm level conditions where there's only a single-square gap
 i'm no longer as thrilled about grid movement for the player
+at least we should allow you to reverse your movement
 make "press something to continue" key consistent
 points for victory
 victory fade shouldn't fade hearts
@@ -97,7 +98,6 @@ better startup sound
 
 # Outstanding bugs
 
-ought to reset all player-related timers (like cooldowns) between levels/kills
 cooldowns and other timers should have time ADDED after it hits zero, shouldn't just jump up to full time
 allow keypresses AND gamepad controls
 pointIsObstructed is incorrect for missiles (could detect obstruction from combatant)
