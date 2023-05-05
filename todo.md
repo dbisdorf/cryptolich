@@ -59,7 +59,13 @@ stack traceback:
 [x] Boss explosion
 [x] Error when advancing past boss level
 
-[ ] New sounds (heartbeat, spawn, ?)
+[x] New sounds (heartbeat, spawn, ?)
+
+# 0.5.0
+
+[ ] Turret missile -> two missiles
+[ ] Ghost -> skull
+[ ] Rocket launcher robot
 
 # Future features
 
@@ -67,28 +73,24 @@ Level design
 - atrium level
 More enemies
 - Fire trail
-- Missile launcher
 More sounds
-- Heartbeat
-- Program startup
-- Player spawns
+- Bigger boom for victory explosion
 Options
 Exit from middle of game? Maybe after prompt?
 
 # Tuning
 
-spiders aren't much of a threat
+spiders aren't much of a threat - faster?
 text gloss / formatting / color
 sounds harmless shot impact?
 prevent cube farm level conditions where there's only a single-square gap
 i'm no longer as thrilled about grid movement for the player
-impact zone for big missiles (or don't have any big missiles ... break up the turret missile)
 make "press something to continue" key consistent
-points and sounds for victory
+points for victory
 victory fade shouldn't fade hearts
 do we really need the strafe key?
-the game will run forever if you don't leave the safe zone - safe zone should time out?
-any level will run forever if you can find a safe place to hunker down
+safe zone should time out
+some sort of deadline to keep you from running a level forever
 adjust scores so you could get a bonus life before lvl 10
 better startup sound
 

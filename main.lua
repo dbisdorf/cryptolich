@@ -5,7 +5,7 @@ MAP_SIZE = 32
 TILE_CENTER = 8
 SCREEN_CENTER = {x = 200, y = 150}
 SCREEN_MAX = {x = 400, y = 300}
-COLOR_FADE = {1.0, 1.0, 1.0, 0.5}
+COLOR_FADE = {0.5, 0.5, 0.5, 1.0}
 COLOR_WHITE = {1.0, 1.0, 1.0, 1.0}
 COLOR_BLACK = {0.0, 0.0, 0.0, 1.0}
 COLOR_FLASH = {1.0, 0.0, 0.0, 1.0}
@@ -227,7 +227,7 @@ function love.draw()
 		end
 
 		love.graphics.print(string.format("%06d", score), 0, 4)
-		love.graphics.print(string.format("LEVEL %02d", level), 80, 4)
+		love.graphics.print(string.format("LEVEL %02d", level), 100, 4)
 		love.graphics.print(string.format("HIGH %06d", highScore), 220, 4)
 	end
 
