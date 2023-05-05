@@ -1358,65 +1358,73 @@ function getGamepad()
 end
 
 function downButton()
-	if gamepad then
+	if love.keyboard.isDown("down") then
+		return true
+	elseif gamepad then
 		return gamepad:getGamepadAxis("lefty") > 0.5
-	else
-		return love.keyboard.isDown("down")
 	end
+	return false
 end
 
 function upButton()
-	if gamepad then
+	if love.keyboard.isDown("up") then
+		return true
+	elseif gamepad then
 		return gamepad:getGamepadAxis("lefty") < -0.5
-	else
-		return love.keyboard.isDown("up")
 	end
+	return false
 end
 
 function leftButton()
-	if gamepad then
+	if love.keyboard.isDown("left") then
+		return true
+	elseif gamepad then
 		return gamepad:getGamepadAxis("leftx") < -0.5
-	else
-		return love.keyboard.isDown("left")
 	end
+	return false
 end
 
 function rightButton()
-	if gamepad then
+	if love.keyboard.isDown("right") then
+		return true
+	elseif gamepad then
 		return gamepad:getGamepadAxis("leftx") > 0.5
-	else
-		return love.keyboard.isDown("right")
 	end
+	return false
 end
 
 function startButton()
-	if gamepad then
+	if love.keyboard.isDown("return") then
+		return true
+	elseif gamepad then
 		return gamepad:isGamepadDown("start")
-	else
-		return love.keyboard.isDown("return")
 	end
+	return false
 end
 
 function backButton()
-	if gamepad then
+	if love.keyboard.isDown("escape") then
+		return true
+	elseif gamepad then
 		return gamepad:isGamepadDown("back")
-	else
-		return love.keyboard.isDown("escape")
 	end
+	return false
 end
 
 function shootButton()
-	if gamepad then
+	if love.keyboard.isDown("z") then
+		return true
+	elseif gamepad then
 		return gamepad:isGamepadDown("a")
-	else
-		return love.keyboard.isDown("z")
 	end
+	return false
 end
 
 function aimButton()
-	if gamepad then
+	if love.keyboard.isDown("x") then
+		return true
+	elseif gamepad then
 		return gamepad:isGamepadDown("x")
-	else
-		return love.keyboard.isDown("x")
 	end
+	return false
 end
