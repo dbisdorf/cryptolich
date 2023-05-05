@@ -962,8 +962,10 @@ function pointIsObstructed(x, y, from)
 	else
 		for i, c in ipairs(combatants) do
 			if x == c.dX and y == c.dY then
-				obstructed = true
-				break
+				if not (from == "enemy" and i == 1) then
+					obstructed = true
+					break
+				end
 			end
 		end
 	end

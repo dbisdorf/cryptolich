@@ -96,10 +96,9 @@ better startup sound
 
 # Outstanding bugs
 
-sprites don't fade during game-over
 ought to reset all player-related timers (like cooldowns) between levels/kills
 cooldowns and other timers should have time ADDED after it hits zero, shouldn't just jump up to full time
-you should die if you move into an enemy - moving into an enemy right now is buggy
+you should die if you move into an enemy - enemy should die if they move into you - moving into an enemy right now is buggy
 allow keypresses AND gamepad controls
 pointIsObstructed is incorrect for missiles (could detect obstruction from combatant)
 
