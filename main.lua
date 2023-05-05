@@ -864,11 +864,11 @@ function moveCombatant(combatant, delta)
 		if combatant.waiting and combatant.name == "player" then
 			checkLocks()
 		end
-		if combatant.name ~= "player" then
-			if math.abs(combatant.x - combatants[1].x) < TILE_SIZE and
-				math.abs(combatant.y - combatants[1].y) < TILE_SIZE then
-				killed = true
-			end
+	end
+	if combatant.name ~= "player" then
+		if math.abs(combatant.x - combatants[1].x) < TILE_SIZE and
+			math.abs(combatant.y - combatants[1].y) < TILE_SIZE then
+			killed = true
 		end
 	end
 end
@@ -959,7 +959,7 @@ function pointIsObstructed(x, y, from)
 		(from == "enemy" and (TERRAIN[mapInfo[mapX][mapY]].solid or TERRAIN[mapInfo[mapX][mapY]].safe)) or
 		(from == "insubstantial" and TERRAIN[mapInfo[mapX][mapY]].safe) then
 		obstructed = true
-	else
+	elseif from ~= "player" then
 		for i, c in ipairs(combatants) do
 			if x == c.dX and y == c.dY then
 				if not (from == "enemy" and i == 1) then
