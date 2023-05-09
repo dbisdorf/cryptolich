@@ -838,12 +838,20 @@ function moveCombatant(combatant, delta)
 			local mx = combatant.x + combatant.dx * movement
 			local my = combatant.y + combatant.dy * movement
 			local ulx, uly = convertToMapCoords(mx, my)
+			local urx, ury = ulx, uly
+			local llx, lly = ulx, uly
+			local lrx, lry = ulx, uly
+			if mx - ulx * TILE_SIZE > 0.0 then
+				urx = urx + 1
+				lrx = lrx + 1
+			end
+			if my - uly * TILE_SIZE > 0.0 then
+				lly = lly + 1
+				lry = lry + 1
+			end
 			local ult = mapInfo[ulx][uly]
-			local urx, ury = convertToMapCoords(mx + TILE_SIZE - 1, my)
 			local urt = mapInfo[urx][ury]
-			local llx, lly = convertToMapCoords(mx, my + TILE_SIZE - 1)
 			local llt = mapInfo[llx][lly]
-			local lrx, lry = convertToMapCoords(mx + TILE_SIZE - 1, my + TILE_SIZE - 1)
 			local lrt = mapInfo[lrx][lry]
 			if (TERRAIN[ult].solid or TERRAIN[ult].nogo) and (combatant.dx < 0 or combatant.dy < 0) then
 				if ult == 4 then
