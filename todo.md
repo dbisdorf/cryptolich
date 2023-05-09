@@ -66,9 +66,10 @@ stack traceback:
 
 # 0.5.0
 
-[ ] Rebuild player movement
-[ ] Turret missile -> two missiles
-[ ] Ghost -> skull
+[x] Rebuild player movement
+[ ] Prevent one-square gaps between obstacles
+[ ] Redraw turret or turret missile
+[x] Ghost -> skull
 [ ] Rocket launcher robot
 
 # Future features
@@ -97,6 +98,9 @@ safe zone should time out (and/or...)
 some sort of deadline to keep you from running a level forever
 adjust scores so you could get a bonus life before lvl 10
 better startup sound
+align sliding turrets
+collision with security lock isn't perfect
+small skull sprite needs work
 
 # Outstanding bugs
 
