@@ -66,6 +66,7 @@ stack traceback:
 
 # 0.5.0
 
+[ ] Rebuild player movement
 [ ] Turret missile -> two missiles
 [ ] Ghost -> skull
 [ ] Rocket launcher robot

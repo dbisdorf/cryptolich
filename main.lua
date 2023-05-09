@@ -358,37 +358,28 @@ function tick(delta)
 		-- this could be simpler too
 		local turn = nil
 		local go = false
+		player.waiting = true
+		player.dx = 0.0
+		player.dy = 0.0
 		if rightButton() then
 			turn = RIGHT_INDEX
-			if player.waiting then
-				go = true
-			end
+			player.waiting = false
+			player.dx = 1.0
 		elseif leftButton() then
 			turn = LEFT_INDEX
-			if player.waiting then
-				go = true
-			end
+			player.waiting = false
+			player.dx = -1.0
 		elseif upButton() then
 			turn = UP_INDEX
-			if player.waiting then
-				go = true
-			end
+			player.waiting = false
+			player.dy = -1.0
 		elseif downButton() then
 			turn = DOWN_INDEX
-			if player.waiting then
-				go = true
-			end
+			player.waiting = false
+			player.dy = 1.0
 		end
 		if turn and not aimButton() then
 			player.facing = turn
-		end
-		if go then
-			if not pointIsObstructed(
-				player.x + (VECTORS[turn].x * TILE_SIZE), 
-				player.y + (VECTORS[turn].y * TILE_SIZE), 
-				"player") then
-				pushCombatant(player, turn)
-			end
 		end
 
 		-- abilities and cooldowns
@@ -842,38 +833,90 @@ function moveCombatant(combatant, delta)
 	end
 	if not combatant.waiting then
 		movement = BESTIARY[combatant.name].speed * delta
-		if combatant.x < combatant.dX then
-			if combatant.x + movement >= combatant.dX then
-				combatant.x = combatant.dX
-				combatant.waiting = true
+		if combatant.name == "player" then
+			-- player collision logic
+			local mx = combatant.x + combatant.dx * movement
+			local my = combatant.y + combatant.dy * movement
+			local ulx, uly = convertToMapCoords(mx, my)
+			local ult = mapInfo[ulx][uly]
+			local urx, ury = convertToMapCoords(mx + TILE_SIZE - 1, my)
+			local urt = mapInfo[urx][ury]
+			local llx, lly = convertToMapCoords(mx, my + TILE_SIZE - 1)
+			local llt = mapInfo[llx][lly]
+			local lrx, lry = convertToMapCoords(mx + TILE_SIZE - 1, my + TILE_SIZE - 1)
+			local lrt = mapInfo[lrx][lry]
+			if (TERRAIN[ult].solid or TERRAIN[ult].nogo) and (combatant.dx < 0 or combatant.dy < 0) then
+				if ult == 4 then
+					unlock(ulx, uly)
+				end
+				if combatant.dx < 0 then
+					combatant.x = math.floor(combatant.x / TILE_SIZE) * TILE_SIZE
+				else
+					combatant.y = math.floor(combatant.y / TILE_SIZE) * TILE_SIZE
+				end
+			elseif (TERRAIN[urt].solid or TERRAIN[urt].nogo) and (combatant.dx > 0 or combatant.dy < 0) then
+				if urt == 4 then
+					unlock(urx, ury)
+				end
+				if combatant.dx > 0 then
+					combatant.x = math.floor(mx / TILE_SIZE) * TILE_SIZE
+				else
+					combatant.y = math.floor(combatant.y / TILE_SIZE) * TILE_SIZE
+				end
+			elseif (TERRAIN[llt].solid or TERRAIN[llt].nogo) and (combatant.dx < 0 or combatant.dy > 0) then
+				if llt == 4 then
+					unlock(llx, lly)
+				end
+				if combatant.dx < 0 then
+					combatant.x = math.floor(combatant.x / TILE_SIZE) * TILE_SIZE
+				else
+					combatant.y = math.floor(my / TILE_SIZE) * TILE_SIZE
+				end
+			elseif (TERRAIN[lrt].solid or TERRAIN[lrt].nogo) and (combatant.dx > 0 or combatant.dy > 0) then
+				if lrt == 4 then
+					unlock(lrx, lry)
+				end
+				if combatant.dx > 0 then
+					combatant.x = math.floor(mx / TILE_SIZE) * TILE_SIZE
+				else
+					combatant.y = math.floor(my / TILE_SIZE) * TILE_SIZE
+				end
 			else
-				combatant.x = combatant.x + movement
+				combatant.x = mx
+				combatant.y = my
 			end
-		elseif combatant.x > combatant.dX then
-			if combatant.x - movement <= combatant.dX then
-				combatant.x = combatant.dX
-				combatant.waiting = true
-			else
-				combatant.x = combatant.x - movement
+		else
+			-- enemy collision logic
+			if combatant.x < combatant.dX then
+				if combatant.x + movement >= combatant.dX then
+					combatant.x = combatant.dX
+					combatant.waiting = true
+				else
+					combatant.x = combatant.x + movement
+				end
+			elseif combatant.x > combatant.dX then
+				if combatant.x - movement <= combatant.dX then
+					combatant.x = combatant.dX
+					combatant.waiting = true
+				else
+					combatant.x = combatant.x - movement
+				end
 			end
-		end
-		if combatant.y < combatant.dY then
-			if combatant.y + movement >= combatant.dY then
-				combatant.y = combatant.dY
-				combatant.waiting = true
-			else
-				combatant.y = combatant.y + movement
+			if combatant.y < combatant.dY then
+				if combatant.y + movement >= combatant.dY then
+					combatant.y = combatant.dY
+					combatant.waiting = true
+				else
+					combatant.y = combatant.y + movement
+				end
+			elseif combatant.y > combatant.dY then
+				if combatant.y - movement <= combatant.dY then
+					combatant.y = combatant.dY
+					combatant.waiting = true
+				else
+					combatant.y = combatant.y - movement
+				end
 			end
-		elseif combatant.y > combatant.dY then
-			if combatant.y - movement <= combatant.dY then
-				combatant.y = combatant.dY
-				combatant.waiting = true
-			else
-				combatant.y = combatant.y - movement
-			end
-		end
-		if combatant.waiting and combatant.name == "player" then
-			checkLocks()
 		end
 	end
 	if combatant.name ~= "player" then
@@ -928,6 +971,14 @@ function moveBlast(blast, delta)
 	if blast.time > blast.duration then
 		blast.destroyed = true
 	end
+end
+
+function unlock(mapX, mapY)
+	mapInfo[mapX][mapY] = 5
+	redrawMapTile(mapX, mapY)
+	unlocked = unlocked + 1
+	awardPoints(LOCK_POINTS)
+	sounds["unlock"]:play()
 end
 
 function checkLocks()
