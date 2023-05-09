@@ -37,7 +37,7 @@ BESTIARY = {
 	["turret"] = {speed = 0.0, spf = 0.25, points = 10, cooldown = 10.0, collision = "invulnerable", hits = 0, level1 = 4, eachLevel = 2},
 	["ghost"] = {speed = 16.0, spf = 0.25, points = 0, cooldown = 0.0, collision = "insubstantial", hits = 0, level1 = 1, eachLevel = 0.5},
 	["tank"] = {speed = 64.0, spf = 0.15, points = 25, cooldown = 3.0, steps = 10, collision = "enemy", hits = 10, level1 = 2, eachLevel = 0.5},
-	["slider"] = {speed = 32.0, spf = 0.0, points = 0, cooldown = 1.0, steps = 20, collision = "invulnerable", hits = 0},
+	["slider"] = {speed = 32.0, spf = 0.0, points = 0, cooldown = 1.5, steps = 20, collision = "invulnerable", hits = 0},
 	["shield"] = {spf = 0.25, points = 0, cooldown = 0.0, collision = "invulnerable", hits = 1, passive = true},
 	["battery"] = {spf = 0.5, points = 50, cooldown = 0.0, collision = "enemy", hits = 3, passive = true},
 	["boss"] = {spf = 0.0, speed = 32.0, cooldown = 3.0, steps = 3, hits = 0, collision = "invulnerable"}
@@ -46,7 +46,7 @@ ARMORY = {
 	["playerM"] = {speed = 256.0, collision = "playerMissile"},
 	["waspM"] = {speed = 80.0, collision = "enemy"},
 	["turretM"] = {speed = 80.0, collision = "enemy"},
-	["sliderM"] = {speed = 96.0, collision = "enemy"},
+	["sliderM"] = {speed = 112.0, collision = "enemy"},
 	["bossM"] = {speed = 64.0, collision = "enemy"}
 }
 TERRAIN = {

@@ -68,7 +68,7 @@ stack traceback:
 
 [x] Rebuild player movement
 [ ] Prevent one-square gaps between obstacles
-[ ] Redraw turret or turret missile
+[x] Redraw turret or turret missile
 [x] Ghost -> skull
 [ ] Rocket launcher robot
 
