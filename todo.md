@@ -90,11 +90,8 @@ spiders aren't much of a threat - faster?
 text gloss / formatting / color
 sound for harmless shot impact?
 prevent cube farm level conditions where there's only a single-square gap
-i'm no longer as thrilled about grid movement for the player
-at least we should allow you to reverse your movement
 points for victory
 victory fade shouldn't fade hearts
-do we really need the strafe key?
 safe zone should time out (and/or...)
 some sort of deadline to keep you from running a level forever
 adjust scores so you could get a bonus life before lvl 10
@@ -104,6 +101,7 @@ small skull sprite needs work
 walking into hazardous terrain (turrets, fire) is not precise
 detection of invalid places to start fire is not precise
 collision with security lock isn't perfect
+tweak player sprite to make it wider & agree with title graphics
 
 # Outstanding bugs
 

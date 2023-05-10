@@ -9,7 +9,6 @@ COLOR_FADE = {0.5, 0.5, 0.5, 1.0}
 COLOR_WHITE = {1.0, 1.0, 1.0, 1.0}
 COLOR_BLACK = {0.0, 0.0, 0.0, 1.0}
 COLOR_FLASH = {1.0, 0.0, 0.0, 1.0}
-TITLE_TEXT = {{0.5, 0.5, 1.0}, "TOWER OF THE CRYPTOLICH"}
 VERSION_TEXT = {{0.4, 0.4, 0.4}, "VERSION 0.3.0"}
 START_TEXT = {{0.8, 0.8, 0.8}, "PRESS ENTER TO PLAY\nPRESS Z FOR INSTRUCTIONS\nPRESS X FOR CREDITS\n\nPRESS ESC TO QUIT"}
 PAD_START_TEXT = {{0.8, 0.8, 0.8}, "PRESS [START] TO PLAY\nPRESS [A] BUTTON FOR INSTRUCTIONS\nPRESS [X] BUTTON FOR CREDITS\n\nPRESS [BACK] TO QUIT"}
@@ -490,13 +489,12 @@ end
 
 function drawTitle()
 	love.graphics.draw(titleScreen, 0, 0)
-	love.graphics.printf(TITLE_TEXT, 0, 110, 200, "center", 0, 2.0, 2.0)
 	if gamepad then
-		love.graphics.printf(PAD_START_TEXT, 0, 180, 400, "center")
+		love.graphics.printf(PAD_START_TEXT, 215, 150, 185, "center")
 	else
-		love.graphics.printf(START_TEXT, 0, 180, 400, "center")
+		love.graphics.printf(START_TEXT, 215, 150, 185, "center")
 	end
-	love.graphics.printf(VERSION_TEXT, 0, 280, 400, "center")
+	love.graphics.printf(VERSION_TEXT, 215, 280, 185, "center")
 end
 
 function drawInstructions()
