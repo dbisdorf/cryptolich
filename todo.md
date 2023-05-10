@@ -70,14 +70,15 @@ stack traceback:
 [ ] Prevent one-square gaps between obstacles
 [x] Redraw turret or turret missile
 [x] Ghost -> skull
-[ ] Rocket launcher robot
+[x] Rocket launcher robot
+[ ] New title screen
 
 # Future features
 
 Level design
 - atrium level
 More enemies
-- Fire trail
+- Fire trailer
 More sounds
 - Bigger boom for victory explosion
 Options
@@ -99,8 +100,10 @@ some sort of deadline to keep you from running a level forever
 adjust scores so you could get a bonus life before lvl 10
 better startup sound
 align sliding turrets
-collision with security lock isn't perfect
 small skull sprite needs work
+walking into hazardous terrain (turrets, fire) is not precise
+detection of invalid places to start fire is not precise
+collision with security lock isn't perfect
 
 # Outstanding bugs
 

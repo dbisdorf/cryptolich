@@ -35,9 +35,12 @@ BESTIARY = {
 	["spider"] = {speed = 16.0, spf = 0.2, points = 10, cooldown = 0.0, collision = "enemy", hits = 1, level1 = 4, eachLevel = 2},
 	["wasp"] = {speed = 8.0, spf = 0.05, points = 10, cooldown = 3.0, steps = 5, collision = "enemy", hits = 1, level1 = 4, eachLevel = 2},
 	["turret"] = {speed = 0.0, spf = 0.25, points = 10, cooldown = 10.0, collision = "invulnerable", hits = 0, level1 = 4, eachLevel = 2},
-	["ghost"] = {speed = 16.0, spf = 0.25, points = 0, cooldown = 0.0, collision = "insubstantial", hits = 0, level1 = 1, eachLevel = 0.5},
+	["skull"] = {speed = 16.0, spf = 0.25, points = 0, cooldown = 0.0, collision = "insubstantial", hits = 0, level1 = 1, eachLevel = 0.5},
 	["tank"] = {speed = 64.0, spf = 0.15, points = 25, cooldown = 3.0, steps = 10, collision = "enemy", hits = 10, level1 = 2, eachLevel = 0.5},
+	["launcher"] = {speed = 24.0, spf = 0.25, points = 25, cooldown = 10.0, steps = 5, collision = "enemy", hits = 3, level1 = 3, eachLevel = 1},
+	["rocket"] = {speed = 96.0, spf = 0.1, points = 10, cooldown = 0.0, collision = "enemy", hits = 1},
 	["slider"] = {speed = 32.0, spf = 0.0, points = 0, cooldown = 1.5, steps = 20, collision = "invulnerable", hits = 0},
+	["flame"] = {speed = 0.0, spf = 0.1, points = 0, cooldown = 10.0, collision = "enemy", hits = 0},
 	["shield"] = {spf = 0.25, points = 0, cooldown = 0.0, collision = "invulnerable", hits = 1, passive = true},
 	["battery"] = {spf = 0.5, points = 50, cooldown = 0.0, collision = "enemy", hits = 3, passive = true},
 	["boss"] = {spf = 0.0, speed = 32.0, cooldown = 3.0, steps = 3, hits = 0, collision = "invulnerable"}
@@ -112,6 +115,7 @@ startY = 0
 gamepad = nil
 boss = nil
 beat = 0.0
+titleScreen = nil
 
 -- LOVE callbacks
 
@@ -126,15 +130,19 @@ function love.load()
 	font:setLineHeight(2.0)
 	love.graphics.setFont(font)
 
+	titleScreen = love.graphics.newImage("title.png")
 	textures = love.graphics.newImage("textures.png")
 
 	loadWalkingSprites("player", 0)
 	loadWalkingSprites("spider", 16)
 	loadWalkingSprites("wasp", 32)
 	loadWalkingSprites("turret", 48)
-	loadWalkingSprites("ghost", 64)
+	loadWalkingSprites("skull", 64)
 	loadWalkingSprites("tank", 80)
+	loadWalkingSprites("launcher", 96)
+	loadWalkingSprites("rocket", 112)
 	loadWalkingSprites("slider", 144)
+	loadWalkingSprites("flame", 160)
 	loadWalkingSprites("shield", 176)
 	loadWalkingSprites("battery", 192)
 
@@ -481,6 +489,7 @@ function tick(delta)
 end
 
 function drawTitle()
+	love.graphics.draw(titleScreen, 0, 0)
 	love.graphics.printf(TITLE_TEXT, 0, 110, 200, "center", 0, 2.0, 2.0)
 	if gamepad then
 		love.graphics.printf(PAD_START_TEXT, 0, 180, 400, "center")
@@ -699,34 +708,34 @@ function buildBossMap()
 	startX = 16 * TILE_SIZE
 	startY = 30 * TILE_SIZE
 	makeCombatant(startX, startY, "player")
-	makeCombatant(13 * TILE_SIZE, 2 * TILE_SIZE, "boss")
-	boss = combatants[table.getn(combatants)]
+	boss = makeCombatant(13 * TILE_SIZE, 2 * TILE_SIZE, "boss")
 	boss.facing = DOWN_INDEX
 	boss.sliding = RIGHT_INDEX
+	local c
 	for i = 1, SHIELD_LOCKS do
 		if i <= SHIELD_LOCKS / 2 then
 			mapX, mapY = findVacantSpot(3, 1, 10, 5)
 		else
 			mapX, mapY = findVacantSpot(MAP_SIZE - 11, 1, MAP_SIZE - 4, 5)
 		end
-		makeCombatant(mapX * TILE_SIZE, mapY * TILE_SIZE, "battery")
-		combatants[table.getn(combatants)].frame = math.random(4)
+		c = makeCombatant(mapX * TILE_SIZE, mapY * TILE_SIZE, "battery")
+		c.frame = math.random(4)
 	end
 	for i = 1, 6 do
 		mapX = (12 + i) * TILE_SIZE
 		makeCombatant(mapX, 6 * TILE_SIZE, "shield")
-		makeCombatant(mapX, TILE_SIZE, "battery")
-		combatants[table.getn(combatants)].frame = math.random(4)
+		c = makeCombatant(mapX, TILE_SIZE, "battery")
+		c.frame = math.random(4)
 	end
-	makeCombatant(TILE_SIZE, (MAP_SIZE - 2) * TILE_SIZE, "slider")
-	combatants[table.getn(combatants)].facing = RIGHT_INDEX
-	combatants[table.getn(combatants)].sliding = UP_INDEX
-	makeCombatant(6 * TILE_SIZE, 7 * TILE_SIZE, "slider")
-	combatants[table.getn(combatants)].facing = DOWN_INDEX
-	combatants[table.getn(combatants)].sliding = RIGHT_INDEX
-	makeCombatant((MAP_SIZE - 2) * TILE_SIZE, 8 * TILE_SIZE, "slider")
-	combatants[table.getn(combatants)].facing = LEFT_INDEX
-	combatants[table.getn(combatants)].sliding = DOWN_INDEX
+	c = makeCombatant(TILE_SIZE, (MAP_SIZE - 2) * TILE_SIZE, "slider")
+	c.facing = RIGHT_INDEX
+	c.sliding = UP_INDEX
+	c = makeCombatant(6 * TILE_SIZE, 7 * TILE_SIZE, "slider")
+	c.facing = DOWN_INDEX
+	c.sliding = RIGHT_INDEX
+	c = makeCombatant((MAP_SIZE - 2) * TILE_SIZE, 8 * TILE_SIZE, "slider")
+	c.facing = LEFT_INDEX
+	c.sliding = DOWN_INDEX
 	locks = 26
 end
 
@@ -749,7 +758,7 @@ function redrawMapTile(x, y)
 end
 
 function makeCombatant(startX, startY, name)
-	table.insert(combatants, {
+	local combatant = {
 		x = startX, 
 		y = startY, 
 		dX = startX, 
@@ -764,7 +773,9 @@ function makeCombatant(startX, startY, name)
 		stepping = 0,
 		flashing = 0.0,
 		hits = BESTIARY[name].hits,
-		destroyed = false})
+		destroyed = false}
+	table.insert(combatants, combatant)
+	return combatant
 end
 
 function makeMissile(startX, startY, facing, shooter)
@@ -837,25 +848,14 @@ function moveCombatant(combatant, delta)
 			-- player collision logic
 			local mx = combatant.x + combatant.dx * movement
 			local my = combatant.y + combatant.dy * movement
-			local ulx, uly = convertToMapCoords(mx, my)
-			local urx, ury = ulx, uly
-			local llx, lly = ulx, uly
-			local lrx, lry = ulx, uly
-			if mx - ulx * TILE_SIZE > 0.0 then
-				urx = urx + 1
-				lrx = lrx + 1
-			end
-			if my - uly * TILE_SIZE > 0.0 then
-				lly = lly + 1
-				lry = lry + 1
-			end
-			local ult = mapInfo[ulx][uly]
-			local urt = mapInfo[urx][ury]
-			local llt = mapInfo[llx][lly]
-			local lrt = mapInfo[lrx][lry]
+			local coords = mapCoordsAtCorners(mx, my)
+			local ult = mapInfo[coords.ulx][coords.uly]
+			local urt = mapInfo[coords.urx][coords.ury]
+			local llt = mapInfo[coords.llx][coords.lly]
+			local lrt = mapInfo[coords.lrx][coords.lry]
 			if (TERRAIN[ult].solid or TERRAIN[ult].nogo) and (combatant.dx < 0 or combatant.dy < 0) then
 				if ult == 4 then
-					unlock(ulx, uly)
+					unlock(coords.ulx, coords.uly)
 				end
 				if combatant.dx < 0 then
 					combatant.x = math.floor(combatant.x / TILE_SIZE) * TILE_SIZE
@@ -864,7 +864,7 @@ function moveCombatant(combatant, delta)
 				end
 			elseif (TERRAIN[urt].solid or TERRAIN[urt].nogo) and (combatant.dx > 0 or combatant.dy < 0) then
 				if urt == 4 then
-					unlock(urx, ury)
+					unlock(coords.urx, coords.ury)
 				end
 				if combatant.dx > 0 then
 					combatant.x = math.floor(mx / TILE_SIZE) * TILE_SIZE
@@ -873,7 +873,7 @@ function moveCombatant(combatant, delta)
 				end
 			elseif (TERRAIN[llt].solid or TERRAIN[llt].nogo) and (combatant.dx < 0 or combatant.dy > 0) then
 				if llt == 4 then
-					unlock(llx, lly)
+					unlock(coords.llx, coords.lly)
 				end
 				if combatant.dx < 0 then
 					combatant.x = math.floor(combatant.x / TILE_SIZE) * TILE_SIZE
@@ -882,7 +882,7 @@ function moveCombatant(combatant, delta)
 				end
 			elseif (TERRAIN[lrt].solid or TERRAIN[lrt].nogo) and (combatant.dx > 0 or combatant.dy > 0) then
 				if lrt == 4 then
-					unlock(lrx, lry)
+					unlock(coords.lrx, coords.lry)
 				end
 				if combatant.dx > 0 then
 					combatant.x = math.floor(mx / TILE_SIZE) * TILE_SIZE
@@ -1052,6 +1052,25 @@ function takeHits(combatant, hits)
 		awardPoints(BESTIARY[combatant.name].points)
 		if combatant.name == "battery" then
 			killBattery()
+		elseif combatant.name == "rocket" then
+			local f
+			local fx
+			local fy
+			local coords
+			for x = -1, 1 do
+				for y = -1, 1 do
+					fx = combatant.x + x * TILE_SIZE
+					fy = combatant.y + y * TILE_SIZE
+					coords = mapCoordsAtCorners(fx, fy)
+					if mapInfo[coords.ulx][coords.uly] == 1 and
+						mapInfo[coords.urx][coords.ury] == 1 and
+						mapInfo[coords.urx][coords.ury] == 1 and
+						mapInfo[coords.urx][coords.ury] == 1 then
+						f = makeCombatant(fx, fy, "flame")
+						f.waiting = false
+					end
+				end
+			end
 		end
 	end
 end
@@ -1065,16 +1084,18 @@ function runEnemyLogic(enemy, delta)
 	if enemy.flashing > 0.0 then
 		enemy.flashing = enemy.flashing - delta
 	end
-	if enemy.name == "spider" or enemy.name == "ghost" then
+	if enemy.name == "spider" or enemy.name == "skull" then
 		runEnemyWalkerLogic(enemy, delta, rangeX, rangeY)
-	elseif enemy.name == "wasp" then
+	elseif enemy.name == "wasp" or enemy.name == "launcher" then
 		runEnemyShooterLogic(enemy, delta, rangeX, rangeY)
-	elseif enemy.name == "tank" then
+	elseif enemy.name == "tank" or enemy.name == "rocket" then
 		runEnemyRammerLogic(enemy, delta, rangeX, rangeY)
 	elseif enemy.name == "slider" or enemy.name == "boss" then
 		runEnemySliderLogic(enemy, delta)
 	elseif enemy.name == "turret" then
 		runEnemyTurretLogic(enemy, delta, rangeX, rangeY)
+	elseif enemy.name == "flame" then
+		runEnemyBurnerLogic(enemy, delta)
 	end
 	if BESTIARY[enemy.name].cooldown > 0.0 and enemy.cooling <= 0.0 then
 		enemy.cooling = enemy.cooling + BESTIARY[enemy.name].cooldown
@@ -1136,11 +1157,20 @@ function runEnemyShooterLogic(enemy, delta, rangeX, rangeY)
 				fireFacing = DOWN_INDEX
 			end
 		end
-		makeMissile(
-			enemy.x + VECTORS[fireFacing].x * TILE_SIZE, 
-			enemy.y + VECTORS[fireFacing].y * TILE_SIZE,
-			fireFacing,
-			enemy.name)
+		if enemy.name == "launcher" then
+			rocket = makeCombatant(
+				enemy.x + VECTORS[fireFacing].x * TILE_SIZE, 
+				enemy.y + VECTORS[fireFacing].y * TILE_SIZE,
+				"rocket")
+			rocket.facing = fireFacing
+			rocket.stepping = math.floor(math.max(math.abs(rangeX), math.abs(rangeY)) / TILE_SIZE)
+		else
+			makeMissile(
+				enemy.x + VECTORS[fireFacing].x * TILE_SIZE, 
+				enemy.y + VECTORS[fireFacing].y * TILE_SIZE,
+				fireFacing,
+				enemy.name)
+		end
 	end
 end
 
@@ -1175,7 +1205,11 @@ function runEnemyRammerLogic(enemy, delta, rangeX, rangeY)
 				enemy.stepping = 0
 			end
 			if enemy.stepping == 0 then
-				enemy.cooling = BESTIARY[enemy.name].cooldown
+				if enemy.name == "rocket" then
+					takeHits(enemy, 1)
+				else
+					enemy.cooling = BESTIARY[enemy.name].cooldown
+				end
 			end
 		end
 	end
@@ -1235,6 +1269,12 @@ function runEnemyTurretLogic(enemy, delta, rangeX, rangeY)
 		end
 	elseif enemy.cooling < 2.0 then
 		enemy.frame = math.floor((enemy.cooling - 1.0) / 0.25) + 1
+	end
+end
+
+function runEnemyBurnerLogic(enemy, delta)
+	if enemy.cooling <= 0.0 then
+		enemy.destroyed = true
 	end
 end
 
@@ -1311,7 +1351,7 @@ function placeRandomEnemies()
 			table.insert(keys, k)
 		end
 	end
-	local chosen = {}
+	local chosen = {"launcher"}
 	local r = 0
 	while table.getn(chosen) < 3 do
 		r = math.random(table.getn(chosen))
@@ -1401,6 +1441,24 @@ end
 function resetHeartbeat()
 	beat = MAX_BEAT_TIME - ((level - 1) * BEAT_PER_LEVEL)
 end
+
+function mapCoordsAtCorners(x, y)
+	local coords = {}
+	coords.ulx, coords.uly = convertToMapCoords(x, y)
+	coords.urx, coords.ury = coords.ulx, coords.uly 
+	coords.llx, coords.lly = coords.ulx, coords.uly 
+	coords.lrx, coords.lry = coords.ulx, coords.uly 
+	if x - coords.ulx * TILE_SIZE > 0.0 then
+		coords.urx = coords.urx + 1
+		lrx = coords.lrx + 1
+	end
+	if y - coords.uly * TILE_SIZE > 0.0 then
+		coords.lly = coords.lly + 1
+		coords.lry = coords.lry + 1
+	end
+	return coords
+end
+
 
 -- gamepad and keyboard functions
 
