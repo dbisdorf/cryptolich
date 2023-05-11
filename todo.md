@@ -102,9 +102,11 @@ walking into hazardous terrain (turrets, fire) is not precise
 detection of invalid places to start fire is not precise
 collision with security lock isn't perfect
 tweak player sprite to make it wider & agree with title graphics
+might help if launcher only fires from intersections
 
 # Outstanding bugs
 
 cooldowns and other timers should have time ADDED after it hits zero, shouldn't just jump up to full time
 pointIsObstructed is incorrect for missiles (could detect obstruction from combatant)
-
+did I see a rocket go through a wall?
+did I see us win a level as soon as it started?

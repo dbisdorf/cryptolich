@@ -576,13 +576,14 @@ function buildOfficeMap()
 	end
 	local mapX, mapY
 	for o = 1, 12 do
-		if o < 5 then
-			mapX, mapY = findVacantSpot(2, 2, 29, 6)
-		elseif o < 9 then
-			mapX, mapY = findVacantSpot(2, 8, 29, 23)
-		else
-			mapX, mapY = findVacantSpot(2, 5, 29, 29)
-		end
+		-- if o < 5 then
+		--	mapX, mapY = findVacantSpot(2, 2, 29, 6)
+		-- elseif o < 9 then
+		--	mapX, mapY = findVacantSpot(2, 8, 29, 23)
+		-- else
+		--	mapX, mapY = findVacantSpot(2, 5, 29, 29)
+		-- end
+		mapX, mapY = findVacantSpot(2, 2, 29, 29, true)
 		mapInfo[mapX][mapY] = 3
 	end
 	if corner == 1 then
@@ -1287,7 +1288,7 @@ function demise(delta)
 	end
 end
 
-function findVacantSpot(minX, minY, maxX, maxY)
+function findVacantSpot(minX, minY, maxX, maxY, wide)
 	local searching = true
 	local x1 = minX or 1
 	local y1 = minY or 1
@@ -1295,26 +1296,53 @@ function findVacantSpot(minX, minY, maxX, maxY)
 	local y2 = maxY or MAP_SIZE - 2
 	local tryMapX = math.random(x1, x2)
 	local tryMapY = math.random(y1, y2)
-	local x = 0
-	local y = 0
+	local lowMapX
+	local hiMapX
+	local lowMapY
+	local hiMapY
+	local obstructed
 	while searching do
-		x = tryMapX * TILE_SIZE
-		y = tryMapY * TILE_SIZE
-		if not pointIsObstructed(x, y, "enemy") then
-			searching = false
+		if wide then
+			lowMapX = tryMapX - 2
+			lowMapY = tryMapY - 2
+			hiMapX = lowMapX + 5
+			hiMapY = lowMapY + 5
+		else
+			lowMapX = tryMapX
+			lowMapY = tryMapY
+			hiMapX = lowMapX
+			hiMapY = lowMapY
+		end
+		obstructed = false
+		for mapX = lowMapX, hiMapX do
+			for mapY = lowMapY, hiMapY do
+				if not obstructed then
+					x = mapX * TILE_SIZE
+					y = mapY * TILE_SIZE
+					if pointIsObstructed(x, y, "enemy") then
+						obstructed = true
+					end
+				end
+			end
+		end
+		if not obstructed then
+			x = tryMapX * TILE_SIZE
+			y = tryMapY * TILE_SIZE
 			for i, c in ipairs(combatants) do
 				if x == c.x and y == c.y then
-					searching = true
+					obstructed = true
 					break
 				end
 			end
 		end
-		if searching then
+		if not obstructed then
+			searching = false
+		else
 			tryMapX = tryMapX + 1
 			if tryMapX > maxX then
 				tryMapX = minX
 				tryMapY = tryMapY + 1
-				if tryMapY > minY then
+				if tryMapY > maxY then
 					tryMapY = minY
 				end
 			end
@@ -1349,7 +1377,7 @@ function placeRandomEnemies()
 			table.insert(keys, k)
 		end
 	end
-	local chosen = {"launcher"}
+	local chosen = {}
 	local r = 0
 	while table.getn(chosen) < 3 do
 		r = math.random(table.getn(chosen))
@@ -1359,7 +1387,7 @@ function placeRandomEnemies()
 
 	for i, e in ipairs(chosen) do
 		for n = 1, BESTIARY[e].level1 + math.floor(level * BESTIARY[e].eachLevel) do
-			mapX, mapY = findVacantSpot(2, 2, MAP_SIZE - 2, MAP_SIZE - 2)
+			mapX, mapY = findVacantSpot(2, 2, MAP_SIZE - 2, MAP_SIZE - 2, true)
 			makeCombatant(mapX * TILE_SIZE, mapY * TILE_SIZE, e)
 		end
 	end
