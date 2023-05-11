@@ -68,6 +68,7 @@ TERRAIN = {
 STARTING_LIVES = 3
 LOCK_POINTS = 100
 LEVEL_POINTS = 1000
+VICTORY_POINTS = 2500
 START_POSITION = {x = 16, y = 16}
 BLAST_TIME = 1.0
 BLAST_SIZE = 400.0
@@ -351,10 +352,11 @@ function tick(delta)
 				stalling = STALL_TIME
 			end
 		elseif unlocked == locks then
-			awardPoints(LEVEL_POINTS)
 			if level == LAST_LEVEL then
+				awardPoints(VICTORY_POINTS)
 				stalling = VICTORY_FULL_TIME
 			else
+				awardPoints(LEVEL_POINTS)
 				sounds["level"]:play()
 				stalling = STALL_TIME
 			end

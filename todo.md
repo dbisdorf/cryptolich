@@ -67,7 +67,7 @@ stack traceback:
 # 0.5.0
 
 [x] Rebuild player movement
-[ ] Prevent one-square gaps between obstacles
+[x] Prevent one-square gaps between obstacles
 [x] Redraw turret or turret missile
 [x] Ghost -> skull
 [x] Rocket launcher robot
@@ -89,7 +89,6 @@ Exit from middle of game? Maybe after prompt?
 spiders aren't much of a threat - faster?
 text gloss / formatting / color
 sound for harmless shot impact?
-prevent cube farm level conditions where there's only a single-square gap
 points for victory
 victory fade shouldn't fade hearts
 safe zone should time out (and/or...)
@@ -100,9 +99,9 @@ align sliding turrets
 small skull sprite needs work
 walking into hazardous terrain (turrets, fire) is not precise
 detection of invalid places to start fire is not precise
+- might help if launcher only fires from intersections
 collision with security lock isn't perfect
 tweak player sprite to make it wider & agree with title graphics
-might help if launcher only fires from intersections
 
 # Outstanding bugs
 
