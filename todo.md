@@ -110,3 +110,4 @@ cooldowns and other timers should have time ADDED after it hits zero, shouldn't 
 pointIsObstructed is incorrect for missiles (could detect obstruction from combatant)
 did I see a rocket go through a wall?
 did I see us win a level as soon as it started?
+Any way to force flames to draw under stuff?

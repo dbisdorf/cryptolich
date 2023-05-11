@@ -542,10 +542,10 @@ function buildOfficeMap()
 
 	-- cube farm
 	local corner = math.random(1, 4)
-	local x1 = math.random(12, 20)
-	local x2 = math.random(12, 20)
-	local y1 = math.random(12, 20)
-	local y2 = math.random(12, 20)
+	local x1 = math.random(13, 19)
+	local x2 = math.random(13, 19)
+	local y1 = math.random(13, 19)
+	local y2 = math.random(13, 19)
 	for x = 0, MAP_SIZE - 1 do
 		mapInfo[x] = {}
 		for y = 0, MAP_SIZE - 1 do
@@ -631,12 +631,12 @@ function buildServerMap()
 		end
 	end
 	local mapX, mapY
-	for s = 1, 12 do
-		mapX = math.random(5, 25)
-		mapY = (s * 2) + 2
+	for s = 1, 8 do
+		mapX = math.random(5, 26)
+		mapY = (s * 3) + 2
 		for x = mapX - 2, mapX + 2 do
 			if mapInfo[x][mapY] == 1 then
-				if x == mapX and (s == 3 or s == 7 or s == 11) then
+				if x == mapX and (s == 1 or s == 4 or s == 8) then
 					mapInfo[x][mapY] = 4
 				else
 					if math.random(5) == 1 then
