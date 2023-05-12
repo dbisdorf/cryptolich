@@ -71,14 +71,17 @@ stack traceback:
 [x] Redraw turret or turret missile
 [x] Ghost -> skull
 [x] Rocket launcher robot
-[ ] New title screen
+[x] New title screen
+
+# 0.6.0
+
+[ ] New level design
+[ ] Fire trail enemy
+[ ] align sliding turrets
+[ ] collision with security lock isn't perfect
 
 # Future features
 
-Level design
-- atrium level
-More enemies
-- Fire trailer
 More sounds
 - Bigger boom for victory explosion
 Options
@@ -89,18 +92,15 @@ Exit from middle of game? Maybe after prompt?
 spiders aren't much of a threat - faster?
 text gloss / formatting / color
 sound for harmless shot impact?
-points for victory
 victory fade shouldn't fade hearts
 safe zone should time out (and/or...)
 some sort of deadline to keep you from running a level forever
 adjust scores so you could get a bonus life before lvl 10
 better startup sound
-align sliding turrets
 small skull sprite needs work
 walking into hazardous terrain (turrets, fire) is not precise
 detection of invalid places to start fire is not precise
 - might help if launcher only fires from intersections
-collision with security lock isn't perfect
 tweak player sprite to make it wider & agree with title graphics
 
 # Outstanding bugs
