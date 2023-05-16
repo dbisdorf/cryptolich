@@ -64,7 +64,8 @@ TERRAIN = {
 	{solid = false, safe = false, nogo = true},
 	{solid = false, safe = false, nogo = true},
 	{solid = false, safe = false, nogo = true},
-	{solid = false, safe = false, nogo = true}
+	{solid = false, safe = false, nogo = true},
+	{solid = true, safe = false, nogo = false}
 }
 STARTING_LIVES = 3
 LOCK_POINTS = 100
@@ -162,7 +163,7 @@ function love.load()
 	spriteQuads["blastHS"] = love.graphics.newQuad(64, 224, TILE_SIZE, TILE_SIZE, textures)
 	spriteQuads["blastVS"] = love.graphics.newQuad(80, 224, TILE_SIZE, TILE_SIZE, textures)
 
-	for t = 1, 12 do
+	for t = 1, 13 do
 		tileQuads[t] = love.graphics.newQuad((t - 1) * TILE_SIZE, 240, TILE_SIZE, TILE_SIZE, textures)
 	end
 
@@ -585,13 +586,6 @@ function buildOfficeMap()
 	end
 	local mapX, mapY
 	for o = 1, 12 do
-		-- if o < 5 then
-		--	mapX, mapY = findVacantSpot(2, 2, 29, 6)
-		-- elseif o < 9 then
-		--	mapX, mapY = findVacantSpot(2, 8, 29, 23)
-		-- else
-		--	mapX, mapY = findVacantSpot(2, 5, 29, 29)
-		-- end
 		mapX, mapY = findVacantSpot(2, 2, 29, 29, true)
 		mapInfo[mapX][mapY] = 3
 	end
@@ -671,6 +665,95 @@ function buildServerMap()
 		startY = 30 * TILE_SIZE
 	end
 
+	makeCombatant(startX, startY, "player")
+	placeRandomEnemies()
+end
+
+function buildSnakeMap()
+	mapInfo = {}
+	local horizontal = false
+	local wall1Width = math.random(3, 5)
+	local wall1Length = math.random(15, 20) 
+	local wall2Width = math.random(3, 5)
+	local wall2Length = math.random(15, 20) 
+	for x = 0, MAP_SIZE - 1 do
+		mapInfo[x] = {}
+		for y = 0, MAP_SIZE - 1 do
+			if x == 0 or x == MAP_SIZE - 1 or y == 0 or y == MAP_SIZE - 1 then
+				-- exterior walls
+				mapInfo[x][y] = 2
+			else
+				mapInfo[x][y] = 1
+			end
+		end
+	end
+	if horizontal then
+		for x = 0, wall1Length - 1 do
+			for y = 5, 4 + wall1Width do
+				if x == wall1Length - 1 or y == 5 or y == 4 + wall1Width then
+					mapInfo[x][y] = 2
+				else
+					mapInfo[x][y] = 13
+				end
+			end
+		end
+		for x = MAP_SIZE - wall1Length, MAP_SIZE - 1 do
+			for y = 21, 20 + wall1Width do
+				if x == MAP_SIZE - wall1Length or y == 21 or y == 20 + wall1Width then
+					mapInfo[x][y] = 2
+				else
+					mapInfo[x][y] = 13
+				end
+			end
+		end
+		mapInfo[MAP_SIZE - 2][5] = 4
+		mapInfo[1][21] = 4
+	else
+		for y = 0, wall1Length - 1 do
+			for x = 5, 4 + wall1Width do
+				if y == wall1Length - 1 or x == 5 or x == 4 + wall1Width then
+					mapInfo[x][y] = 2
+				else
+					mapInfo[x][y] = 13
+				end
+			end
+		end
+		for y = MAP_SIZE - wall1Length, MAP_SIZE - 1 do
+			for x = 21, 20 + wall1Width do
+				if y == MAP_SIZE - wall1Length or x == 21 or x == 20 + wall1Width then
+					mapInfo[x][y] = 2
+				else
+					mapInfo[x][y] = 13
+				end
+			end
+		end
+		mapInfo[5][MAP_SIZE - 2] = 4
+		mapInfo[21][1] = 4
+	end
+	if math.random(1, 2) == 1 then
+		for x = 1, 3 do
+			for y = 1, 3 do
+				mapInfo[x][y] = 6
+			end
+		end
+		startX = TILE_SIZE
+		startY = TILE_SIZE
+		mapInfo[MAP_SIZE - 2][MAP_SIZE - 2] = 4
+	else
+		for x = MAP_SIZE - 4, MAP_SIZE - 2 do
+			for y = MAP_SIZE - 4, MAP_SIZE - 2 do
+				mapInfo[x][y] = 6
+			end
+		end
+		startX = (MAP_SIZE - 2) * TILE_SIZE
+		startY = (MAP_SIZE - 2) * TILE_SIZE
+		mapInfo[1][1] = 4
+	end
+	local mapX, mapY
+	for o = 1, 12 do
+		mapX, mapY = findVacantSpot(2, 2, 29, 29, true)
+		mapInfo[mapX][mapY] = 3
+	end
 	makeCombatant(startX, startY, "player")
 	placeRandomEnemies()
 end
@@ -1435,11 +1518,14 @@ function startLevel()
 	if level == LAST_LEVEL then
 		buildBossMap()
 	else
-		local algorithm = math.random(2)
+		local algorithm = math.random(3)
+		algorithm = 3
 		if algorithm == 1 then
 			buildOfficeMap()
-		else
+		elseif algorith == 2 then
 			buildServerMap()
+		else
+			buildSnakeMap()
 		end
 		locks = 3
 	end

@@ -75,7 +75,8 @@ stack traceback:
 
 # 0.6.0
 
-[ ] New level design
+[x] New level design
+[ ] Adjust parms of snake level geometry
 [x] Fire trail enemy
 [x] Fire should render behind other combatants
 [x] align sliding turrets
@@ -104,6 +105,7 @@ detection of invalid places to start fire is not precise
 - might help if launcher only fires from intersections
 tweak player sprite to make it wider & agree with title graphics
 better graphics for rolling enemy
+don't put flame on flame (or flame should replace old flame)
 
 # Outstanding bugs
 
