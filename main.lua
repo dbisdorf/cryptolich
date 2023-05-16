@@ -9,7 +9,7 @@ COLOR_FADE = {0.5, 0.5, 0.5, 1.0}
 COLOR_WHITE = {1.0, 1.0, 1.0, 1.0}
 COLOR_BLACK = {0.0, 0.0, 0.0, 1.0}
 COLOR_FLASH = {1.0, 0.0, 0.0, 1.0}
-VERSION_TEXT = {{0.4, 0.4, 0.4}, "VERSION 0.3.0"}
+VERSION_TEXT = {{0.4, 0.4, 0.4}, "VERSION 0.6.0"}
 START_TEXT = {{0.8, 0.8, 0.8}, "PRESS ENTER TO PLAY\nPRESS Z FOR INSTRUCTIONS\nPRESS X FOR CREDITS\n\nPRESS ESC TO QUIT"}
 PAD_START_TEXT = {{0.8, 0.8, 0.8}, "PRESS [START] TO PLAY\nPRESS [A] BUTTON FOR INSTRUCTIONS\nPRESS [X] BUTTON FOR CREDITS\n\nPRESS [BACK] TO QUIT"}
 GAME_OVER_TEXT = {{1.0, 0.2, 0.2}, "GAME OVER"}
@@ -38,7 +38,7 @@ BESTIARY = {
 	["tank"] = {speed = 64.0, spf = 0.15, points = 25, cooldown = 3.0, steps = 10, collision = "enemy", hits = 10, level1 = 2, eachLevel = 0.5},
 	["launcher"] = {speed = 24.0, spf = 0.25, points = 25, cooldown = 10.0, steps = 5, collision = "enemy", hits = 3, level1 = 3, eachLevel = 1},
 	["rocket"] = {speed = 96.0, spf = 0.1, points = 10, cooldown = 0.0, collision = "enemy", hits = 1},
-	["slider"] = {speed = 32.0, spf = 0.0, points = 0, cooldown = 1.5, steps = 20, collision = "invulnerable", hits = 0},
+	["slider"] = {speed = 32.0, spf = 0.0, points = 0, cooldown = 1.5, steps = 21, collision = "invulnerable", hits = 0},
 	["flame"] = {speed = 0.0, spf = 0.1, points = 0, cooldown = 10.0, collision = "enemy", hits = 0},
 	["shield"] = {spf = 0.25, points = 0, cooldown = 0.0, collision = "invulnerable", hits = 1, passive = true},
 	["battery"] = {spf = 0.5, points = 50, cooldown = 0.0, collision = "enemy", hits = 3, passive = true},
@@ -78,7 +78,7 @@ FLASH_TIME = 0.2
 VICTORY_FULL_TIME = 6.0
 VICTORY_BOOM_TIME = 3.0
 DEFAULT_HIGH_SCORE = 10000
-LAST_LEVEL = 10
+LAST_LEVEL = 1
 SHIELD_LOCKS = 20
 MAX_BEAT_TIME = 2.5
 BEAT_PER_LEVEL = 0.1
@@ -703,7 +703,7 @@ function buildBossMap()
 		end
 	end
 	for s = 1, 20 do
-		mapX, mapY = findVacantSpot(3, 10, 28, 27)
+		mapX, mapY = findVacantSpot(3, 10, 28, 27, true)
 		mapInfo[mapX][mapY] = 7
 	end
 	startX = 16 * TILE_SIZE
@@ -731,10 +731,10 @@ function buildBossMap()
 	c = makeCombatant(TILE_SIZE, (MAP_SIZE - 2) * TILE_SIZE, "slider")
 	c.facing = RIGHT_INDEX
 	c.sliding = UP_INDEX
-	c = makeCombatant(6 * TILE_SIZE, 7 * TILE_SIZE, "slider")
+	c = makeCombatant(5 * TILE_SIZE, 7 * TILE_SIZE, "slider")
 	c.facing = DOWN_INDEX
 	c.sliding = RIGHT_INDEX
-	c = makeCombatant((MAP_SIZE - 2) * TILE_SIZE, 8 * TILE_SIZE, "slider")
+	c = makeCombatant((MAP_SIZE - 2) * TILE_SIZE, 9 * TILE_SIZE, "slider")
 	c.facing = LEFT_INDEX
 	c.sliding = DOWN_INDEX
 	locks = 26
