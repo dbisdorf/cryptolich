@@ -39,7 +39,7 @@ BESTIARY = {
 	["launcher"] = {speed = 24.0, spf = 0.25, points = 25, cooldown = 10.0, steps = 5, collision = "enemy", hits = 3, level1 = 3, eachLevel = 1},
 	["rocket"] = {speed = 96.0, spf = 0.1, points = 10, cooldown = 0.0, collision = "enemy", hits = 1},
 	["slider"] = {speed = 32.0, spf = 0.0, points = 0, cooldown = 1.5, steps = 21, collision = "invulnerable", hits = 0},
-	["flame"] = {speed = 0.0, spf = 0.1, points = 0, cooldown = 10.0, collision = "enemy", hits = 0},
+	["flame"] = {speed = 0.0, spf = 0.1, points = 0, cooldown = 10.0, collision = "insubstantial", hits = 0},
 	["shield"] = {spf = 0.25, points = 0, cooldown = 0.0, collision = "invulnerable", hits = 1, passive = true},
 	["battery"] = {spf = 0.5, points = 50, cooldown = 0.0, collision = "enemy", hits = 3, passive = true},
 	["boss"] = {spf = 0.0, speed = 32.0, cooldown = 3.0, steps = 3, hits = 0, collision = "invulnerable"}
@@ -1495,7 +1495,7 @@ function mapCoordsAtCorners(x, y)
 	coords.lrx, coords.lry = coords.ulx, coords.uly 
 	if x - coords.ulx * TILE_SIZE > 0.0 then
 		coords.urx = coords.urx + 1
-		lrx = coords.lrx + 1
+		coords.lrx = coords.lrx + 1
 	end
 	if y - coords.uly * TILE_SIZE > 0.0 then
 		coords.lly = coords.lly + 1
