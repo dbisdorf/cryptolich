@@ -77,7 +77,7 @@ stack traceback:
 
 [ ] New level design
 [ ] Fire trail enemy
-[ ] align sliding turrets
+[x] align sliding turrets
 [ ] collision with security lock isn't perfect
 
 # Future features

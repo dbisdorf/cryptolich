@@ -950,11 +950,19 @@ function moveMissile(missile, delta)
 		for i, c in ipairs(combatants) do
 			if (i == 1 and ARMORY[missile.name].collsion ~= "playerMissile") or 
 				(i > 1 and ARMORY[missile.name].collision == "playerMissile" and BESTIARY[c.name].collision ~= "insubstantial") then
-				local size = TILE_SIZE
+				local x1, x2, y1, y2
 				if c.name == "boss" then
-					size = TILE_SIZE * 3
+					x1 = c.x + 7
+					x2 = x1 + 41
+					y1 = c.y
+					y2 = y1 + 41
+				else
+					x1 = c.x
+					x2 = x1 + TILE_SIZE
+					y1 = c.y
+					y2 = y1 + TILE_SIZE
 				end
-				if centerX >= c.x and centerX < c.x + size and centerY >= c.y and centerY < c.y + size then
+				if centerX >= x1 and centerX < x2 and centerY >= y1 and centerY < y2 then
 					if i == 1 then
 						if not killed then
 							killed = true
