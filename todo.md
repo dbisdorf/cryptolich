@@ -77,6 +77,7 @@ stack traceback:
 
 [ ] New level design
 [x] Fire trail enemy
+[x] Fire should render behind other combatants
 [x] align sliding turrets
 [x] collision with security lock isn't perfect
 
@@ -102,6 +103,7 @@ walking into hazardous terrain (turrets, fire) is not precise
 detection of invalid places to start fire is not precise
 - might help if launcher only fires from intersections
 tweak player sprite to make it wider & agree with title graphics
+better graphics for rolling enemy
 
 # Outstanding bugs
 

@@ -445,9 +445,14 @@ function tick(delta)
 	local offsetX = player.x - SCREEN_CENTER.x
 	local offsetY = player.y - SCREEN_CENTER.y
 	for i, c in ipairs(combatants) do
+		if c.name == "flame" then
+			spriteBatch:add(spriteQuads[c.name][c.facing][c.frame], c.x - offsetX, c.y - offsetY)
+		end
+	end
+	for i, c in ipairs(combatants) do
 		if c.name == "boss" then
 			spriteBatch:add(spriteQuads["boss"], c.x - offsetX, c.y - offsetY)
-		elseif i > 1 or not killed then
+		elseif c.name ~= "flame" and (i > 1 or not killed) then
 			if c.flashing > 0.0 then
 				spriteBatch:setColor(COLOR_FLASH[1], COLOR_FLASH[2], COLOR_FLASH[3], COLOR_FLASH[4])
 			end
@@ -1402,7 +1407,7 @@ function placeRandomEnemies()
 			table.insert(keys, k)
 		end
 	end
-	local chosen = {"trailer"}
+	local chosen = {}
 	local r = 0
 	while table.getn(chosen) < 3 do
 		r = math.random(table.getn(chosen))
