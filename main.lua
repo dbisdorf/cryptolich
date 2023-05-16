@@ -78,7 +78,7 @@ FLASH_TIME = 0.2
 VICTORY_FULL_TIME = 6.0
 VICTORY_BOOM_TIME = 3.0
 DEFAULT_HIGH_SCORE = 10000
-LAST_LEVEL = 1
+LAST_LEVEL = 10
 SHIELD_LOCKS = 20
 MAX_BEAT_TIME = 2.5
 BEAT_PER_LEVEL = 0.1
@@ -854,6 +854,7 @@ function moveCombatant(combatant, delta)
 			local urt = mapInfo[coords.urx][coords.ury]
 			local llt = mapInfo[coords.llx][coords.lly]
 			local lrt = mapInfo[coords.lrx][coords.lry]
+			local collided = false
 			if (TERRAIN[ult].solid or TERRAIN[ult].nogo) and (combatant.dx < 0 or combatant.dy < 0) then
 				if ult == 4 then
 					unlock(coords.ulx, coords.uly)
@@ -863,7 +864,9 @@ function moveCombatant(combatant, delta)
 				else
 					combatant.y = math.floor(combatant.y / TILE_SIZE) * TILE_SIZE
 				end
-			elseif (TERRAIN[urt].solid or TERRAIN[urt].nogo) and (combatant.dx > 0 or combatant.dy < 0) then
+				collided = true
+			end
+			if (TERRAIN[urt].solid or TERRAIN[urt].nogo) and (combatant.dx > 0 or combatant.dy < 0) then
 				if urt == 4 then
 					unlock(coords.urx, coords.ury)
 				end
@@ -872,7 +875,9 @@ function moveCombatant(combatant, delta)
 				else
 					combatant.y = math.floor(combatant.y / TILE_SIZE) * TILE_SIZE
 				end
-			elseif (TERRAIN[llt].solid or TERRAIN[llt].nogo) and (combatant.dx < 0 or combatant.dy > 0) then
+				collided = true
+			end
+			if (TERRAIN[llt].solid or TERRAIN[llt].nogo) and (combatant.dx < 0 or combatant.dy > 0) then
 				if llt == 4 then
 					unlock(coords.llx, coords.lly)
 				end
@@ -881,7 +886,9 @@ function moveCombatant(combatant, delta)
 				else
 					combatant.y = math.floor(my / TILE_SIZE) * TILE_SIZE
 				end
-			elseif (TERRAIN[lrt].solid or TERRAIN[lrt].nogo) and (combatant.dx > 0 or combatant.dy > 0) then
+				collided = true
+			end
+			if (TERRAIN[lrt].solid or TERRAIN[lrt].nogo) and (combatant.dx > 0 or combatant.dy > 0) then
 				if lrt == 4 then
 					unlock(coords.lrx, coords.lry)
 				end
@@ -890,7 +897,9 @@ function moveCombatant(combatant, delta)
 				else
 					combatant.y = math.floor(my / TILE_SIZE) * TILE_SIZE
 				end
-			else
+				collided = true
+			end
+			if not collided then
 				combatant.x = mx
 				combatant.y = my
 			end
