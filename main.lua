@@ -39,6 +39,7 @@ BESTIARY = {
 	["launcher"] = {speed = 24.0, spf = 0.25, points = 25, cooldown = 10.0, steps = 5, collision = "enemy", hits = 3, level1 = 3, eachLevel = 1},
 	["rocket"] = {speed = 96.0, spf = 0.1, points = 10, cooldown = 0.0, collision = "enemy", hits = 1},
 	["slider"] = {speed = 32.0, spf = 0.0, points = 0, cooldown = 1.5, steps = 21, collision = "invulnerable", hits = 0},
+	["trailer"] = {speed = 48.0, spf = 0.2, points = 25, cooldown = 0.0, steps = 5, collision = "enemy", hits = 5, level1 = 2, eachLevel = 0.5},
 	["flame"] = {speed = 0.0, spf = 0.1, points = 0, cooldown = 10.0, collision = "insubstantial", hits = 0},
 	["shield"] = {spf = 0.25, points = 0, cooldown = 0.0, collision = "invulnerable", hits = 1, passive = true},
 	["battery"] = {spf = 0.5, points = 50, cooldown = 0.0, collision = "enemy", hits = 3, passive = true},
@@ -141,6 +142,7 @@ function love.load()
 	loadWalkingSprites("tank", 80)
 	loadWalkingSprites("launcher", 96)
 	loadWalkingSprites("rocket", 112)
+	loadWalkingSprites("trailer", 128)
 	loadWalkingSprites("slider", 144)
 	loadWalkingSprites("flame", 160)
 	loadWalkingSprites("shield", 176)
@@ -1106,7 +1108,7 @@ function runEnemyLogic(enemy, delta)
 		runEnemyWalkerLogic(enemy, delta, rangeX, rangeY)
 	elseif enemy.name == "wasp" or enemy.name == "launcher" then
 		runEnemyShooterLogic(enemy, delta, rangeX, rangeY)
-	elseif enemy.name == "tank" or enemy.name == "rocket" then
+	elseif enemy.name == "tank" or enemy.name == "rocket" or enemy.name == "trailer" then
 		runEnemyRammerLogic(enemy, delta, rangeX, rangeY)
 	elseif enemy.name == "slider" or enemy.name == "boss" then
 		runEnemySliderLogic(enemy, delta)
@@ -1194,6 +1196,10 @@ end
 
 function runEnemyRammerLogic(enemy, delta, rangeX, rangeY)
 	if enemy.waiting then
+		if enemy.name == "trailer" then
+			local fire = makeCombatant(enemy.x, enemy.y, "flame")
+			fire.waiting = false
+		end
 		if enemy.stepping == 0 then
 			if enemy.cooling <= 0.0 then
 				local vX = 0.0
@@ -1396,14 +1402,13 @@ function placeRandomEnemies()
 			table.insert(keys, k)
 		end
 	end
-	local chosen = {}
+	local chosen = {"trailer"}
 	local r = 0
 	while table.getn(chosen) < 3 do
 		r = math.random(table.getn(chosen))
 		table.insert(chosen, keys[r])
 		table.remove(keys, r)
 	end
-
 	for i, e in ipairs(chosen) do
 		for n = 1, BESTIARY[e].level1 + math.floor(level * BESTIARY[e].eachLevel) do
 			mapX, mapY = findVacantSpot(2, 2, MAP_SIZE - 2, MAP_SIZE - 2, true)

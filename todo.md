@@ -76,9 +76,9 @@ stack traceback:
 # 0.6.0
 
 [ ] New level design
-[ ] Fire trail enemy
+[x] Fire trail enemy
 [x] align sliding turrets
-[ ] collision with security lock isn't perfect
+[x] collision with security lock isn't perfect
 
 # Future features
 
@@ -86,6 +86,7 @@ More sounds
 - Bigger boom for victory explosion
 Options
 Exit from middle of game? Maybe after prompt?
+some sort of deadline to keep you from running a level forever (use skull?)
 
 # Tuning
 
@@ -94,7 +95,6 @@ text gloss / formatting / color
 sound for harmless shot impact?
 victory fade shouldn't fade hearts
 safe zone should time out (and/or...)
-some sort of deadline to keep you from running a level forever
 adjust scores so you could get a bonus life before lvl 10
 better startup sound
 small skull sprite needs work
@@ -110,3 +110,4 @@ pointIsObstructed is incorrect for missiles (could detect obstruction from comba
 did I see a rocket go through a wall?
 did I see us win a level as soon as it started?
 Any way to force flames to draw under stuff?
+
