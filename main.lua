@@ -11,8 +11,7 @@ COLOR_BLACK = {0.0, 0.0, 0.0, 1.0}
 COLOR_FLASH = {1.0, 0.0, 0.0, 1.0}
 COLOR_GRAY = {0.6, 0.6, 0.6}
 VERSION_TEXT = {{0.4, 0.4, 0.4}, "VERSION 0.6.0"}
-START_TEXT = {{0.8, 0.8, 0.8}, "PRESS ENTER TO PLAY\nPRESS Z FOR INSTRUCTIONS\nPRESS X FOR CREDITS\nPRESS C FOR OPTIONS\n\nPRESS ESC TO QUIT"}
-PAD_START_TEXT = {{0.8, 0.8, 0.8}, "PRESS [START] TO PLAY\nPRESS [A] BUTTON FOR INSTRUCTIONS\nPRESS [X] BUTTON FOR CREDITS\nPRESS [Y] BUTTON FOR OPTIONS\n\nPRESS [BACK] TO QUIT"}
+TITLE_MENU_TEXT = {"PLAY", "INSTRUCTIONS", "OPTIONS", "CREDITS", "QUIT"}
 GAME_OVER_TEXT = {{1.0, 0.2, 0.2}, "GAME OVER"}
 UNLOCKED_TEXT = {{0.5, 1.0, 0.5}, "SECURITY UNLOCKED"}
 PREPARE_TEXT = {{0.5, 1.0, 0.5}, "PREPARE FOR"}
@@ -127,7 +126,7 @@ beat = 0.0
 titleScreen = nil
 volume = DEFAULT_VOLUME
 startingLives = DEFAULT_LIVES
-optionChanging = 1
+menuLevel = 1
 
 -- LOVE callbacks
 
@@ -266,27 +265,7 @@ function tick(delta)
 	-- process the maximum allowable game time
 	
 	if title then
-		if oldButtons then
-			checkOldButtons()
-		else
-			if startButton() then
-				title = false
-				startGame()
-			elseif backButton() then
-				love.event.quit(0)
-			elseif shootButton() then
-				title = false
-				instructions = true
-				checkOldButtons()
-			elseif aimButton() then
-				title = false
-				credits = true
-				checkOldButtons()
-			elseif love.keyboard.isDown("c") then
-				title = false
-				options = true
-			end
-		end
+		updateTitle()
 		return
 	elseif instructions or credits then
 		if oldButtons then
@@ -519,10 +498,13 @@ end
 
 function drawTitle()
 	love.graphics.draw(titleScreen, 0, 0)
-	if gamepad then
-		love.graphics.printf(PAD_START_TEXT, 215, 150, 185, "center")
-	else
-		love.graphics.printf(START_TEXT, 215, 150, 185, "center")
+	for o = 1, 5 do
+		if o == menuLevel then
+			love.graphics.rectangle("fill", 241, 138 + (o * 15), 130, 12)
+			love.graphics.printf({COLOR_BLACK, TITLE_MENU_TEXT[o]}, 215, 140 + (o * 15), 185, "center")
+		else
+			love.graphics.printf({COLOR_GRAY, TITLE_MENU_TEXT[o]}, 215, 140 + (o * 15), 185, "center")
+		end
 	end
 	love.graphics.printf(VERSION_TEXT, 215, 280, 185, "center")
 end
@@ -554,7 +536,7 @@ function drawOptions()
 	love.graphics.printf(AUDIO_TEXT, 20, 120, 360, "center")
 	local options = {}
 	for o = 1, 10 do
-		if startingLives == o and optionChanging == 1 then
+		if startingLives == o and menuLevel == 1 then
 			love.graphics.rectangle("fill", o * 35 - 2, 68, 28, 11)
 			love.graphics.print({COLOR_BLACK, tostring(o)}, o * 35, 70)
 		else
@@ -565,7 +547,7 @@ function drawOptions()
 			end
 			love.graphics.print({COLOR_GRAY, tostring(o)}, o * 35, 70)
 		end
-		if volume == o and optionChanging == 2 then
+		if volume == o and menuLevel == 2 then
 			love.graphics.rectangle("fill", o * 35 - 2, 138, 28, 11)
 			love.graphics.print({COLOR_BLACK, tostring(o * 10)}, o * 35, 140)
 		else
@@ -585,6 +567,44 @@ function drawOptions()
 	end
 end
 
+function updateTitle()
+	if oldButtons then
+		checkOldButtons()
+		return
+	end
+	local beep = false
+	if shootButton() or startButton() then
+		title = false
+		if menuLevel == 1 then
+			startGame()
+		elseif menuLevel == 2 then
+			instructions = true
+			beep = true
+		elseif menuLevel == 3 then
+			menuLevel = 1
+			options = true
+			beep = true
+		elseif menuLevel == 4 then
+			credits = true
+			beep = true
+		else
+			love.event.quit(0)
+		end
+	elseif upButton() and menuLevel > 1 then
+		menuLevel = menuLevel - 1
+		beep = true
+	elseif downButton() and menuLevel < 5 then
+		menuLevel = menuLevel + 1
+		beep = true
+	elseif backButton() then
+		love.event.quit(0)
+	end
+	if beep then
+		sounds["beep"]:play()
+	end
+	checkOldButtons()
+end
+
 function updateOptions()
 	if oldButtons then
 		checkOldButtons()
@@ -592,9 +612,9 @@ function updateOptions()
 	end
 
 	local changed = false
-	if optionChanging == 1 then
+	if menuLevel == 1 then
 		if upButton() or downButton() then
-			optionChanging = 2
+			menuLevel = 2
 			changed = true
 		end
 		if leftButton() and startingLives > 1 then
@@ -606,7 +626,7 @@ function updateOptions()
 		end
 	else
 		if upButton() or downButton() then
-			optionChanging = 1
+			menuLevel = 1
 			changed = true
 		end
 		if leftButton() and volume > 1 then

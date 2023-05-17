@@ -81,8 +81,8 @@ stack traceback:
 [x] Fire should render behind other combatants
 [x] align sliding turrets
 [x] collision with security lock isn't perfect
-[ ] Options screen (difficulty/volume)
-[ ] Save options to file
+[x] Options screen (difficulty/volume)
+[x] Save options to file
 [ ] Options to 11
 
 # Future features
