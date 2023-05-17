@@ -9,9 +9,10 @@ COLOR_FADE = {0.5, 0.5, 0.5, 1.0}
 COLOR_WHITE = {1.0, 1.0, 1.0, 1.0}
 COLOR_BLACK = {0.0, 0.0, 0.0, 1.0}
 COLOR_FLASH = {1.0, 0.0, 0.0, 1.0}
+COLOR_GRAY = {0.6, 0.6, 0.6}
 VERSION_TEXT = {{0.4, 0.4, 0.4}, "VERSION 0.6.0"}
-START_TEXT = {{0.8, 0.8, 0.8}, "PRESS ENTER TO PLAY\nPRESS Z FOR INSTRUCTIONS\nPRESS X FOR CREDITS\n\nPRESS ESC TO QUIT"}
-PAD_START_TEXT = {{0.8, 0.8, 0.8}, "PRESS [START] TO PLAY\nPRESS [A] BUTTON FOR INSTRUCTIONS\nPRESS [X] BUTTON FOR CREDITS\n\nPRESS [BACK] TO QUIT"}
+START_TEXT = {{0.8, 0.8, 0.8}, "PRESS ENTER TO PLAY\nPRESS Z FOR INSTRUCTIONS\nPRESS X FOR CREDITS\nPRESS C FOR OPTIONS\n\nPRESS ESC TO QUIT"}
+PAD_START_TEXT = {{0.8, 0.8, 0.8}, "PRESS [START] TO PLAY\nPRESS [A] BUTTON FOR INSTRUCTIONS\nPRESS [X] BUTTON FOR CREDITS\nPRESS [Y] BUTTON FOR OPTIONS\n\nPRESS [BACK] TO QUIT"}
 GAME_OVER_TEXT = {{1.0, 0.2, 0.2}, "GAME OVER"}
 UNLOCKED_TEXT = {{0.5, 1.0, 0.5}, "SECURITY UNLOCKED"}
 PREPARE_TEXT = {{0.5, 1.0, 0.5}, "PREPARE FOR"}
@@ -24,6 +25,10 @@ PAD_INSTRUCTIONS_TEXT = {{0.7, 0.7, 1.0}, "JOYSTICK TO MOVE\n[A] TO SHOOT\n[X] T
 LEFT_CREDITS_TEXT = {{1.0, 1.0, 1.0}, "PROGRAMMING AND ART\n\nENGINE\n\nGRAPHICS\n\nSOUND EFFECTS\n\nFONT"}
 RIGHT_CREDITS_TEXT = {{0.7, 0.7, 1.0}, "DON BISDORF\ndonbisdorf.com\nLOVE2D\nlove2d.org\nKRITA\nkrita.org\nCHIPTONE\nsfbgames.itch.io/chiptone\nMx437_IBM_BIOS.ttf\nint10h.org/oldschool-pc-fonts"}
 VICTORY_TEXT = {{0.5, 0.5, 1.0}, "AS THE MEGATOWER COLLAPSES, YOU LEARN THAT THE CRYPTOLICH HAS BACKED UP HIS CONSCIOUSNESS ELSEWHERE.\n\nIN A DISTANT CITY, ANOTHER MEGATOWER RISES.\n\nDELTA, YOUR WORK IS NOT YET DONE..."}
+OPTIONS_TEXT = {{0.5, 0.5, 1.0}, "OPTIONS"}
+LIVES_TEXT = {{1.0, 1.0, 1.0}, "LIVES"}
+AUDIO_TEXT = {{1.0, 1.0, 1.0}, "AUDIO"}
+OPTIONS_CONTROLS_TEXT = {{0.5, 0.5, 1.0}, "UP/DOWN TO CHOOSE OPTION\nLEFT/RIGHT TO CHANGE"}
 RIGHT_INDEX = 1
 DOWN_INDEX = 2
 LEFT_INDEX = 3
@@ -67,7 +72,8 @@ TERRAIN = {
 	{solid = false, safe = false, nogo = true},
 	{solid = true, safe = false, nogo = false}
 }
-STARTING_LIVES = 3
+DEFAULT_LIVES = 3
+DEFAULT_VOLUME = 10
 LOCK_POINTS = 100
 LEVEL_POINTS = 1000
 VICTORY_POINTS = 2500
@@ -101,13 +107,14 @@ blasts = {}
 killed = false
 lives = 0
 score = 0
-highScore = 0
+highScore = DEFAULT_HIGH_SCORE
 gameOver = false
 locks = 0
 unlocked = 0
 title = true
 instructions = false
 credits = false
+options = false
 oldButtons = false
 level = 0
 stalling = 0.0
@@ -118,6 +125,9 @@ gamepad = nil
 boss = nil
 beat = 0.0
 titleScreen = nil
+volume = DEFAULT_VOLUME
+startingLives = DEFAULT_LIVES
+optionChanging = 1
 
 -- LOVE callbacks
 
@@ -177,8 +187,10 @@ function love.load()
 	sounds["heartbeat"] = love.audio.newSource("heartbeat.wav", "static")
 	sounds["begin"] = love.audio.newSource("begin.wav", "static")
 	sounds["startup"] = love.audio.newSource("startup.wav", "static")
+	sounds["begin"] = love.audio.newSource("begin.wav", "static")
+	sounds["beep"] = love.audio.newSource("beep.wav", "static")
 
-	readHighScore()
+	readSaveFile()
 
 	gamepad = getGamepad()
 
@@ -207,6 +219,8 @@ function love.draw()
 		drawInstructions()
 	elseif credits then
 		drawCredits()
+	elseif options then
+		drawOptions()
 	else
 		if gameOver or advancing then
 			if advancing and level == LAST_LEVEL then
@@ -268,6 +282,9 @@ function tick(delta)
 				title = false
 				credits = true
 				checkOldButtons()
+			elseif love.keyboard.isDown("c") then
+				title = false
+				options = true
 			end
 		end
 		return
@@ -282,6 +299,9 @@ function tick(delta)
 				checkOldButtons()
 			end
 		end
+		return
+	elseif options then
+		updateOptions()
 		return
 	end
 
@@ -349,7 +369,7 @@ function tick(delta)
 				gameOver = true
 				if score > highScore then
 					highScore = score
-					writeHighScore()
+					writeSaveFile()
 				end
 			else
 				stalling = STALL_TIME
@@ -526,6 +546,88 @@ function drawCredits()
 	else
 		love.graphics.printf(BACK_TEXT, 0, 280, 400, "center")
 	end
+end
+
+function drawOptions()
+	love.graphics.printf(OPTIONS_TEXT, 20, 20, 360, "center")
+	love.graphics.printf(LIVES_TEXT, 20, 50, 360, "center")
+	love.graphics.printf(AUDIO_TEXT, 20, 120, 360, "center")
+	local options = {}
+	for o = 1, 10 do
+		if startingLives == o and optionChanging == 1 then
+			love.graphics.rectangle("fill", o * 35 - 2, 68, 28, 11)
+			love.graphics.print({COLOR_BLACK, tostring(o)}, o * 35, 70)
+		else
+			if startingLives == o then
+				love.graphics.setColor(COLOR_GRAY)
+				love.graphics.rectangle("line", o * 35 - 2, 68, 28, 11)
+				love.graphics.setColor(COLOR_WHITE)
+			end
+			love.graphics.print({COLOR_GRAY, tostring(o)}, o * 35, 70)
+		end
+		if volume == o and optionChanging == 2 then
+			love.graphics.rectangle("fill", o * 35 - 2, 138, 28, 11)
+			love.graphics.print({COLOR_BLACK, tostring(o * 10)}, o * 35, 140)
+		else
+			if volume == o then
+				love.graphics.setColor(COLOR_GRAY)
+				love.graphics.rectangle("line", o * 35 - 2, 138, 28, 11)
+				love.graphics.setColor(COLOR_WHITE)
+			end
+			love.graphics.print({COLOR_GRAY, tostring(o * 10)}, o * 35, 140)
+		end
+	end
+	love.graphics.printf(OPTIONS_CONTROLS_TEXT, 20, 200, 360, "center")
+	if gamepad then
+		love.graphics.printf(PAD_BACK_TEXT, 0, 280, 400, "center")
+	else
+		love.graphics.printf(BACK_TEXT, 0, 280, 400, "center")
+	end
+end
+
+function updateOptions()
+	if oldButtons then
+		checkOldButtons()
+		return
+	end
+
+	local changed = false
+	if optionChanging == 1 then
+		if upButton() or downButton() then
+			optionChanging = 2
+			changed = true
+		end
+		if leftButton() and startingLives > 1 then
+			startingLives = startingLives - 1
+			changed = true
+		elseif rightButton() and startingLives < 10 then
+			startingLives = startingLives + 1
+			changed = true
+		end
+	else
+		if upButton() or downButton() then
+			optionChanging = 1
+			changed = true
+		end
+		if leftButton() and volume > 1 then
+			volume = volume - 1
+			love.audio.setVolume(volume / 10.0)
+			changed = true
+		elseif rightButton() and startingLives < 10 then
+			volume = volume + 1
+			love.audio.setVolume(volume / 10.0)
+			changed = true
+		end
+	end
+	if changed then
+		sounds["beep"]:play()
+	end
+	if backButton() then
+		options = false
+		title = true
+		writeSaveFile()
+	end
+	checkOldButtons()
 end
 
 function loadWalkingSprites(name, y)
@@ -1465,7 +1567,7 @@ function findVacantSpot(minX, minY, maxX, maxY, wide)
 end
 
 function checkOldButtons()
-	oldButtons = startButton() or shootButton() or aimButton() or backButton()
+	oldButtons = startButton() or shootButton() or aimButton() or backButton() or upButton() or downButton() or leftButton() or rightButton()
 end
 
 function startTitle()
@@ -1477,7 +1579,7 @@ end
 function startGame()
 	score = 0
 	level = 1
-	lives = STARTING_LIVES
+	lives = startingLives
 	gameOver = false
 	killed = false
 	startLevel()
@@ -1558,23 +1660,24 @@ function resetPlayer()
 	sounds["begin"]:play()
 end
 
-function readHighScore()
+function readSaveFile()
 	local file, ioError
-	file, ioError = love.filesystem.newFile("highscore", "r")
+	file, ioError = love.filesystem.newFile("savedata", "r")
 	if file then
-		local highString, bytes = file:read()
-		highScore = tonumber(highString)
+		local saveData = file:read()
+		_, _, scoreString, livesString, volumeString = string.find(saveData, "(%d+) (%d+) (%d+)")
+		highScore = tonumber(scoreString)
+		startingLives = tonumber(livesString)
+		volume = tonumber(volumeString)
 		file:close()
-	else
-		highScore = DEFAULT_HIGH_SCORE
 	end
 end
 
-function writeHighScore()
+function writeSaveFile()
 	local file, ioError
-	file, ioError = love.filesystem.newFile("highscore", "w")
+	file, ioError = love.filesystem.newFile("savedata", "w")
 	if file then
-		file:write(tostring(highScore))
+		file:write(string.format("%d %d %d", highScore, startingLives, volume))
 		file:close()
 	end
 end

@@ -81,6 +81,9 @@ stack traceback:
 [x] Fire should render behind other combatants
 [x] align sliding turrets
 [x] collision with security lock isn't perfect
+[ ] Options screen (difficulty/volume)
+[ ] Save options to file
+[ ] Options to 11
 
 # Future features
 
@@ -89,6 +92,7 @@ More sounds
 Options
 Exit from middle of game? Maybe after prompt?
 some sort of deadline to keep you from running a level forever (use skull?)
+startup menu
 
 # Tuning
 
@@ -106,6 +110,7 @@ detection of invalid places to start fire is not precise
 tweak player sprite to make it wider & agree with title graphics
 better graphics for rolling enemy
 don't put flame on flame (or flame should replace old flame)
+beep when changing screens
 
 # Outstanding bugs
 
@@ -114,4 +119,4 @@ pointIsObstructed is incorrect for missiles (could detect obstruction from comba
 did I see a rocket go through a wall?
 did I see us win a level as soon as it started?
 Any way to force flames to draw under stuff?
-
+Too many hearts overlaps scores
