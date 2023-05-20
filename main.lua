@@ -10,7 +10,7 @@ COLOR_WHITE = {1.0, 1.0, 1.0, 1.0}
 COLOR_BLACK = {0.0, 0.0, 0.0, 1.0}
 COLOR_FLASH = {1.0, 0.0, 0.0, 1.0}
 COLOR_GRAY = {0.6, 0.6, 0.6}
-VERSION_TEXT = {{0.4, 0.4, 0.4}, "VERSION 0.6.0"}
+VERSION_TEXT = {{0.4, 0.4, 0.4}, "VERSION 0.6.1"}
 TITLE_MENU_TEXT = {"PLAY", "INSTRUCTIONS", "OPTIONS", "CREDITS", "QUIT"}
 GAME_OVER_TEXT = {{1.0, 0.2, 0.2}, "GAME OVER"}
 UNLOCKED_TEXT = {{0.5, 1.0, 0.5}, "SECURITY UNLOCKED"}
@@ -127,6 +127,7 @@ titleScreen = nil
 volume = DEFAULT_VOLUME
 startingLives = DEFAULT_LIVES
 menuLevel = 1
+quitting = false
 
 -- LOVE callbacks
 
@@ -208,6 +209,10 @@ function love.update(delta)
 end
 
 function love.draw()
+	if quitting then
+		return
+	end
+
 	-- this is where we draw
 	
 	love.graphics.scale(2.0, 2.0)
@@ -534,29 +539,31 @@ function drawOptions()
 	love.graphics.printf(OPTIONS_TEXT, 20, 20, 360, "center")
 	love.graphics.printf(LIVES_TEXT, 20, 50, 360, "center")
 	love.graphics.printf(AUDIO_TEXT, 20, 120, 360, "center")
-	local options = {}
+	local rect
 	for o = 1, 10 do
+		rect = optionsRect(1, o)
 		if startingLives == o and menuLevel == 1 then
-			love.graphics.rectangle("fill", o * 35 - 2, 68, 28, 11)
-			love.graphics.print({COLOR_BLACK, tostring(o)}, o * 35, 70)
+			love.graphics.rectangle("fill", rect.x, rect.y, rect.w, rect.h)
+			love.graphics.printf({COLOR_BLACK, tostring(o)}, rect.x, rect.y + 2, rect.w, "center")
 		else
 			if startingLives == o then
 				love.graphics.setColor(COLOR_GRAY)
-				love.graphics.rectangle("line", o * 35 - 2, 68, 28, 11)
+				love.graphics.rectangle("line", rect.x, rect.y, rect.w, rect.h)
 				love.graphics.setColor(COLOR_WHITE)
 			end
-			love.graphics.print({COLOR_GRAY, tostring(o)}, o * 35, 70)
+			love.graphics.printf({COLOR_GRAY, tostring(o)}, rect.x, rect.y + 2, rect.w, "center")
 		end
+		rect = optionsRect(2, o)
 		if volume == o and menuLevel == 2 then
-			love.graphics.rectangle("fill", o * 35 - 2, 138, 28, 11)
-			love.graphics.print({COLOR_BLACK, tostring(o * 10)}, o * 35, 140)
+			love.graphics.rectangle("fill", rect.x, rect.y, rect.w, rect.h)
+			love.graphics.printf({COLOR_BLACK, tostring(o)}, rect.x, rect.y + 2, rect.w, "center")
 		else
 			if volume == o then
 				love.graphics.setColor(COLOR_GRAY)
-				love.graphics.rectangle("line", o * 35 - 2, 138, 28, 11)
+				love.graphics.rectangle("line", rect.x, rect.y, rect.w, rect.h)
 				love.graphics.setColor(COLOR_WHITE)
 			end
-			love.graphics.print({COLOR_GRAY, tostring(o * 10)}, o * 35, 140)
+			love.graphics.printf({COLOR_GRAY, tostring(o)}, rect.x, rect.y + 2, rect.w, "center")
 		end
 	end
 	love.graphics.printf(OPTIONS_CONTROLS_TEXT, 20, 200, 360, "center")
@@ -565,6 +572,14 @@ function drawOptions()
 	else
 		love.graphics.printf(BACK_TEXT, 0, 280, 400, "center")
 	end
+end
+
+function optionsRect(level, option)
+	local rect = {x = option * 35 - 2, y = 68, w = 28, h = 11}
+	if level == 2 then
+		rect.y = 138
+	end
+	return rect
 end
 
 function updateTitle()
@@ -588,6 +603,7 @@ function updateTitle()
 			credits = true
 			beep = true
 		else
+			quitting = true
 			love.event.quit(0)
 		end
 	elseif upButton() and menuLevel > 1 then
@@ -597,6 +613,7 @@ function updateTitle()
 		menuLevel = menuLevel + 1
 		beep = true
 	elseif backButton() then
+		quitting = true
 		love.event.quit(0)
 	end
 	if beep then
@@ -633,7 +650,7 @@ function updateOptions()
 			volume = volume - 1
 			love.audio.setVolume(volume / 10.0)
 			changed = true
-		elseif rightButton() and startingLives < 10 then
+		elseif rightButton() and volume < 10 then
 			volume = volume + 1
 			love.audio.setVolume(volume / 10.0)
 			changed = true
@@ -794,9 +811,9 @@ end
 function buildSnakeMap()
 	mapInfo = {}
 	local horizontal = false
-	local wall1Width = math.random(3, 5)
+	local wall1Width = 3
 	local wall1Length = math.random(15, 20) 
-	local wall2Width = math.random(3, 5)
+	local wall2Width = 3
 	local wall2Length = math.random(15, 20) 
 	for x = 0, MAP_SIZE - 1 do
 		mapInfo[x] = {}
@@ -1641,7 +1658,6 @@ function startLevel()
 		buildBossMap()
 	else
 		local algorithm = math.random(3)
-		algorithm = 3
 		if algorithm == 1 then
 			buildOfficeMap()
 		elseif algorith == 2 then

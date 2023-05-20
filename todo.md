@@ -76,23 +76,26 @@ stack traceback:
 # 0.6.0
 
 [x] New level design
-[ ] Adjust parms of snake level geometry
 [x] Fire trail enemy
 [x] Fire should render behind other combatants
 [x] align sliding turrets
 [x] collision with security lock isn't perfect
 [x] Options screen (difficulty/volume)
 [x] Save options to file
-[ ] Options to 11
+
+# 0.7.0
+
+[ ] Adjust snake level geometry
+[ ] Options to 11 (volume zero, infinite lives)
+[ ] Skulls as level deadline
+[ ] Beep when changing screens
+[ ] adjust scores so you could get a bonus life before lvl 10
 
 # Future features
 
 More sounds
 - Bigger boom for victory explosion
-Options
 Exit from middle of game? Maybe after prompt?
-some sort of deadline to keep you from running a level forever (use skull?)
-startup menu
 
 # Tuning
 
@@ -100,8 +103,6 @@ spiders aren't much of a threat - faster?
 text gloss / formatting / color
 sound for harmless shot impact?
 victory fade shouldn't fade hearts
-safe zone should time out (and/or...)
-adjust scores so you could get a bonus life before lvl 10
 better startup sound
 small skull sprite needs work
 walking into hazardous terrain (turrets, fire) is not precise
@@ -110,7 +111,6 @@ detection of invalid places to start fire is not precise
 tweak player sprite to make it wider & agree with title graphics
 better graphics for rolling enemy
 don't put flame on flame (or flame should replace old flame)
-beep when changing screens
 
 # Outstanding bugs
 
