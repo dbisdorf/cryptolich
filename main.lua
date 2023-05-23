@@ -31,6 +31,8 @@ OPTIONS_TEXT = {{0.5, 0.5, 1.0}, "OPTIONS"}
 LIVES_TEXT = {{1.0, 1.0, 1.0}, "LIVES"}
 AUDIO_TEXT = {{1.0, 1.0, 1.0}, "AUDIO"}
 OPTIONS_CONTROLS_TEXT = {{0.5, 0.5, 1.0}, "UP/DOWN TO CHOOSE OPTION\nLEFT/RIGHT TO CHANGE"}
+PAUSE_TEXT = {{0.7, 0.7, 1.0}, "PAUSED\n\nPRESS ENTER TO RESUME\nPRESS ESC TO QUIT"}
+PAUSE_PAD_TEXT = {{0.7, 0.7, 1.0}, "PAUSED\n\nPRESS [START] TO RESUME\nPRESS [BACK] TO QUIT"}
 RIGHT_INDEX = 1
 DOWN_INDEX = 2
 LEFT_INDEX = 3
@@ -133,6 +135,7 @@ volume = DEFAULT_VOLUME
 startingLives = DEFAULT_LIVES
 menuLevel = 1
 quitting = false
+paused = false
 
 -- LOVE callbacks
 
@@ -231,7 +234,7 @@ function love.draw()
 	elseif options then
 		drawOptions()
 	else
-		if gameOver or advancing then
+		if gameOver or advancing or paused then
 			if advancing and level == LAST_LEVEL then
 				if stalling < VICTORY_BOOM_TIME then
 					local dim = stalling / VICTORY_BOOM_TIME
@@ -248,6 +251,13 @@ function love.draw()
 		if gameOver then
 			love.graphics.setColor(COLOR_WHITE)
 			love.graphics.printf(GAME_OVER_TEXT, 0, 150, 200, "center", 0, 2.0, 2.0)
+		elseif paused then
+			love.graphics.setColor(COLOR_WHITE)
+			if gamepad then
+				love.graphics.printf(PAUSE_PAD_TEXT, 0, 90, 200, "center", 0, 2.0, 2.0)
+			else
+				love.graphics.printf(PAUSE_TEXT, 0, 90, 200, "center", 0, 2.0, 2.0)
+			end
 		elseif advancing then
 			love.graphics.setColor(COLOR_WHITE)
 			if level == LAST_LEVEL then
@@ -308,6 +318,20 @@ function tick(delta)
 			startTitle()
 			return
 		end
+	elseif paused then
+		if oldButtons then
+			checkOldButtons()
+		else
+			if startButton() then
+				checkOldButtons()
+				paused = false
+			end
+			if backButton() then
+				startTitle()
+				return
+			end
+		end
+		return
 	elseif stalling > 0.0 then
 		-- don't do much if we're stalling
 		stalling = stalling - delta
@@ -409,6 +433,10 @@ function tick(delta)
 		end
 		if turn and not aimButton() then
 			player.facing = turn
+		end
+		if backButton() then
+			checkOldButtons()
+			paused = true
 		end
 
 		-- abilities and cooldowns

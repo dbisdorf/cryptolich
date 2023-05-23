@@ -91,13 +91,12 @@ stack traceback:
 [x] Beep when changing screens
 [ ] adjust scores so you could get a bonus life before lvl 10
 [x] Set volume as per saved options on startup
-[ ] Exit while playing game
+[x] Exit while playing game
 
 # Future features
 
 More sounds
 - Bigger boom for victory explosion
-Exit from middle of game? Maybe after prompt?
 
 # Tuning
 
@@ -114,6 +113,7 @@ tweak player sprite to make it wider & agree with title graphics
 better graphics for rolling enemy
 don't put flame on flame (or flame should replace old flame)
 better symbol for infinity
+some status stuff is faded on pause but some isn't
 
 # Outstanding bugs
 
