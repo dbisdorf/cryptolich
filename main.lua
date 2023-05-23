@@ -13,7 +13,7 @@ COLOR_BLACK = {0.0, 0.0, 0.0, 1.0}
 COLOR_FLASH = {1.0, 0.0, 0.0, 1.0}
 COLOR_GRAY = {0.6, 0.6, 0.6}
 COLOR_RED = {1.0, 0.1, 0.1}
-VERSION_TEXT = {{0.4, 0.4, 0.4}, "VERSION 0.6.1"}
+VERSION_TEXT = {{0.4, 0.4, 0.4}, "VERSION 0.7.0"}
 TITLE_MENU_TEXT = {"PLAY", "INSTRUCTIONS", "OPTIONS", "CREDITS", "QUIT"}
 GAME_OVER_TEXT = {{1.0, 0.2, 0.2}, "GAME OVER"}
 UNLOCKED_TEXT = {{0.5, 1.0, 0.5}, "SECURITY UNLOCKED"}
@@ -1726,6 +1726,7 @@ function readSaveFile()
 		startingLives = tonumber(livesString)
 		volume = tonumber(volumeString)
 		file:close()
+		love.audio.setVolume(volume / 10.0)
 	end
 end
 

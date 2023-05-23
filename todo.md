@@ -86,11 +86,11 @@ stack traceback:
 # 0.7.0
 
 [ ] Adjust snake level geometry
-[ ] Options to 11 (volume zero, infinite lives)
+[x] Options to 11 (volume zero, infinite lives)
 [ ] Skulls as level deadline
 [ ] Beep when changing screens
 [ ] adjust scores so you could get a bonus life before lvl 10
-[ ] Set volume as per saved options on startup
+[x] Set volume as per saved options on startup
 [ ] Exit while playing game
 
 # Future features
@@ -113,6 +113,7 @@ detection of invalid places to start fire is not precise
 tweak player sprite to make it wider & agree with title graphics
 better graphics for rolling enemy
 don't put flame on flame (or flame should replace old flame)
+better symbol for infinity
 
 # Outstanding bugs
 
