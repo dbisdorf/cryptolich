@@ -90,6 +90,8 @@ stack traceback:
 [ ] Skulls as level deadline
 [ ] Beep when changing screens
 [ ] adjust scores so you could get a bonus life before lvl 10
+[ ] Set volume as per saved options on startup
+[ ] Exit while playing game
 
 # Future features
 

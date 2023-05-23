@@ -1,3 +1,5 @@
+local utf8 = require("utf8")
+
 -- constants
 
 TILE_SIZE = 16
@@ -10,6 +12,7 @@ COLOR_WHITE = {1.0, 1.0, 1.0, 1.0}
 COLOR_BLACK = {0.0, 0.0, 0.0, 1.0}
 COLOR_FLASH = {1.0, 0.0, 0.0, 1.0}
 COLOR_GRAY = {0.6, 0.6, 0.6}
+COLOR_RED = {1.0, 0.1, 0.1}
 VERSION_TEXT = {{0.4, 0.4, 0.4}, "VERSION 0.6.1"}
 TITLE_MENU_TEXT = {"PLAY", "INSTRUCTIONS", "OPTIONS", "CREDITS", "QUIT"}
 GAME_OVER_TEXT = {{1.0, 0.2, 0.2}, "GAME OVER"}
@@ -89,6 +92,8 @@ LAST_LEVEL = 10
 SHIELD_LOCKS = 20
 MAX_BEAT_TIME = 2.5
 BEAT_PER_LEVEL = 0.1
+INFINITE_LIVES = 11
+INFINITE_SYMBOL = utf8.char(8734)
 
 -- globals
 
@@ -259,6 +264,11 @@ function love.draw()
 		love.graphics.print(string.format("%06d", score), 0, 4)
 		love.graphics.print(string.format("LEVEL %02d", level), 100, 4)
 		love.graphics.print(string.format("HIGH %06d", highScore), 220, 4)
+		if lives == INFINITE_LIVES then
+			love.graphics.printf({COLOR_RED, INFINITE_SYMBOL}, 362, 4, 20, "right")
+		elseif lives > 5 then
+			love.graphics.printf({COLOR_RED, tostring(lives)}, 362, 4, 20, "right")
+		end
 	end
 
 	love.graphics.origin()
@@ -348,7 +358,9 @@ function tick(delta)
 		if killed then
 			makeBlast(player.x, player.y, true)
 			sounds["boom"]:play()
-			lives = lives - 1
+			if lives < INFINITE_LIVES then
+				lives = lives - 1
+			end
 			if lives == 0 then
 				gameOver = true
 				if score > highScore then
@@ -497,7 +509,9 @@ function tick(delta)
 	end
 
 	for l = 1, lives do
-		spriteBatch:add(spriteQuads["life"], SCREEN_MAX.x - (l * TILE_SIZE), 0)
+		if l == 1 or lives < 6 then
+			spriteBatch:add(spriteQuads["life"], SCREEN_MAX.x - (l * TILE_SIZE), 0)
+		end
 	end
 end
 
@@ -540,30 +554,36 @@ function drawOptions()
 	love.graphics.printf(LIVES_TEXT, 20, 50, 360, "center")
 	love.graphics.printf(AUDIO_TEXT, 20, 120, 360, "center")
 	local rect
-	for o = 1, 10 do
+	local livesText
+	for o = 1, 11 do
 		rect = optionsRect(1, o)
+		if o == 11 then
+			livesText = INFINITE_SYMBOL
+		else
+			livesText = tostring(o)
+		end
 		if startingLives == o and menuLevel == 1 then
 			love.graphics.rectangle("fill", rect.x, rect.y, rect.w, rect.h)
-			love.graphics.printf({COLOR_BLACK, tostring(o)}, rect.x, rect.y + 2, rect.w, "center")
+			love.graphics.printf({COLOR_BLACK, livesText}, rect.x, rect.y + 2, rect.w, "center")
 		else
 			if startingLives == o then
 				love.graphics.setColor(COLOR_GRAY)
 				love.graphics.rectangle("line", rect.x, rect.y, rect.w, rect.h)
 				love.graphics.setColor(COLOR_WHITE)
 			end
-			love.graphics.printf({COLOR_GRAY, tostring(o)}, rect.x, rect.y + 2, rect.w, "center")
+			love.graphics.printf({COLOR_GRAY, livesText}, rect.x, rect.y + 2, rect.w, "center")
 		end
 		rect = optionsRect(2, o)
-		if volume == o and menuLevel == 2 then
+		if (volume + 1) == o and menuLevel == 2 then
 			love.graphics.rectangle("fill", rect.x, rect.y, rect.w, rect.h)
-			love.graphics.printf({COLOR_BLACK, tostring(o)}, rect.x, rect.y + 2, rect.w, "center")
+			love.graphics.printf({COLOR_BLACK, tostring(o - 1)}, rect.x, rect.y + 2, rect.w, "center")
 		else
-			if volume == o then
+			if (volume + 1) == o then
 				love.graphics.setColor(COLOR_GRAY)
 				love.graphics.rectangle("line", rect.x, rect.y, rect.w, rect.h)
 				love.graphics.setColor(COLOR_WHITE)
 			end
-			love.graphics.printf({COLOR_GRAY, tostring(o)}, rect.x, rect.y + 2, rect.w, "center")
+			love.graphics.printf({COLOR_GRAY, tostring(o - 1)}, rect.x, rect.y + 2, rect.w, "center")
 		end
 	end
 	love.graphics.printf(OPTIONS_CONTROLS_TEXT, 20, 200, 360, "center")
@@ -575,7 +595,7 @@ function drawOptions()
 end
 
 function optionsRect(level, option)
-	local rect = {x = option * 35 - 2, y = 68, w = 28, h = 11}
+	local rect = {x = option * 35 - 23, y = 68, w = 28, h = 11}
 	if level == 2 then
 		rect.y = 138
 	end
@@ -637,7 +657,7 @@ function updateOptions()
 		if leftButton() and startingLives > 1 then
 			startingLives = startingLives - 1
 			changed = true
-		elseif rightButton() and startingLives < 10 then
+		elseif rightButton() and startingLives < 11 then
 			startingLives = startingLives + 1
 			changed = true
 		end
@@ -646,7 +666,7 @@ function updateOptions()
 			menuLevel = 1
 			changed = true
 		end
-		if leftButton() and volume > 1 then
+		if leftButton() and volume > 0 then
 			volume = volume - 1
 			love.audio.setVolume(volume / 10.0)
 			changed = true
