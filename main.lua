@@ -290,6 +290,7 @@ function tick(delta)
 				instructions = false
 				credits = false
 				title = true
+				sounds["beep"]:play()
 				checkOldButtons()
 			end
 		end
@@ -683,6 +684,7 @@ function updateOptions()
 		options = false
 		title = true
 		writeSaveFile()
+		sounds["beep"]:play()
 	end
 	checkOldButtons()
 end

@@ -88,7 +88,7 @@ stack traceback:
 [ ] Adjust snake level geometry
 [x] Options to 11 (volume zero, infinite lives)
 [ ] Skulls as level deadline
-[ ] Beep when changing screens
+[x] Beep when changing screens
 [ ] adjust scores so you could get a bonus life before lvl 10
 [x] Set volume as per saved options on startup
 [ ] Exit while playing game
