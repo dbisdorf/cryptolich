@@ -94,6 +94,9 @@ stack traceback:
 [x] Exit while playing game
 [x] Problem where we unlock a lock twice
 [x] fire glow to show hazardous area
+[ ] some status things (hearts) are faded on pause/clear/victory but some aren't
+[ ] pause to quit results in pause on restart
+
 
 # Future features
 
@@ -107,11 +110,10 @@ small skull sprite needs work
 walking into hazardous terrain (turrets, fire) is not precise
 detection of invalid places to start fire is not precise
 - might help if launcher only fires from intersections
+- don't put flame on flame (or flame should replace old flame)
 tweak player sprite to make it wider & agree with title graphics
 better graphics for rolling enemy
-don't put flame on flame (or flame should replace old flame)
 better symbol for infinity
-some status stuff is faded on pause/clear/victory but some isn't
 sounds for enemies (shots, rocket launches, etc)
 Bigger boom for victory explosion
 

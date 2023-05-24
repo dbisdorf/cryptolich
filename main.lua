@@ -96,6 +96,7 @@ MAX_BEAT_TIME = 2.5
 BEAT_PER_LEVEL = 0.1
 INFINITE_LIVES = 11
 INFINITE_SYMBOL = utf8.char(8734)
+LIFE_SYMBOL = utf8.char(3)
 DEADLINE = 60.0
 
 -- globals
@@ -276,11 +277,15 @@ function love.draw()
 		love.graphics.print(string.format("%06d", score), 0, 4)
 		love.graphics.print(string.format("LEVEL %02d", level), 100, 4)
 		love.graphics.print(string.format("HIGH %06d", highScore), 220, 4)
-		if lives == INFINITE_LIVES then
-			love.graphics.printf({COLOR_RED, INFINITE_SYMBOL}, 362, 4, 20, "right")
+		local lifeString
+		if lives <= 5 then
+			lifeString = string.rep(LIFE_SYMBOL)
+		elseif lives == INFINITE_LIVES then
+			lifeString = INFINITE_SYMBOL .. " " .. LIFE_SYMBOL
 		elseif lives > 5 then
-			love.graphics.printf({COLOR_RED, tostring(lives)}, 362, 4, 20, "right")
+			lifeString = tostring(lives) .. " " .. LIFE_SYMBOL
 		end
+		love.graphics.printf({COLOR_RED, lifeString}, 360, 4, 40, "right")
 	end
 
 	love.graphics.origin()
@@ -544,11 +549,11 @@ function tick(delta)
 		end
 	end
 
-	for l = 1, lives do
-		if l == 1 or lives < 6 then
-			spriteBatch:add(spriteQuads["life"], SCREEN_MAX.x - (l * TILE_SIZE), 0)
-		end
-	end
+	-- for l = 1, lives do
+	--	if l == 1 or lives < 6 then
+	--		spriteBatch:add(spriteQuads["life"], SCREEN_MAX.x - (l * TILE_SIZE), 0)
+	--	end
+	-- end
 end
 
 function drawTitle()
@@ -1701,6 +1706,7 @@ function startGame()
 	lives = startingLives
 	gameOver = false
 	killed = false
+	paused = false
 	startLevel()
 end
 
