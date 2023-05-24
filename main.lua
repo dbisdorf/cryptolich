@@ -90,6 +90,7 @@ FLASH_TIME = 0.2
 VICTORY_FULL_TIME = 6.0
 VICTORY_BOOM_TIME = 3.0
 DEFAULT_HIGH_SCORE = 10000
+BONUS_LIFE_SCORE = 10000
 LAST_LEVEL = 10
 SHIELD_LOCKS = 20
 MAX_BEAT_TIME = 2.5
@@ -1764,9 +1765,9 @@ function startLevel()
 end
 
 function awardPoints(points)
-	local tenThousands = math.floor(score / 10000)
+	local tenThousands = math.floor(score / BONUS_LIFE_SCORE)
 	score = score + points
-	if math.floor(score / 10000) > tenThousands then
+	if lives < 10 and math.floor(score / BONUS_LIFE_SCORE) > tenThousands then
 		lives = lives + 1
 	end
 end

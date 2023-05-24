@@ -94,8 +94,10 @@ stack traceback:
 [x] Exit while playing game
 [x] Problem where we unlock a lock twice
 [x] fire glow to show hazardous area
-[ ] some status things (hearts) are faded on pause/clear/victory but some aren't
-[ ] pause to quit results in pause on restart
+[x] some status things (hearts) are faded on pause/clear/victory but some aren't
+[x] pause to quit results in pause on restart
+[ ] there's still an infinite loop during level building sometimes
+[ ] roller gets caught in fire
 
 
 # Future features
