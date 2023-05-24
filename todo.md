@@ -93,7 +93,7 @@ stack traceback:
 [x] Set volume as per saved options on startup
 [x] Exit while playing game
 [x] Problem where we unlock a lock twice
-[ ] fire glow to show hazardous area
+[x] fire glow to show hazardous area
 
 # Future features
 
