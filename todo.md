@@ -85,26 +85,23 @@ stack traceback:
 
 # 0.7.0
 
-[ ] Adjust snake level geometry
+[x] Adjust snake level geometry
 [x] Options to 11 (volume zero, infinite lives)
-[ ] Skulls as level deadline
+[x] Skulls as level deadline
 [x] Beep when changing screens
 [ ] adjust scores so you could get a bonus life before lvl 10 / proportional enemy scores per enemies per level
 [x] Set volume as per saved options on startup
 [x] Exit while playing game
 [x] Problem where we unlock a lock twice
+[ ] fire glow to show hazardous area
 
 # Future features
-
-More sounds
-- Bigger boom for victory explosion
 
 # Tuning
 
 spiders aren't much of a threat - faster?
 text gloss / formatting / color
 sound for harmless shot impact?
-victory fade shouldn't fade hearts
 better startup sound
 small skull sprite needs work
 walking into hazardous terrain (turrets, fire) is not precise
@@ -114,7 +111,9 @@ tweak player sprite to make it wider & agree with title graphics
 better graphics for rolling enemy
 don't put flame on flame (or flame should replace old flame)
 better symbol for infinity
-some status stuff is faded on pause but some isn't
+some status stuff is faded on pause/clear/victory but some isn't
+sounds for enemies (shots, rocket launches, etc)
+Bigger boom for victory explosion
 
 # Outstanding bugs
 
@@ -122,8 +121,5 @@ cooldowns and other timers should have time ADDED after it hits zero, shouldn't 
 pointIsObstructed is incorrect for missiles (could detect obstruction from combatant)
 did I see a rocket go through a wall?
 did I see us win a level as soon as it started?
-Any way to force flames to draw under stuff?
-Too many hearts overlaps scores
 obstacles should block rockets
-i saw a lock got triggered twice? causing me to have 4 unlocks for the level?
 

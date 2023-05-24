@@ -42,10 +42,10 @@ BESTIARY = {
 	["player"] = {speed = 64.0, spf = 0.25, points = 0, cooldown = 0.5, collision = "player", hits = 0},
 	["spider"] = {speed = 16.0, spf = 0.2, points = 10, cooldown = 0.0, collision = "enemy", hits = 1, level1 = 4, eachLevel = 2},
 	["wasp"] = {speed = 8.0, spf = 0.05, points = 25, cooldown = 3.0, steps = 5, collision = "enemy", hits = 1, level1 = 4, eachLevel = 2},
-	["turret"] = {speed = 0.0, spf = 0.25, points = 0, cooldown = 10.0, collision = "invulnerable", hits = 0, level1 = 4, eachLevel = 2},
-	["skull"] = {speed = 16.0, spf = 0.25, points = 0, cooldown = 0.0, collision = "insubstantial", hits = 0},
+	["turret"] = {speed = 0.0, spf = 0.25, points = 0, cooldown = 10.0, collision = "invulnerable", hits = 0, level1 = 2, eachLevel = 2},
+	["skull"] = {speed = 16.0, spf = 0.25, points = 0, cooldown = 0.0, collision = "omnipotent", hits = 0},
 	["tank"] = {speed = 64.0, spf = 0.15, points = 100, cooldown = 3.0, steps = 10, collision = "enemy", hits = 10, level1 = 2, eachLevel = 0.5},
-	["launcher"] = {speed = 24.0, spf = 0.25, points = 200, cooldown = 10.0, steps = 5, collision = "enemy", hits = 3, level1 = 3, eachLevel = 1},
+	["launcher"] = {speed = 24.0, spf = 0.25, points = 200, cooldown = 10.0, steps = 5, collision = "enemy", hits = 3, level1 = 2, eachLevel = 1},
 	["rocket"] = {speed = 96.0, spf = 0.1, points = 10, cooldown = 0.0, collision = "enemy", hits = 1},
 	["slider"] = {speed = 32.0, spf = 0.0, points = 0, cooldown = 1.5, steps = 21, collision = "invulnerable", hits = 0},
 	["trailer"] = {speed = 48.0, spf = 0.2, points = 50, cooldown = 0.0, steps = 5, collision = "enemy", hits = 5, level1 = 2, eachLevel = 0.5},
@@ -96,6 +96,7 @@ MAX_BEAT_TIME = 2.5
 BEAT_PER_LEVEL = 0.1
 INFINITE_LIVES = 11
 INFINITE_SYMBOL = utf8.char(8734)
+DEADLINE = 60.0
 
 -- globals
 
@@ -136,6 +137,7 @@ startingLives = DEFAULT_LIVES
 menuLevel = 1
 quitting = false
 paused = false
+lifetime = 0.0
 
 -- LOVE callbacks
 
@@ -372,11 +374,16 @@ function tick(delta)
 			end
 		end
 	else
-		-- hearbeat
+		-- heartbeat and life timer
 		beat = beat - delta
 		if beat <= 0.0 then
 			sounds["heartbeat"]:play()
 			resetHeartbeat()
+		end
+		lifetime = lifetime + delta
+		if lifetime >= DEADLINE then
+			makeSkull()
+			lifetime = lifetime - DEADLINE
 		end
 
 		-- do player and enemy stuff
@@ -863,10 +870,10 @@ function buildSnakeMap()
 	local horizontal = false
 	local wall1Width = 3
 	local wall1Length = math.random(15, 20) 
-	local wall1Position = 5
+	local wall1Position = math.random(5, 7)
 	local wall2Width = 3
 	local wall2Length = math.random(15, 20) 
-	local wall2Position = 21
+	local wall2Position = math.random(22, 24)
 	for x = 0, MAP_SIZE - 1 do
 		mapInfo[x] = {}
 		for y = 0, MAP_SIZE - 1 do
@@ -1086,6 +1093,26 @@ function makeBlast(startX, startY, big)
 		destroyed = false})
 end
 
+function makeSkull()
+	local x = 0.0
+	local y = 0.0
+	if combatants[1].x < TILE_SIZE * MAP_SIZE / 2 then
+		x = TILE_SIZE * (MAP_SIZE - 1)
+	end
+	if combatants[1].y < TILE_SIZE * MAP_SIZE / 2 then
+		y = TILE_SIZE * (MAP_SIZE - 1)
+	end
+	makeCombatant(x, y, "skull")
+end
+
+function removeSkulls()
+	for i, c in ipairs(combatants) do
+		if c.name == "skull" then
+			c.destroyed = true
+		end
+	end
+end
+
 function removeDestroyed(list)
 	local i = 1
 	local copyTo = 1
@@ -1258,7 +1285,7 @@ function moveMissile(missile, delta)
 							killed = true
 						end
 					else
-						if BESTIARY[c.name].collision ~= "invulnerable" then
+						if BESTIARY[c.name].collision ~= "invulnerable" and BESTIARY[c.name].collision ~= "omnipotent" then
 							takeHits(c, 1)
 						end
 					end
@@ -1281,7 +1308,7 @@ function moveBlast(blast, delta)
 end
 
 function unlock(mapX, mapY)
-	if mapInfo[mapX][mapY] != 4 then
+	if mapInfo[mapX][mapY] ~= 4 then
 		return
 	end
 	mapInfo[mapX][mapY] = 5
@@ -1713,7 +1740,6 @@ function startLevel()
 		buildBossMap()
 	else
 		local algorithm = math.random(3)
-		algorithm = 3
 		if algorithm == 1 then
 			buildOfficeMap()
 		elseif algorith == 2 then
@@ -1727,6 +1753,7 @@ function startLevel()
 
 	combatants[1].cooling = 0.0
 	resetHeartbeat()
+	lifetime = 0.0
 	sounds["begin"]:play()
 end
 
@@ -1749,6 +1776,8 @@ function resetPlayer()
 	combatants[1].cooling = 0.0
 	blasts = {}
 	resetHeartbeat()
+	removeSkulls()
+	lifetime = 0.0
 	sounds["begin"]:play()
 end
 
