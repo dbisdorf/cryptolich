@@ -41,14 +41,14 @@ VECTORS = {{x = 1.0, y = 0.0}, {x = 0.0, y = 1.0}, {x = -1.0, y = 0.0}, {x = 0.0
 BESTIARY = {
 	["player"] = {speed = 64.0, spf = 0.25, points = 0, cooldown = 0.5, collision = "player", hits = 0},
 	["spider"] = {speed = 16.0, spf = 0.2, points = 10, cooldown = 0.0, collision = "enemy", hits = 1, level1 = 4, eachLevel = 2},
-	["wasp"] = {speed = 8.0, spf = 0.05, points = 10, cooldown = 3.0, steps = 5, collision = "enemy", hits = 1, level1 = 4, eachLevel = 2},
-	["turret"] = {speed = 0.0, spf = 0.25, points = 10, cooldown = 10.0, collision = "invulnerable", hits = 0, level1 = 4, eachLevel = 2},
-	["skull"] = {speed = 16.0, spf = 0.25, points = 0, cooldown = 0.0, collision = "insubstantial", hits = 0, level1 = 1, eachLevel = 0.5},
-	["tank"] = {speed = 64.0, spf = 0.15, points = 25, cooldown = 3.0, steps = 10, collision = "enemy", hits = 10, level1 = 2, eachLevel = 0.5},
-	["launcher"] = {speed = 24.0, spf = 0.25, points = 25, cooldown = 10.0, steps = 5, collision = "enemy", hits = 3, level1 = 3, eachLevel = 1},
+	["wasp"] = {speed = 8.0, spf = 0.05, points = 25, cooldown = 3.0, steps = 5, collision = "enemy", hits = 1, level1 = 4, eachLevel = 2},
+	["turret"] = {speed = 0.0, spf = 0.25, points = 0, cooldown = 10.0, collision = "invulnerable", hits = 0, level1 = 4, eachLevel = 2},
+	["skull"] = {speed = 16.0, spf = 0.25, points = 0, cooldown = 0.0, collision = "insubstantial", hits = 0},
+	["tank"] = {speed = 64.0, spf = 0.15, points = 100, cooldown = 3.0, steps = 10, collision = "enemy", hits = 10, level1 = 2, eachLevel = 0.5},
+	["launcher"] = {speed = 24.0, spf = 0.25, points = 200, cooldown = 10.0, steps = 5, collision = "enemy", hits = 3, level1 = 3, eachLevel = 1},
 	["rocket"] = {speed = 96.0, spf = 0.1, points = 10, cooldown = 0.0, collision = "enemy", hits = 1},
 	["slider"] = {speed = 32.0, spf = 0.0, points = 0, cooldown = 1.5, steps = 21, collision = "invulnerable", hits = 0},
-	["trailer"] = {speed = 48.0, spf = 0.2, points = 25, cooldown = 0.0, steps = 5, collision = "enemy", hits = 5, level1 = 2, eachLevel = 0.5},
+	["trailer"] = {speed = 48.0, spf = 0.2, points = 50, cooldown = 0.0, steps = 5, collision = "enemy", hits = 5, level1 = 2, eachLevel = 0.5},
 	["flame"] = {speed = 0.0, spf = 0.1, points = 0, cooldown = 10.0, collision = "insubstantial", hits = 0},
 	["shield"] = {spf = 0.25, points = 0, cooldown = 0.0, collision = "invulnerable", hits = 1, passive = true},
 	["battery"] = {spf = 0.5, points = 50, cooldown = 0.0, collision = "enemy", hits = 3, passive = true},
@@ -863,8 +863,10 @@ function buildSnakeMap()
 	local horizontal = false
 	local wall1Width = 3
 	local wall1Length = math.random(15, 20) 
+	local wall1Position = 5
 	local wall2Width = 3
 	local wall2Length = math.random(15, 20) 
+	local wall2Position = 21
 	for x = 0, MAP_SIZE - 1 do
 		mapInfo[x] = {}
 		for y = 0, MAP_SIZE - 1 do
@@ -878,8 +880,8 @@ function buildSnakeMap()
 	end
 	if horizontal then
 		for x = 0, wall1Length - 1 do
-			for y = 5, 4 + wall1Width do
-				if x == wall1Length - 1 or y == 5 or y == 4 + wall1Width then
+			for y = wall1Position, wall1Position + wall1Width - 1 do
+				if x == wall1Length - 1 or y == wall1Position or y == wall1Position + wall1Width - 1 then
 					mapInfo[x][y] = 2
 				else
 					mapInfo[x][y] = 13
@@ -887,20 +889,20 @@ function buildSnakeMap()
 			end
 		end
 		for x = MAP_SIZE - wall1Length, MAP_SIZE - 1 do
-			for y = 21, 20 + wall1Width do
-				if x == MAP_SIZE - wall1Length or y == 21 or y == 20 + wall1Width then
+			for y = wall2Position, wall2Position + wall2Width - 1 do
+				if x == MAP_SIZE - wall1Length or y == wall2Position or y == wall2Position + wall2Width - 1 then
 					mapInfo[x][y] = 2
 				else
 					mapInfo[x][y] = 13
 				end
 			end
 		end
-		mapInfo[MAP_SIZE - 2][5] = 4
-		mapInfo[1][21] = 4
+		mapInfo[MAP_SIZE - 2][wall1Position + 1] = 4
+		mapInfo[1][wall2Position + 1] = 4
 	else
 		for y = 0, wall1Length - 1 do
-			for x = 5, 4 + wall1Width do
-				if y == wall1Length - 1 or x == 5 or x == 4 + wall1Width then
+			for x = wall1Position, wall1Position + wall1Width - 1 do
+				if y == wall1Length - 1 or x == wall1Position or x == wall1Position + wall1Width - 1 then
 					mapInfo[x][y] = 2
 				else
 					mapInfo[x][y] = 13
@@ -908,16 +910,16 @@ function buildSnakeMap()
 			end
 		end
 		for y = MAP_SIZE - wall1Length, MAP_SIZE - 1 do
-			for x = 21, 20 + wall1Width do
-				if y == MAP_SIZE - wall1Length or x == 21 or x == 20 + wall1Width then
+			for x = wall2Position, wall2Position + wall2Width - 1 do
+				if y == MAP_SIZE - wall1Length or x == wall2Position or x == wall2Position + wall2Width - 1 then
 					mapInfo[x][y] = 2
 				else
 					mapInfo[x][y] = 13
 				end
 			end
 		end
-		mapInfo[5][MAP_SIZE - 2] = 4
-		mapInfo[21][1] = 4
+		mapInfo[wall1Position + 1][MAP_SIZE - 2] = 4
+		mapInfo[wall2Position + 1][1] = 4
 	end
 	if math.random(1, 2) == 1 then
 		for x = 1, 3 do
@@ -1279,6 +1281,9 @@ function moveBlast(blast, delta)
 end
 
 function unlock(mapX, mapY)
+	if mapInfo[mapX][mapY] != 4 then
+		return
+	end
 	mapInfo[mapX][mapY] = 5
 	redrawMapTile(mapX, mapY)
 	unlocked = unlocked + 1
@@ -1708,6 +1713,7 @@ function startLevel()
 		buildBossMap()
 	else
 		local algorithm = math.random(3)
+		algorithm = 3
 		if algorithm == 1 then
 			buildOfficeMap()
 		elseif algorith == 2 then

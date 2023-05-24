@@ -89,9 +89,10 @@ stack traceback:
 [x] Options to 11 (volume zero, infinite lives)
 [ ] Skulls as level deadline
 [x] Beep when changing screens
-[ ] adjust scores so you could get a bonus life before lvl 10
+[ ] adjust scores so you could get a bonus life before lvl 10 / proportional enemy scores per enemies per level
 [x] Set volume as per saved options on startup
 [x] Exit while playing game
+[x] Problem where we unlock a lock twice
 
 # Future features
 
@@ -123,3 +124,6 @@ did I see a rocket go through a wall?
 did I see us win a level as soon as it started?
 Any way to force flames to draw under stuff?
 Too many hearts overlaps scores
+obstacles should block rockets
+i saw a lock got triggered twice? causing me to have 4 unlocks for the level?
+
