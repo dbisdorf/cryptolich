@@ -97,7 +97,10 @@ stack traceback:
 [x] some status things (hearts) are faded on pause/clear/victory but some aren't
 [x] pause to quit results in pause on restart
 [ ] there's still an infinite loop sometimes when building snake level
+	drawing cross walls	5	20	24	20
 [x] roller gets caught in fire
+[x] i think the fire lasts a bit too long
+[x] make boom smaller
 
 
 # Future features
@@ -118,6 +121,11 @@ better graphics for rolling enemy
 better symbol for infinity
 sounds for enemies (shots, rocket launches, etc)
 Bigger boom for victory explosion
+Maybe one or two more obstacles, other than desks?
+should we freeze the level during the victory stall? is it possible for a missile to still kill you?
+boom shouldn't be so big
+rocket collision could be more precise...should we just have per-enemy collision sizes?
+- and or player collision should be more precise
 
 # Outstanding bugs
 

@@ -49,7 +49,7 @@ BESTIARY = {
 	["rocket"] = {speed = 96.0, spf = 0.1, points = 10, cooldown = 0.0, collision = "enemy", hits = 1},
 	["slider"] = {speed = 32.0, spf = 0.0, points = 0, cooldown = 1.5, steps = 21, collision = "invulnerable", hits = 0},
 	["trailer"] = {speed = 48.0, spf = 0.2, points = 50, cooldown = 0.0, steps = 5, collision = "enemy", hits = 5, level1 = 2, eachLevel = 0.5},
-	["flame"] = {speed = 0.0, spf = 0.1, points = 0, cooldown = 10.0, collision = "insubstantial", hits = 0},
+	["flame"] = {speed = 0.0, spf = 0.1, points = 0, cooldown = 5.0, collision = "insubstantial", hits = 0},
 	["shield"] = {spf = 0.25, points = 0, cooldown = 0.0, collision = "invulnerable", hits = 1, passive = true},
 	["battery"] = {spf = 0.5, points = 50, cooldown = 0.0, collision = "enemy", hits = 3, passive = true},
 	["boss"] = {spf = 0.0, speed = 32.0, cooldown = 3.0, steps = 3, hits = 0, collision = "invulnerable"}
@@ -82,8 +82,8 @@ LOCK_POINTS = 100
 LEVEL_POINTS = 1000
 VICTORY_POINTS = 2500
 START_POSITION = {x = 16, y = 16}
-BLAST_TIME = 1.0
-BLAST_SIZE = 400.0
+BLAST_TIME = 0.5
+BLAST_SIZE = 200.0
 STALL_TIME = 2.0
 TICK_TIME = 0.1
 FLASH_TIME = 0.2
@@ -280,7 +280,7 @@ function love.draw()
 		love.graphics.print(string.format("HIGH %06d", highScore), 220, 4)
 		local lifeString
 		if lives <= 5 then
-			lifeString = string.rep(LIFE_SYMBOL)
+			lifeString = string.rep(LIFE_SYMBOL, lives)
 		elseif lives == INFINITE_LIVES then
 			lifeString = INFINITE_SYMBOL .. " " .. LIFE_SYMBOL
 		elseif lives > 5 then
@@ -874,12 +874,16 @@ end
 function buildSnakeMap()
 	mapInfo = {}
 	local horizontal = false
+	if math.random(2) == 2 then
+		horizontal = true
+	end
 	local wall1Width = 3
 	local wall1Length = math.random(15, 20) 
 	local wall1Position = math.random(5, 7)
 	local wall2Width = 3
 	local wall2Length = math.random(15, 20) 
 	local wall2Position = math.random(22, 24)
+	print("laying down foundation")
 	for x = 0, MAP_SIZE - 1 do
 		mapInfo[x] = {}
 		for y = 0, MAP_SIZE - 1 do
@@ -891,6 +895,7 @@ function buildSnakeMap()
 			end
 		end
 	end
+	print("drawing cross walls", wall1Position, wall1Length, wall2Position, wall2Length)
 	if horizontal then
 		for x = 0, wall1Length - 1 do
 			for y = wall1Position, wall1Position + wall1Width - 1 do
@@ -901,9 +906,9 @@ function buildSnakeMap()
 				end
 			end
 		end
-		for x = MAP_SIZE - wall1Length, MAP_SIZE - 1 do
+		for x = MAP_SIZE - wall2Length, MAP_SIZE - 1 do
 			for y = wall2Position, wall2Position + wall2Width - 1 do
-				if x == MAP_SIZE - wall1Length or y == wall2Position or y == wall2Position + wall2Width - 1 then
+				if x == MAP_SIZE - wall2Length or y == wall2Position or y == wall2Position + wall2Width - 1 then
 					mapInfo[x][y] = 2
 				else
 					mapInfo[x][y] = 13
@@ -922,9 +927,9 @@ function buildSnakeMap()
 				end
 			end
 		end
-		for y = MAP_SIZE - wall1Length, MAP_SIZE - 1 do
+		for y = MAP_SIZE - wall2Length, MAP_SIZE - 1 do
 			for x = wall2Position, wall2Position + wall2Width - 1 do
-				if y == MAP_SIZE - wall1Length or x == wall2Position or x == wall2Position + wall2Width - 1 then
+				if y == MAP_SIZE - wall2Length or x == wall2Position or x == wall2Position + wall2Width - 1 then
 					mapInfo[x][y] = 2
 				else
 					mapInfo[x][y] = 13
@@ -934,6 +939,7 @@ function buildSnakeMap()
 		mapInfo[wall1Position + 1][MAP_SIZE - 2] = 4
 		mapInfo[wall2Position + 1][1] = 4
 	end
+	print("setting up start areas and servers")
 	if math.random(1, 2) == 1 then
 		for x = 1, 3 do
 			for y = 1, 3 do
@@ -953,6 +959,7 @@ function buildSnakeMap()
 		startY = (MAP_SIZE - 2) * TILE_SIZE
 		mapInfo[1][1] = 4
 	end
+	print("laying down obstacles")
 	local mapX, mapY
 	for o = 1, 12 do
 		mapX, mapY = findVacantSpot(2, 2, 29, 29, true)
@@ -1086,8 +1093,8 @@ function makeBlast(startX, startY, big)
 	local duration = BLAST_TIME
 	local size = BLAST_SIZE
 	if not big then
-		duration = duration / 5.0
-		size = size / 5.0
+		duration = duration / 2.5
+		size = size / 2.5
 	end
 	table.insert(blasts, {
 		x = startX,
