@@ -1366,7 +1366,7 @@ function pointIsObstructed(x, y, from)
 		obstructed = true
 	elseif from ~= "player" then
 		for i, c in ipairs(combatants) do
-			if x == c.dX and y == c.dY then
+			if BESTIARY[c.name].collision ~= "insubstantial" and x == c.dX and y == c.dY then
 				if not (from == "enemy" and i == 1) then
 					obstructed = true
 					break

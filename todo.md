@@ -96,8 +96,8 @@ stack traceback:
 [x] fire glow to show hazardous area
 [x] some status things (hearts) are faded on pause/clear/victory but some aren't
 [x] pause to quit results in pause on restart
-[ ] there's still an infinite loop during level building sometimes
-[ ] roller gets caught in fire
+[ ] there's still an infinite loop sometimes when building snake level
+[x] roller gets caught in fire
 
 
 # Future features
