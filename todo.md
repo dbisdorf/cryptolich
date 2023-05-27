@@ -101,9 +101,9 @@ stack traceback:
 [x] roller gets caught in fire
 [x] i think the fire lasts a bit too long
 [x] make boom smaller
-[ ] using gamepad A to start shouldn't fire laser on startup
-[ ] space out credit screen lines
-[ ] allow escape from game over
+[x] using gamepad A to start shouldn't fire laser on startup
+[x] space out credit screen lines
+[x] allow escape from game over
 
 # 0.8.0
 
