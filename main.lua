@@ -41,11 +41,11 @@ VECTORS = {{x = 1.0, y = 0.0}, {x = 0.0, y = 1.0}, {x = -1.0, y = 0.0}, {x = 0.0
 BESTIARY = {
 	["player"] = {speed = 64.0, spf = 0.25, points = 0, cooldown = 0.5, collision = "player", hits = 0},
 	["spider"] = {speed = 16.0, spf = 0.2, points = 10, cooldown = 0.0, collision = "enemy", hits = 1, level1 = 4, eachLevel = 2},
-	["wasp"] = {speed = 8.0, spf = 0.05, points = 25, cooldown = 3.0, steps = 5, collision = "enemy", hits = 1, level1 = 4, eachLevel = 2},
+	["wasp"] = {speed = 8.0, spf = 0.05, points = 25, cooldown = 3.0, steps = 5, collision = "enemy", hits = 1, level1 = 2, eachLevel = 2},
 	["turret"] = {speed = 0.0, spf = 0.25, points = 0, cooldown = 10.0, collision = "invulnerable", hits = 0, level1 = 2, eachLevel = 2},
 	["skull"] = {speed = 16.0, spf = 0.25, points = 0, cooldown = 0.0, collision = "omnipotent", hits = 0},
 	["tank"] = {speed = 64.0, spf = 0.15, points = 100, cooldown = 3.0, steps = 10, collision = "enemy", hits = 10, level1 = 2, eachLevel = 0.5},
-	["launcher"] = {speed = 24.0, spf = 0.25, points = 200, cooldown = 10.0, steps = 5, collision = "enemy", hits = 3, level1 = 2, eachLevel = 1},
+	["launcher"] = {speed = 24.0, spf = 0.25, points = 75, cooldown = 10.0, steps = 5, collision = "enemy", hits = 3, level1 = 2, eachLevel = 1},
 	["rocket"] = {speed = 96.0, spf = 0.1, points = 10, cooldown = 0.0, collision = "enemy", hits = 1},
 	["slider"] = {speed = 32.0, spf = 0.0, points = 0, cooldown = 1.5, steps = 21, collision = "invulnerable", hits = 0},
 	["trailer"] = {speed = 48.0, spf = 0.2, points = 50, cooldown = 0.0, steps = 5, collision = "enemy", hits = 5, level1 = 2, eachLevel = 0.5},
@@ -322,7 +322,7 @@ function tick(delta)
 
 	if gameOver then
 		-- wait until start
-		if startButton() then
+		if startButton() or backButton() then
 			startTitle()
 			return
 		end
@@ -458,6 +458,8 @@ function tick(delta)
 			if player.cooling < 0.0 then
 				player.cooling = 0.0
 			end
+		elseif oldButtons then
+			checkOldButtons()
 		else
 			if shootButton() then
 				-- unlocked = locks
@@ -1709,6 +1711,7 @@ function startTitle()
 end
 
 function startGame()
+	checkOldButtons()
 	score = 0
 	level = 1
 	lives = startingLives

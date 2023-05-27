@@ -89,19 +89,27 @@ stack traceback:
 [x] Options to 11 (volume zero, infinite lives)
 [x] Skulls as level deadline
 [x] Beep when changing screens
-[ ] adjust scores so you could get a bonus life before lvl 10 / proportional enemy scores per enemies per level
+[x] adjust scores so you could get a bonus life before lvl 10 / proportional enemy scores per enemies per level
 [x] Set volume as per saved options on startup
 [x] Exit while playing game
 [x] Problem where we unlock a lock twice
 [x] fire glow to show hazardous area
 [x] some status things (hearts) are faded on pause/clear/victory but some aren't
 [x] pause to quit results in pause on restart
-[ ] there's still an infinite loop sometimes when building snake level
+[x] there's still an infinite loop sometimes when building snake level
 	drawing cross walls	5	20	24	20
 [x] roller gets caught in fire
 [x] i think the fire lasts a bit too long
 [x] make boom smaller
+[ ] using gamepad A to start shouldn't fire laser on startup
+[ ] space out credit screen lines
+[ ] allow escape from game over
 
+# 0.8.0
+
+[ ] rocket collision could be more precise...should we just have per-enemy collision sizes?
+[ ] player collision with enemy sprites should be more precise
+[ ] rocket should explode upon collision with player
 
 # Future features
 
@@ -123,9 +131,7 @@ sounds for enemies (shots, rocket launches, etc)
 Bigger boom for victory explosion
 Maybe one or two more obstacles, other than desks?
 should we freeze the level during the victory stall? is it possible for a missile to still kill you?
-boom shouldn't be so big
-rocket collision could be more precise...should we just have per-enemy collision sizes?
-- and or player collision should be more precise
+keep adjusting scores
 
 # Outstanding bugs
 
