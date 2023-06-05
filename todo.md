@@ -107,10 +107,18 @@ stack traceback:
 
 # 0.8.0
 
-[ ] rocket collision could be more precise...should we just have per-enemy collision sizes?
+[x] rocket collision could be more precise...should we just have per-enemy collision sizes?
 [x] player collision with enemy sprites should be more precise
-[ ] rocket should explode upon collision with player
+[x] rocket should explode upon collision with player
 [ ] do we need to use the start/enter button at all?
+[ ] more sounds, including:
+[x] - wasp shots
+[x] - rocket launcher
+[ ] - fire roller
+[ ] - truck racing
+[ ] - sliding turret shots
+[ ] - skull shots
+[ ] roller should only drop fire if it moves
 
 # Future features
 
@@ -121,14 +129,12 @@ text gloss / formatting / color
 sound for harmless shot impact?
 better startup sound
 small skull sprite needs work
-walking into hazardous terrain (turrets, fire) is not precise
 detection of invalid places to start fire is not precise
 - might help if launcher only fires from intersections
 - don't put flame on flame (or flame should replace old flame)
 tweak player sprite to make it wider & agree with title graphics
 better graphics for rolling enemy
 better symbol for infinity
-sounds for enemies (shots, rocket launches, etc)
 Bigger boom for victory explosion
 Maybe one or two more obstacles, other than desks?
 should we freeze the level during the victory stall? is it possible for a missile to still kill you?

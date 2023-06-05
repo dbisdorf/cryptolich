@@ -192,7 +192,7 @@ function love.load()
 	mapCanvas = love.graphics.newCanvas(MAP_SIZE * TILE_SIZE, MAP_SIZE * TILE_SIZE)
 	spriteBatch = love.graphics.newSpriteBatch(textures, 100)
 
-	sounds["zap"] = love.audio.newSource("zap.wav", "static")
+	sounds["player"] = love.audio.newSource("player.wav", "static")
 	sounds["boom"] = love.audio.newSource("boom.wav", "static")
 	sounds["unlock"] = love.audio.newSource("unlock.wav", "static")
 	sounds["level"] = love.audio.newSource("level.wav", "static")
@@ -201,6 +201,9 @@ function love.load()
 	sounds["startup"] = love.audio.newSource("startup.wav", "static")
 	sounds["begin"] = love.audio.newSource("begin.wav", "static")
 	sounds["beep"] = love.audio.newSource("beep.wav", "static")
+	sounds["wasp"] = love.audio.newSource("wasp.wav", "static")
+	sounds["launcher"] = love.audio.newSource("launcher.wav", "static")
+	sounds["turret"] = love.audio.newSource("turret.wav", "static")
 
 	readSaveFile()
 
@@ -469,7 +472,6 @@ function tick(delta)
 					player.y + (VECTORS[player.facing].y * TILE_CENTER), 
 					player.facing,
 					"player")
-				sounds["zap"]:play()
 			end
 		end
 
@@ -1089,6 +1091,7 @@ function makeMissile(startX, startY, facing, shooter)
 		facing = facing, 
 		name = shooter .. "M",
 		destroyed = false})
+	sounds[shooter]:play()
 end
 
 function makeBlast(startX, startY, big)
@@ -1512,6 +1515,7 @@ function runEnemyShooterLogic(enemy, delta, rangeX, rangeY)
 				"rocket")
 			rocket.facing = fireFacing
 			rocket.stepping = math.floor(math.max(math.abs(rangeX), math.abs(rangeY)) / TILE_SIZE)
+			sounds["launcher"]:play()
 		else
 			makeMissile(
 				enemy.x + VECTORS[fireFacing].x * TILE_SIZE, 
@@ -1735,7 +1739,7 @@ function placeRandomEnemies()
 	local chosen = {}
 	local r = 0
 	while #chosen < 3 do
-		r = math.random(#chosen)
+		r = math.random(#keys)
 		table.insert(chosen, keys[r])
 		table.remove(keys, r)
 	end
