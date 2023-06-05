@@ -108,8 +108,9 @@ stack traceback:
 # 0.8.0
 
 [ ] rocket collision could be more precise...should we just have per-enemy collision sizes?
-[ ] player collision with enemy sprites should be more precise
+[x] player collision with enemy sprites should be more precise
 [ ] rocket should explode upon collision with player
+[ ] do we need to use the start/enter button at all?
 
 # Future features
 

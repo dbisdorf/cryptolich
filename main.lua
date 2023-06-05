@@ -13,7 +13,7 @@ COLOR_BLACK = {0.0, 0.0, 0.0, 1.0}
 COLOR_FLASH = {1.0, 0.0, 0.0, 1.0}
 COLOR_GRAY = {0.6, 0.6, 0.6}
 COLOR_RED = {1.0, 0.1, 0.1}
-VERSION_TEXT = {{0.4, 0.4, 0.4}, "VERSION 0.7.0"}
+VERSION_TEXT = {{0.4, 0.4, 0.4}, "VERSION 0.8.0"}
 TITLE_MENU_TEXT = {"PLAY", "INSTRUCTIONS", "OPTIONS", "CREDITS", "QUIT"}
 GAME_OVER_TEXT = {{1.0, 0.2, 0.2}, "GAME OVER"}
 UNLOCKED_TEXT = {{0.5, 1.0, 0.5}, "SECURITY UNLOCKED"}
@@ -46,7 +46,7 @@ BESTIARY = {
 	["skull"] = {speed = 16.0, spf = 0.25, points = 0, cooldown = 0.0, collision = "omnipotent", hits = 0},
 	["tank"] = {speed = 64.0, spf = 0.15, points = 100, cooldown = 3.0, steps = 10, collision = "enemy", hits = 10, level1 = 2, eachLevel = 0.5},
 	["launcher"] = {speed = 24.0, spf = 0.25, points = 75, cooldown = 10.0, steps = 5, collision = "enemy", hits = 3, level1 = 2, eachLevel = 1},
-	["rocket"] = {speed = 96.0, spf = 0.1, points = 10, cooldown = 0.0, collision = "enemy", hits = 1},
+	["rocket"] = {speed = 96.0, spf = 0.1, points = 0, cooldown = 0.0, collision = "enemy", hits = 1},
 	["slider"] = {speed = 32.0, spf = 0.0, points = 0, cooldown = 1.5, steps = 21, collision = "invulnerable", hits = 0},
 	["trailer"] = {speed = 48.0, spf = 0.2, points = 50, cooldown = 0.0, steps = 5, collision = "enemy", hits = 5, level1 = 2, eachLevel = 0.5},
 	["flame"] = {speed = 0.0, spf = 0.1, points = 0, cooldown = 5.0, collision = "insubstantial", hits = 0},
@@ -885,7 +885,7 @@ function buildSnakeMap()
 	local wall2Width = 3
 	local wall2Length = math.random(15, 20) 
 	local wall2Position = math.random(22, 24)
-	print("laying down foundation")
+	--print("laying down foundation")
 	for x = 0, MAP_SIZE - 1 do
 		mapInfo[x] = {}
 		for y = 0, MAP_SIZE - 1 do
@@ -897,7 +897,7 @@ function buildSnakeMap()
 			end
 		end
 	end
-	print("drawing cross walls", wall1Position, wall1Length, wall2Position, wall2Length)
+	--print("drawing cross walls", wall1Position, wall1Length, wall2Position, wall2Length)
 	if horizontal then
 		for x = 0, wall1Length - 1 do
 			for y = wall1Position, wall1Position + wall1Width - 1 do
@@ -941,7 +941,7 @@ function buildSnakeMap()
 		mapInfo[wall1Position + 1][MAP_SIZE - 2] = 4
 		mapInfo[wall2Position + 1][1] = 4
 	end
-	print("setting up start areas and servers")
+	--print("setting up start areas and servers")
 	if math.random(1, 2) == 1 then
 		for x = 1, 3 do
 			for y = 1, 3 do
@@ -961,7 +961,7 @@ function buildSnakeMap()
 		startY = (MAP_SIZE - 2) * TILE_SIZE
 		mapInfo[1][1] = 4
 	end
-	print("laying down obstacles")
+	--print("laying down obstacles")
 	local mapX, mapY
 	for o = 1, 12 do
 		mapX, mapY = findVacantSpot(2, 2, 29, 29, true)
@@ -1261,9 +1261,13 @@ function moveCombatant(combatant, delta)
 		end
 	end
 	if combatant.name ~= "player" then
-		if math.abs(combatant.x - combatants[1].x) < TILE_SIZE and
-			math.abs(combatant.y - combatants[1].y) < TILE_SIZE then
-			killed = true
+		if math.abs(combatant.x - combatants[1].x) < TILE_SIZE - 2 and
+			math.abs(combatant.y - combatants[1].y) < TILE_SIZE - 2 then
+			if combatant.name == "rocket" then
+				takeHits(combatant, 1)
+			else
+				killed = true
+			end
 		end
 	end
 end
