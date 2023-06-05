@@ -91,7 +91,7 @@ VICTORY_FULL_TIME = 6.0
 VICTORY_BOOM_TIME = 3.0
 DEFAULT_HIGH_SCORE = 10000
 BONUS_LIFE_SCORE = 10000
-LAST_LEVEL = 10
+LAST_LEVEL = 1
 SHIELD_LOCKS = 20
 MAX_BEAT_TIME = 2.5
 BEAT_PER_LEVEL = 0.1
@@ -204,6 +204,8 @@ function love.load()
 	sounds["wasp"] = love.audio.newSource("wasp.wav", "static")
 	sounds["launcher"] = love.audio.newSource("launcher.wav", "static")
 	sounds["turret"] = love.audio.newSource("turret.wav", "static")
+	sounds["slider"] = love.audio.newSource("slider.wav", "static")
+	sounds["boss"] = love.audio.newSource("boss.wav", "static")
 
 	readSaveFile()
 
