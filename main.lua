@@ -1734,8 +1734,8 @@ function placeRandomEnemies()
 	end
 	local chosen = {}
 	local r = 0
-	while table.getn(chosen) < 3 do
-		r = math.random(table.getn(chosen))
+	while #chosen < 3 do
+		r = math.random(#chosen)
 		table.insert(chosen, keys[r])
 		table.remove(keys, r)
 	end
