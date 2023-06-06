@@ -315,7 +315,7 @@ function tick(delta)
 				instructions = false
 				credits = false
 				title = true
-				sounds["beep"]:play()
+				menuBeep()
 				checkOldButtons()
 			end
 		end
@@ -652,6 +652,11 @@ function optionsRect(level, option)
 	return rect
 end
 
+function menuBeep()
+	sounds["beep"]:stop()
+	sounds["beep"]:play()
+end
+
 function updateTitle()
 	if oldButtons then
 		checkOldButtons()
@@ -687,7 +692,7 @@ function updateTitle()
 		love.event.quit(0)
 	end
 	if beep then
-		sounds["beep"]:play()
+		menuBeep()
 	end
 	checkOldButtons()
 end
@@ -727,13 +732,13 @@ function updateOptions()
 		end
 	end
 	if changed then
-		sounds["beep"]:play()
+		menuBeep()
 	end
 	if backButton() then
 		options = false
 		title = true
 		writeSaveFile()
-		sounds["beep"]:play()
+		menuBeep()
 	end
 	checkOldButtons()
 end

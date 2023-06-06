@@ -110,13 +110,12 @@ stack traceback:
 [x] rocket collision could be more precise...should we just have per-enemy collision sizes?
 [x] player collision with enemy sprites should be more precise
 [x] rocket should explode upon collision with player
-[ ] do we need to use the start/enter button at all?
-[ ] more sounds, including:
+[x] more sounds, including:
 [x] - wasp shots
 [x] - rocket launcher
 [x] - fire roller
 [x] - truck racing
-[ ] - sliding turret shots (less annoying)
+[x] - sliding turret shots (less annoying)
 [x] - skull shots
 [x] roller should only drop fire if it moves
 [x] press ESC *to go back*
