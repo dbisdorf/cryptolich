@@ -206,6 +206,8 @@ function love.load()
 	sounds["turret"] = love.audio.newSource("turret.wav", "static")
 	sounds["slider"] = love.audio.newSource("slider.wav", "static")
 	sounds["boss"] = love.audio.newSource("boss.wav", "static")
+	sounds["tank"] = love.audio.newSource("tank.wav", "static")
+	sounds["trailer"] = love.audio.newSource("trailer.wav", "static")
 
 	readSaveFile()
 
@@ -1530,6 +1532,7 @@ end
 
 function runEnemyRammerLogic(enemy, delta, rangeX, rangeY)
 	if enemy.waiting then
+		local goNow = false
 		if enemy.stepping == 0 then
 			if enemy.cooling <= 0.0 then
 				local vX = 0.0
@@ -1547,12 +1550,16 @@ function runEnemyRammerLogic(enemy, delta, rangeX, rangeY)
 				end
 				enemy.facing = facing
 				enemy.stepping = BESTIARY[enemy.name].steps
+				goNow = true
 			end
 		end
 		if enemy.stepping > 0 then
 			local futureX = enemy.x + (VECTORS[enemy.facing].x * TILE_SIZE)
 			local futureY = enemy.y + (VECTORS[enemy.facing].y * TILE_SIZE)
 			if not pointIsObstructed(futureX, futureY, BESTIARY[enemy.name].collision) then
+				if goNow then
+					sounds[enemy.name]:play()
+				end
 				if enemy.name == "trailer" then
 					local fire = makeCombatant(enemy.x, enemy.y, "flame")
 					fire.waiting = false

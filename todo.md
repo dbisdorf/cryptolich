@@ -114,12 +114,13 @@ stack traceback:
 [ ] more sounds, including:
 [x] - wasp shots
 [x] - rocket launcher
-[ ] - fire roller
-[ ] - truck racing
+[x] - fire roller
+[x] - truck racing
 [ ] - sliding turret shots (less annoying)
 [x] - skull shots
-[ ] roller should only drop fire if it moves
+[x] roller should only drop fire if it moves
 [x] press ESC *to go back*
+[ ] fix the problem where rapid menu clicks don't give you all the sounds
 
 # Future features
 
@@ -140,6 +141,7 @@ Bigger boom for victory explosion
 Maybe one or two more obstacles, other than desks?
 should we freeze the level during the victory stall? is it possible for a missile to still kill you?
 keep adjusting scores
+only play an enemy sound if the action is on screen?
 
 # Outstanding bugs
 
