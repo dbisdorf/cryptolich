@@ -119,7 +119,7 @@ stack traceback:
 [ ] - sliding turret shots (less annoying)
 [x] - skull shots
 [ ] roller should only drop fire if it moves
-[ ] press ESC *to go back*
+[x] press ESC *to go back*
 
 # Future features
 

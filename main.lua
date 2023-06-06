@@ -91,7 +91,7 @@ VICTORY_FULL_TIME = 6.0
 VICTORY_BOOM_TIME = 3.0
 DEFAULT_HIGH_SCORE = 10000
 BONUS_LIFE_SCORE = 10000
-LAST_LEVEL = 1
+LAST_LEVEL = 10
 SHIELD_LOCKS = 20
 MAX_BEAT_TIME = 2.5
 BEAT_PER_LEVEL = 0.1
@@ -253,7 +253,7 @@ function love.draw()
 				love.graphics.setColor(COLOR_FADE)
 			end
 		end
-		
+
 		love.graphics.draw(mapCanvas, SCREEN_CENTER.x - combatants[1].x, SCREEN_CENTER.y - combatants[1].y)
 		love.graphics.draw(spriteBatch)
 
@@ -1530,10 +1530,6 @@ end
 
 function runEnemyRammerLogic(enemy, delta, rangeX, rangeY)
 	if enemy.waiting then
-		if enemy.name == "trailer" then
-			local fire = makeCombatant(enemy.x, enemy.y, "flame")
-			fire.waiting = false
-		end
 		if enemy.stepping == 0 then
 			if enemy.cooling <= 0.0 then
 				local vX = 0.0
@@ -1557,6 +1553,10 @@ function runEnemyRammerLogic(enemy, delta, rangeX, rangeY)
 			local futureX = enemy.x + (VECTORS[enemy.facing].x * TILE_SIZE)
 			local futureY = enemy.y + (VECTORS[enemy.facing].y * TILE_SIZE)
 			if not pointIsObstructed(futureX, futureY, BESTIARY[enemy.name].collision) then
+				if enemy.name == "trailer" then
+					local fire = makeCombatant(enemy.x, enemy.y, "flame")
+					fire.waiting = false
+				end
 				pushCombatant(enemy, enemy.facing)
 				enemy.stepping = enemy.stepping - 1
 			else
