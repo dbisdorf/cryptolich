@@ -74,8 +74,11 @@ TERRAIN = {
 	{solid = false, safe = false, nogo = true},
 	{solid = false, safe = false, nogo = true},
 	{solid = false, safe = false, nogo = true},
+	{solid = true, safe = false, nogo = false},
+	{solid = true, safe = false, nogo = false},
 	{solid = true, safe = false, nogo = false}
 }
+OBSTACLES = {3, 3, 3, 3, 3, 3, 3, 14, 14, 15}
 DEFAULT_LIVES = 3
 DEFAULT_VOLUME = 10
 LOCK_POINTS = 100
@@ -185,7 +188,7 @@ function love.load()
 	spriteQuads["blastHS"] = love.graphics.newQuad(64, 224, TILE_SIZE, TILE_SIZE, textures)
 	spriteQuads["blastVS"] = love.graphics.newQuad(80, 224, TILE_SIZE, TILE_SIZE, textures)
 
-	for t = 1, 13 do
+	for t = 1, 15 do
 		tileQuads[t] = love.graphics.newQuad((t - 1) * TILE_SIZE, 240, TILE_SIZE, TILE_SIZE, textures)
 	end
 
@@ -762,6 +765,10 @@ function loadMissileSprites(name, x, y)
 	end
 end
 
+function randomObstacle()
+	return OBSTACLES[math.random(10)]
+end
+
 function buildOfficeMap()
 	mapInfo = {}
 
@@ -802,7 +809,7 @@ function buildOfficeMap()
 	local mapX, mapY
 	for o = 1, 12 do
 		mapX, mapY = findVacantSpot(2, 2, 29, 29, true)
-		mapInfo[mapX][mapY] = 3
+		mapInfo[mapX][mapY] = randomObstacle()
 	end
 	if corner == 1 then
 		startX = TILE_SIZE
@@ -976,7 +983,7 @@ function buildSnakeMap()
 	local mapX, mapY
 	for o = 1, 12 do
 		mapX, mapY = findVacantSpot(2, 2, 29, 29, true)
-		mapInfo[mapX][mapY] = 3
+		mapInfo[mapX][mapY] = randomObstacle()
 	end
 	makeCombatant(startX, startY, "player")
 	placeRandomEnemies()
@@ -1457,9 +1464,6 @@ function runEnemyLogic(enemy, delta)
 	elseif enemy.name == "flame" then
 		runEnemyBurnerLogic(enemy, delta)
 	end
-	if BESTIARY[enemy.name].cooldown > 0.0 and enemy.cooling <= 0.0 then
-		enemy.cooling = enemy.cooling + BESTIARY[enemy.name].cooldown
-	end
 end
 
 function runEnemyWalkerLogic(enemy, delta, rangeX, rangeY)
@@ -1488,21 +1492,8 @@ function runEnemyWalkerLogic(enemy, delta, rangeX, rangeY)
 end
 
 function runEnemyShooterLogic(enemy, delta, rangeX, rangeY)
-	if enemy.waiting then
-		if enemy.stepping == 0 then
-			enemy.facing = math.random(1, 4)
-			enemy.stepping = BESTIARY[enemy.name].steps
-		end
-		local futureX = enemy.x + (VECTORS[enemy.facing].x * TILE_SIZE)
-		local futureY = enemy.y + (VECTORS[enemy.facing].y * TILE_SIZE)
-		if not pointIsObstructed(futureX, futureY, BESTIARY[enemy.name].collision) then
-			pushCombatant(enemy, enemy.facing)
-			enemy.stepping = enemy.stepping - 1
-		else
-			enemy.stepping = 0
-		end
-	end
-	if enemy.cooling <= 0.0 then
+	--if enemy.name == "launcher" and enemy.cooling <= 0.0 then print(enemy.cooling, enemy.waiting) end
+	if enemy.cooling <= 0.0 and (enemy.waiting or enemy.name ~= "launcher") then
 		local fireFacing
 		if math.abs(rangeX) > math.abs(rangeY) then
 			if rangeX < 0 then
@@ -1532,6 +1523,21 @@ function runEnemyShooterLogic(enemy, delta, rangeX, rangeY)
 				fireFacing,
 				enemy.name)
 		end
+		enemy.cooling = BESTIARY[enemy.name].cooldown
+	end
+	if enemy.waiting then
+		if enemy.stepping == 0 then
+			enemy.facing = math.random(1, 4)
+			enemy.stepping = BESTIARY[enemy.name].steps
+		end
+		local futureX = enemy.x + (VECTORS[enemy.facing].x * TILE_SIZE)
+		local futureY = enemy.y + (VECTORS[enemy.facing].y * TILE_SIZE)
+		if not pointIsObstructed(futureX, futureY, BESTIARY[enemy.name].collision) then
+			pushCombatant(enemy, enemy.facing)
+			enemy.stepping = enemy.stepping - 1
+		else
+			enemy.stepping = 0
+		end
 	end
 end
 
@@ -1555,6 +1561,7 @@ function runEnemyRammerLogic(enemy, delta, rangeX, rangeY)
 				end
 				enemy.facing = facing
 				enemy.stepping = BESTIARY[enemy.name].steps
+				enemy.cooling = BESTIARY[enemy.name].cooldown
 				goNow = true
 			end
 		end
@@ -1597,6 +1604,8 @@ function runEnemySliderLogic(enemy, delta)
 						enemy.y + TILE_SIZE * 3,
 						DOWN_INDEX, enemy.name)
 				end
+			elseif enemy.cooling <= 0.0 then
+				enemy.cooling = enemy.cooling + BESTIARY[enemy.name].cooldown
 			end
 		end
 	else
@@ -1606,6 +1615,7 @@ function runEnemySliderLogic(enemy, delta)
 				enemy.y + VECTORS[enemy.facing].y * TILE_SIZE,
 				enemy.facing,
 				enemy.name)
+			enemy.cooling = BESTIARY[enemy.name].cooldown
 		end
 	end
 	if enemy.waiting then
@@ -1636,6 +1646,9 @@ function runEnemyTurretLogic(enemy, delta, rangeX, rangeY)
 					enemy.y + VECTORS[v].y * TILE_SIZE,
 					v, enemy.name)
 			end
+		end
+		if enemy.cooling <= 0.0 then
+			enemy.cooling = enemy.cooling + BESTIARY[enemy.name].cooldown
 		end
 	elseif enemy.cooling < 2.0 then
 		enemy.frame = math.floor((enemy.cooling - 1.0) / 0.25) + 1

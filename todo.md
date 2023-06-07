@@ -119,7 +119,8 @@ stack traceback:
 [x] - skull shots
 [x] roller should only drop fire if it moves
 [x] press ESC *to go back*
-[ ] fix the problem where rapid menu clicks don't give you all the sounds
+[x] fix the problem where rapid menu clicks don't give you all the sounds
+[x] obstacles other than desks (signpost, vending machine)
 
 # Future features
 
@@ -128,7 +129,6 @@ stack traceback:
 spiders aren't much of a threat - faster?
 text gloss / formatting / color
 sound for harmless shot impact?
-better startup sound
 small skull sprite needs work
 detection of invalid places to start fire is not precise
 - might help if launcher only fires from intersections
@@ -144,9 +144,7 @@ only play an enemy sound if the action is on screen?
 
 # Outstanding bugs
 
-cooldowns and other timers should have time ADDED after it hits zero, shouldn't just jump up to full time
 pointIsObstructed is incorrect for missiles (could detect obstruction from combatant)
 did I see a rocket go through a wall?
 did I see us win a level as soon as it started?
-obstacles should block rockets
 
