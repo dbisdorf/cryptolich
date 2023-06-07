@@ -143,6 +143,8 @@ menuLevel = 1
 quitting = false
 paused = false
 lifetime = 0.0
+offsetX = 0
+offsetY = 0
 
 -- LOVE callbacks
 
@@ -1107,7 +1109,7 @@ function makeMissile(startX, startY, facing, shooter)
 		facing = facing, 
 		name = shooter .. "M",
 		destroyed = false})
-	sounds[shooter]:play()
+	soundIfOnScreen(shooter, startX, startY)
 end
 
 function makeBlast(startX, startY, big)
@@ -1515,7 +1517,7 @@ function runEnemyShooterLogic(enemy, delta, rangeX, rangeY)
 				"rocket")
 			rocket.facing = fireFacing
 			rocket.stepping = math.floor(math.max(math.abs(rangeX), math.abs(rangeY)) / TILE_SIZE)
-			sounds["launcher"]:play()
+			soundIfOnScreen("launcher", rocket.x, rocket.y)
 		else
 			makeMissile(
 				enemy.x + VECTORS[fireFacing].x * TILE_SIZE, 
@@ -1570,7 +1572,7 @@ function runEnemyRammerLogic(enemy, delta, rangeX, rangeY)
 			local futureY = enemy.y + (VECTORS[enemy.facing].y * TILE_SIZE)
 			if not pointIsObstructed(futureX, futureY, BESTIARY[enemy.name].collision) then
 				if goNow then
-					sounds[enemy.name]:play()
+					soundIfOnScreen(enemy.name, enemy.x, enemy.y)
 				end
 				if enemy.name == "trailer" then
 					local fire = makeCombatant(enemy.x, enemy.y, "flame")
@@ -1794,7 +1796,7 @@ function startLevel()
 		local algorithm = math.random(3)
 		if algorithm == 1 then
 			buildOfficeMap()
-		elseif algorith == 2 then
+		elseif algorithm == 2 then
 			buildServerMap()
 		else
 			buildSnakeMap()
@@ -1877,6 +1879,12 @@ function mapCoordsAtCorners(x, y)
 	return coords
 end
 
+function soundIfOnScreen(snd, x, y)
+	if x > combatants[1].x - SCREEN_CENTER.x and x < combatants[1].x + SCREEN_CENTER.x and
+		y > combatants[1].y - SCREEN_CENTER.y and y < combatants[1].y + SCREEN_CENTER.y then
+		sounds[snd]:play()
+	end
+end
 
 -- gamepad and keyboard functions
 

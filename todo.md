@@ -121,6 +121,7 @@ stack traceback:
 [x] press ESC *to go back*
 [x] fix the problem where rapid menu clicks don't give you all the sounds
 [x] obstacles other than desks (signpost, vending machine)
+[x] only play an enemy sound if the action is on screen
 
 # Future features
 
@@ -140,7 +141,6 @@ Bigger boom for victory explosion
 Maybe one or two more obstacles, other than desks?
 should we freeze the level during the victory stall? is it possible for a missile to still kill you?
 keep adjusting scores
-only play an enemy sound if the action is on screen?
 
 # Outstanding bugs
 
