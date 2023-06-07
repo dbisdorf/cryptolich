@@ -122,18 +122,15 @@ stack traceback:
 [x] fix the problem where rapid menu clicks don't give you all the sounds
 [x] obstacles other than desks (signpost, vending machine)
 [x] only play an enemy sound if the action is on screen
+[x] new fire erases old fire
+[ ] I'm still having a problem where level generation goes into an infinite loop
 
 # Future features
 
 # Tuning
 
-spiders aren't much of a threat - faster?
 text gloss / formatting / color
-sound for harmless shot impact?
 small skull sprite needs work
-detection of invalid places to start fire is not precise
-- might help if launcher only fires from intersections
-- don't put flame on flame (or flame should replace old flame)
 tweak player sprite to make it wider & agree with title graphics
 better graphics for rolling enemy
 better symbol for infinity

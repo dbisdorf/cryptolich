@@ -1422,23 +1422,34 @@ function takeHits(combatant, hits)
 		if combatant.name == "battery" then
 			killBattery()
 		elseif combatant.name == "rocket" then
-			local f
-			local fx
-			local fy
-			local coords
-			for x = -1, 1 do
-				for y = -1, 1 do
-					fx = combatant.x + x * TILE_SIZE
-					fy = combatant.y + y * TILE_SIZE
-					coords = mapCoordsAtCorners(fx, fy)
-					if mapInfo[coords.ulx][coords.uly] == 1 and
-						mapInfo[coords.urx][coords.ury] == 1 and
-						mapInfo[coords.urx][coords.ury] == 1 and
-						mapInfo[coords.urx][coords.ury] == 1 then
-						f = makeCombatant(fx, fy, "flame")
-						f.waiting = false
+			bigFire(combatant.x, combatant.y)
+		end
+	end
+end
+
+function bigFire(middleX, middleY)
+	local f
+	local fx
+	local fy
+	local coords
+	for x = -1, 1 do
+		for y = -1, 1 do
+			fx = middleX + x * TILE_SIZE
+			fy = middleY + y * TILE_SIZE
+			coords = mapCoordsAtCorners(fx, fy)
+			if mapInfo[coords.ulx][coords.uly] == 1 and
+				mapInfo[coords.urx][coords.ury] == 1 and
+				mapInfo[coords.urx][coords.ury] == 1 and
+				mapInfo[coords.urx][coords.ury] == 1 then
+				for i, c in ipairs(combatants) do
+					if c.name == "flame" and
+						fx > c.x - TILE_CENTER and fx < c.x + TILE_CENTER and
+						fy > c.y - TILE_CENTER and fy < c.y + TILE_CENTER then
+						c.destroyed = true
 					end
 				end
+				f = makeCombatant(fx, fy, "flame")
+				f.waiting = false
 			end
 		end
 	end
