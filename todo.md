@@ -123,7 +123,8 @@ stack traceback:
 [x] obstacles other than desks (signpost, vending machine)
 [x] only play an enemy sound if the action is on screen
 [x] new fire erases old fire
-[ ] I'm still having a problem where level generation goes into an infinite loop
+[x] I'm still having a problem where level generation goes into an infinite loop
+	Because of too many turrets ... I should look at the enemy escalation math
 
 # Future features
 

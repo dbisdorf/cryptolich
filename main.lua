@@ -40,9 +40,9 @@ UP_INDEX = 4
 VECTORS = {{x = 1.0, y = 0.0}, {x = 0.0, y = 1.0}, {x = -1.0, y = 0.0}, {x = 0.0, y = -1.0}}
 BESTIARY = {
 	["player"] = {speed = 64.0, spf = 0.25, points = 0, cooldown = 0.5, collision = "player", hits = 0},
-	["spider"] = {speed = 16.0, spf = 0.2, points = 10, cooldown = 0.0, collision = "enemy", hits = 1, level1 = 4, eachLevel = 2},
-	["wasp"] = {speed = 8.0, spf = 0.05, points = 25, cooldown = 3.0, steps = 5, collision = "enemy", hits = 1, level1 = 2, eachLevel = 2},
-	["turret"] = {speed = 0.0, spf = 0.25, points = 0, cooldown = 10.0, collision = "invulnerable", hits = 0, level1 = 2, eachLevel = 2},
+	["spider"] = {speed = 16.0, spf = 0.2, points = 10, cooldown = 0.0, collision = "enemy", hits = 1, level1 = 5, eachLevel = 1},
+	["wasp"] = {speed = 8.0, spf = 0.05, points = 25, cooldown = 3.0, steps = 5, collision = "enemy", hits = 1, level1 = 3, eachLevel = 1},
+	["turret"] = {speed = 0.0, spf = 0.25, points = 0, cooldown = 10.0, collision = "invulnerable", hits = 0, level1 = 3, eachLevel = 1},
 	["skull"] = {speed = 16.0, spf = 0.25, points = 0, cooldown = 0.0, collision = "omnipotent", hits = 0},
 	["tank"] = {speed = 64.0, spf = 0.15, points = 100, cooldown = 3.0, steps = 10, collision = "enemy", hits = 10, level1 = 2, eachLevel = 0.5},
 	["launcher"] = {speed = 24.0, spf = 0.25, points = 75, cooldown = 10.0, steps = 5, collision = "enemy", hits = 3, level1 = 2, eachLevel = 1},
@@ -649,9 +649,9 @@ function drawOptions()
 	end
 end
 
-function optionsRect(level, option)
+function optionsRect(lvl, option)
 	local rect = {x = option * 35 - 23, y = 68, w = 28, h = 11}
-	if level == 2 then
+	if lvl == 2 then
 		rect.y = 138
 	end
 	return rect
@@ -900,12 +900,11 @@ function buildSnakeMap()
 		horizontal = true
 	end
 	local wall1Width = 3
-	local wall1Length = math.random(15, 20) 
-	local wall1Position = math.random(5, 7)
+	local wall1Length = math.random(15, 20)
+	local wall1Position = math.random(9, 11)
 	local wall2Width = 3
-	local wall2Length = math.random(15, 20) 
-	local wall2Position = math.random(22, 24)
-	--print("laying down foundation")
+	local wall2Length = math.random(15, 20)
+	local wall2Position = math.random(20, 22)
 	for x = 0, MAP_SIZE - 1 do
 		mapInfo[x] = {}
 		for y = 0, MAP_SIZE - 1 do
@@ -917,7 +916,6 @@ function buildSnakeMap()
 			end
 		end
 	end
-	--print("drawing cross walls", wall1Position, wall1Length, wall2Position, wall2Length)
 	if horizontal then
 		for x = 0, wall1Length - 1 do
 			for y = wall1Position, wall1Position + wall1Width - 1 do
@@ -961,7 +959,6 @@ function buildSnakeMap()
 		mapInfo[wall1Position + 1][MAP_SIZE - 2] = 4
 		mapInfo[wall2Position + 1][1] = 4
 	end
-	--print("setting up start areas and servers")
 	if math.random(1, 2) == 1 then
 		for x = 1, 3 do
 			for y = 1, 3 do
@@ -981,7 +978,6 @@ function buildSnakeMap()
 		startY = (MAP_SIZE - 2) * TILE_SIZE
 		mapInfo[1][1] = 4
 	end
-	--print("laying down obstacles")
 	local mapX, mapY
 	for o = 1, 12 do
 		mapX, mapY = findVacantSpot(2, 2, 29, 29, true)
@@ -1785,7 +1781,7 @@ function placeRandomEnemies()
 	end
 	for i, e in ipairs(chosen) do
 		for n = 1, BESTIARY[e].level1 + math.floor(level * BESTIARY[e].eachLevel) do
-			mapX, mapY = findVacantSpot(2, 2, MAP_SIZE - 2, MAP_SIZE - 2, true)
+			mapX, mapY = findVacantSpot(2, 2, MAP_SIZE - 2, MAP_SIZE - 2, BESTIARY[e].speed == 0.0)
 			makeCombatant(mapX * TILE_SIZE, mapY * TILE_SIZE, e)
 		end
 	end
