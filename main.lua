@@ -504,8 +504,10 @@ function tick(delta)
 	end
 
 	-- move the missiles around
-	for i, m in ipairs(missiles) do
-		moveMissile(m, delta)
+	if stalling <= 0.0 then
+		for i, m in ipairs(missiles) do
+			moveMissile(m, delta)
+		end
 	end
 
 	-- move the blasts around
@@ -568,12 +570,6 @@ function tick(delta)
 			end
 		end
 	end
-
-	-- for l = 1, lives do
-	--	if l == 1 or lives < 6 then
-	--		spriteBatch:add(spriteQuads["life"], SCREEN_MAX.x - (l * TILE_SIZE), 0)
-	--	end
-	-- end
 end
 
 function drawTitle()

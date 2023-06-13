@@ -129,7 +129,7 @@ stack traceback:
 # 0.9.0
 
 [x] better symbol for infinity
-[ ] should we freeze the level during the victory stall? is it possible for a missile to still kill you?
+[x] should we freeze the level during the victory stall? is it possible for a missile to still kill you?
 [ ] pointIsObstructed is incorrect for missiles (could detect obstruction from combatant)
 
 # Future features
