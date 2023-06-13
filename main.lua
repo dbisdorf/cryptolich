@@ -56,10 +56,10 @@ BESTIARY = {
 }
 ARMORY = {
 	["playerM"] = {speed = 256.0, collision = "playerMissile"},
-	["waspM"] = {speed = 80.0, collision = "enemy"},
-	["turretM"] = {speed = 80.0, collision = "enemy"},
-	["sliderM"] = {speed = 112.0, collision = "enemy"},
-	["bossM"] = {speed = 64.0, collision = "enemy"}
+	["waspM"] = {speed = 80.0, collision = "enemyMissile"},
+	["turretM"] = {speed = 80.0, collision = "enemyMissile"},
+	["sliderM"] = {speed = 112.0, collision = "enemyMissile"},
+	["bossM"] = {speed = 64.0, collision = "enemyMissile"}
 }
 TERRAIN = {
 	{solid = false, safe = false, nogo = false},
@@ -1395,10 +1395,10 @@ function pointIsObstructed(x, y, from)
 	local mapX, mapY = convertToMapCoords(x, y)
 	if (from == "player" and (TERRAIN[mapInfo[mapX][mapY]].solid or TERRAIN[mapInfo[mapX][mapY]].nogo)) or 
 		(from == "playerMissile" and TERRAIN[mapInfo[mapX][mapY]].solid) or
-		(from == "enemy" and (TERRAIN[mapInfo[mapX][mapY]].solid or TERRAIN[mapInfo[mapX][mapY]].safe)) or
+		((from == "enemy" or from == "enemyMissile") and (TERRAIN[mapInfo[mapX][mapY]].solid or TERRAIN[mapInfo[mapX][mapY]].safe)) or
 		(from == "insubstantial" and TERRAIN[mapInfo[mapX][mapY]].safe) then
 		obstructed = true
-	elseif from ~= "player" then
+	elseif from ~= "player" and from ~= "enemyMissile" then
 		for i, c in ipairs(combatants) do
 			if BESTIARY[c.name].collision ~= "insubstantial" and x == c.dX and y == c.dY then
 				if not (from == "enemy" and i == 1) then
