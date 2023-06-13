@@ -13,7 +13,7 @@ COLOR_BLACK = {0.0, 0.0, 0.0, 1.0}
 COLOR_FLASH = {1.0, 0.0, 0.0, 1.0}
 COLOR_GRAY = {0.6, 0.6, 0.6}
 COLOR_RED = {1.0, 0.1, 0.1}
-VERSION_TEXT = {{0.4, 0.4, 0.4}, "VERSION 0.8.0"}
+VERSION_TEXT = {{0.4, 0.4, 0.4}, "VERSION 0.9.0"}
 TITLE_MENU_TEXT = {"PLAY", "INSTRUCTIONS", "OPTIONS", "CREDITS", "QUIT"}
 GAME_OVER_TEXT = {{1.0, 0.2, 0.2}, "GAME OVER"}
 UNLOCKED_TEXT = {{0.5, 1.0, 0.5}, "SECURITY UNLOCKED"}
@@ -99,13 +99,14 @@ SHIELD_LOCKS = 20
 MAX_BEAT_TIME = 2.5
 BEAT_PER_LEVEL = 0.1
 INFINITE_LIVES = 11
-INFINITE_SYMBOL = utf8.char(8734)
+INFINITE_SYMBOLS = "{}"
 LIFE_SYMBOL = utf8.char(3)
 DEADLINE = 60.0
 
 -- globals
 
 font = nil
+infinityFont = nil
 textures = nil
 sounds = {}
 spriteQuads = {}
@@ -158,6 +159,8 @@ function love.load()
 	font = love.graphics.newFont("Mx437_IBM_BIOS.ttf", 8, "mono")
 	font:setLineHeight(2.0)
 	love.graphics.setFont(font)
+
+	infinityFont = love.graphics.newImageFont("infinity.png", INFINITE_SYMBOLS)
 
 	titleScreen = love.graphics.newImage("title.png")
 	textures = love.graphics.newImage("textures.png")
@@ -294,7 +297,10 @@ function love.draw()
 		if lives <= 5 then
 			lifeString = string.rep(LIFE_SYMBOL, lives)
 		elseif lives == INFINITE_LIVES then
-			lifeString = INFINITE_SYMBOL .. " " .. LIFE_SYMBOL
+			love.graphics.setFont(infinityFont)
+			love.graphics.print({COLOR_RED, INFINITE_SYMBOLS}, 370, 4)
+			love.graphics.setFont(font)
+			lifeString = LIFE_SYMBOL
 		elseif lives > 5 then
 			lifeString = tostring(lives) .. " " .. LIFE_SYMBOL
 		end
@@ -613,7 +619,8 @@ function drawOptions()
 	for o = 1, 11 do
 		rect = optionsRect(1, o)
 		if o == 11 then
-			livesText = INFINITE_SYMBOL
+			livesText = INFINITE_SYMBOLS
+			love.graphics.setFont(infinityFont)
 		else
 			livesText = tostring(o)
 		end
@@ -628,6 +635,7 @@ function drawOptions()
 			end
 			love.graphics.printf({COLOR_GRAY, livesText}, rect.x, rect.y + 2, rect.w, "center")
 		end
+		love.graphics.setFont(font)
 		rect = optionsRect(2, o)
 		if (volume + 1) == o and menuLevel == 2 then
 			love.graphics.rectangle("fill", rect.x, rect.y, rect.w, rect.h)

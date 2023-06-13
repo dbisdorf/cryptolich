@@ -126,23 +126,23 @@ stack traceback:
 [x] I'm still having a problem where level generation goes into an infinite loop
 	Because of too many turrets ... I should look at the enemy escalation math
 
+# 0.9.0
+
+[x] better symbol for infinity
+[ ] should we freeze the level during the victory stall? is it possible for a missile to still kill you?
+[ ] pointIsObstructed is incorrect for missiles (could detect obstruction from combatant)
+
 # Future features
 
 # Tuning
 
 text gloss / formatting / color
 small skull sprite needs work
-tweak player sprite to make it wider & agree with title graphics
 better graphics for rolling enemy
-better symbol for infinity
 Bigger boom for victory explosion
-Maybe one or two more obstacles, other than desks?
-should we freeze the level during the victory stall? is it possible for a missile to still kill you?
-keep adjusting scores
 
 # Outstanding bugs
 
-pointIsObstructed is incorrect for missiles (could detect obstruction from combatant)
 did I see a rocket go through a wall?
 did I see us win a level as soon as it started?
 
