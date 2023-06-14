@@ -1310,9 +1310,9 @@ function moveMissile(missile, delta)
 				local x1, x2, y1, y2
 				if c.name == "boss" then
 					x1 = c.x + 7
-					x2 = x1 + 41
+					x2 = x1 + 42
 					y1 = c.y
-					y2 = y1 + 41
+					y2 = y1 + 42
 				else
 					x1 = c.x
 					x2 = x1 + TILE_SIZE
@@ -1776,7 +1776,7 @@ function placeRandomEnemies()
 			table.insert(keys, k)
 		end
 	end
-	local chosen = {}
+	local chosen = {"trailer"}
 	local r = 0
 	while #chosen < 3 do
 		r = math.random(#keys)

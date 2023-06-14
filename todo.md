@@ -131,14 +131,14 @@ stack traceback:
 [x] better symbol for infinity
 [x] should we freeze the level during the victory stall? is it possible for a missile to still kill you?
 [x] pointIsObstructed is incorrect for missiles (could detect obstruction from combatant)
+[x] skull sprites
+[x] trailer sprites
 
 # Future features
 
 # Tuning
 
 text gloss / formatting / color
-small skull sprite needs work
-better graphics for rolling enemy
 Bigger boom for victory explosion
 
 # Outstanding bugs
