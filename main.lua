@@ -20,19 +20,19 @@ UNLOCKED_TEXT = {{0.5, 1.0, 0.5}, "SECURITY UNLOCKED"}
 PREPARE_TEXT = {{0.5, 1.0, 0.5}, "PREPARE FOR"}
 LEVEL_TEXT = {{0.5, 1.0, 0.5}, "NEXT LEVEL"}
 BACK_TEXT = {{0.5, 1.0, 0.5}, "PRESS ESC TO GO BACK"}
-PAD_BACK_TEXT = {{0.5, 1.0, 0.5}, "PRESS [BACK] TO GO BACK"}
+PAD_BACK_TEXT = {{0.5, 1.0, 0.5}, "PRESS [X] TO GO BACK"}
 LORE_TEXT = {{1.0, 1.0, 1.0}, "THE CRYPTOLICH HAS SEIZED CONTROL OF THE WORLD'S TECHNOLOGY.\n\nYOU ARE DELTA, THE ONLY HACKER WITH ENOUGH SKILL TO INFILTRATE THE CRYPTOLICH'S MEGATOWER, CONFRONT ITS CYBERDIGITAL GUARDIANS, AND SAVE HUMANITY.\n\nGOOD LUCK DELTA!"}
 INSTRUCTIONS_TEXT = {{0.7, 0.7, 1.0}, "ARROW KEYS TO MOVE\nZ TO SHOOT\nX TO HOLD AIM DIRECTION"}
 PAD_INSTRUCTIONS_TEXT = {{0.7, 0.7, 1.0}, "JOYSTICK TO MOVE\n[A] TO SHOOT\n[X] TO HOLD AIM DIRECTION"}
 LEFT_CREDITS_TEXT = {{1.0, 1.0, 1.0}, "PROGRAMMING AND ART\n\n\nENGINE\n\n\nGRAPHICS\n\n\nSOUND EFFECTS\n\n\nFONT"}
-RIGHT_CREDITS_TEXT = {{0.7, 0.7, 1.0}, "DON BISDORF\ndonbisdorf.com\n\nLOVE2D\nlove2d.org\n\nKRITA\nkrita.org\n\nCHIPTONE\nsfbgames.itch.io/chiptone\n\nMx437_IBM_BIOS.ttf\nint10h.org/oldschool-pc-fonts"}
-VICTORY_TEXT = {{0.5, 0.5, 1.0}, "AS THE MEGATOWER COLLAPSES, YOU LEARN THAT THE CRYPTOLICH HAS BACKED UP HIS CONSCIOUSNESS ELSEWHERE.\n\nIN A DISTANT CITY, ANOTHER MEGATOWER RISES.\n\nDELTA, YOUR WORK IS NOT YET DONE..."}
-OPTIONS_TEXT = {{0.5, 0.5, 1.0}, "OPTIONS"}
+RIGHT_CREDITS_TEXT = {{0.7, 0.7, 1.0}, "DON BISDORF\ndbisdorf.itch.io\n\nLOVE2D\nlove2d.org\n\nKRITA\nkrita.org\n\nCHIPTONE\nsfbgames.itch.io/chiptone\n\nMx437_IBM_BIOS.ttf\nint10h.org/oldschool-pc-fonts"}
+VICTORY_TEXT = {{0.7, 0.7, 1.0}, "AS THE MEGATOWER COLLAPSES, YOU LEARN THAT THE CRYPTOLICH HAS BACKED UP HIS CONSCIOUSNESS ELSEWHERE.\n\nIN A DISTANT CITY, ANOTHER MEGATOWER RISES.\n\nDELTA, YOUR WORK IS NOT YET DONE..."}
+OPTIONS_TEXT = {{0.7, 0.7, 1.0}, "OPTIONS"}
 LIVES_TEXT = {{1.0, 1.0, 1.0}, "LIVES"}
 AUDIO_TEXT = {{1.0, 1.0, 1.0}, "AUDIO"}
-OPTIONS_CONTROLS_TEXT = {{0.5, 0.5, 1.0}, "UP/DOWN TO CHOOSE OPTION\nLEFT/RIGHT TO CHANGE"}
-PAUSE_TEXT = {{0.7, 0.7, 1.0}, "PAUSED\n\nPRESS ENTER TO RESUME\nPRESS ESC TO QUIT"}
-PAUSE_PAD_TEXT = {{0.7, 0.7, 1.0}, "PAUSED\n\nPRESS [START] TO RESUME\nPRESS [BACK] TO QUIT"}
+OPTIONS_CONTROLS_TEXT = {{0.7, 0.7, 1.0}, "UP/DOWN TO CHOOSE OPTION\nLEFT/RIGHT TO CHANGE"}
+PAUSE_TEXT = {{0.7, 0.7, 1.0}, "PAUSED\n\nPRESS Z TO RESUME\nPRESS X TO QUIT"}
+PAUSE_PAD_TEXT = {{0.7, 0.7, 1.0}, "PAUSED\n\nPRESS [A] TO RESUME\nPRESS [X] TO QUIT"}
 RIGHT_INDEX = 1
 DOWN_INDEX = 2
 LEFT_INDEX = 3
@@ -322,7 +322,7 @@ function tick(delta)
 		if oldButtons then
 			checkOldButtons()
 		else
-			if backButton() then
+			if backButton() or aimButton() then
 				instructions = false
 				credits = false
 				title = true
@@ -340,7 +340,7 @@ function tick(delta)
 
 	if gameOver then
 		-- wait until start
-		if startButton() or backButton() then
+		if shootButton() or startButton() or backButton() then
 			startTitle()
 			return
 		end
@@ -348,11 +348,11 @@ function tick(delta)
 		if oldButtons then
 			checkOldButtons()
 		else
-			if startButton() then
+			if shootButton() then
 				checkOldButtons()
 				paused = false
 			end
-			if backButton() then
+			if aimButton() then
 				startTitle()
 				return
 			end
@@ -381,7 +381,7 @@ function tick(delta)
 					stalling = 0.01
 				end
 			end
-			if startButton() then
+			if shootButton() or startButton() then
 				level = 1
 				startLevel()
 			end
@@ -480,7 +480,6 @@ function tick(delta)
 			checkOldButtons()
 		else
 			if shootButton() then
-				-- unlocked = locks
 				player.cooling = BESTIARY["player"].cooldown
 				makeMissile(
 					player.x + (VECTORS[player.facing].x * TILE_CENTER), 
@@ -579,7 +578,7 @@ function drawTitle()
 			love.graphics.rectangle("fill", 241, 138 + (o * 15), 130, 12)
 			love.graphics.printf({COLOR_BLACK, TITLE_MENU_TEXT[o]}, 215, 140 + (o * 15), 185, "center")
 		else
-			love.graphics.printf({COLOR_GRAY, TITLE_MENU_TEXT[o]}, 215, 140 + (o * 15), 185, "center")
+			love.graphics.printf({COLOR_WHITE, TITLE_MENU_TEXT[o]}, 215, 140 + (o * 15), 185, "center")
 		end
 	end
 	love.graphics.printf(VERSION_TEXT, 215, 280, 185, "center")
@@ -743,7 +742,7 @@ function updateOptions()
 	if changed then
 		menuBeep()
 	end
-	if backButton() then
+	if backButton() or aimButton() then
 		options = false
 		title = true
 		writeSaveFile()
@@ -1749,7 +1748,7 @@ function findVacantSpot(minX, minY, maxX, maxY, wide)
 end
 
 function checkOldButtons()
-	oldButtons = startButton() or shootButton() or aimButton() or backButton() or upButton() or downButton() or leftButton() or rightButton()
+	oldButtons = shootButton() or aimButton() or startButton() or backButton() or upButton() or downButton() or leftButton() or rightButton()
 end
 
 function startTitle()

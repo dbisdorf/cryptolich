@@ -133,6 +133,9 @@ stack traceback:
 [x] pointIsObstructed is incorrect for missiles (could detect obstruction from combatant)
 [x] skull sprites
 [x] trailer sprites
+[x] adjust keyboard/gamepad controls
+[ ] one of my stray shots from before my death killed me after i respawned
+[ ] can't slide while holding aim and shoot?
 
 # Future features
 
