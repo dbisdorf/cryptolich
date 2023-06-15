@@ -94,7 +94,7 @@ VICTORY_FULL_TIME = 6.0
 VICTORY_BOOM_TIME = 3.0
 DEFAULT_HIGH_SCORE = 10000
 BONUS_LIFE_SCORE = 10000
-LAST_LEVEL = 10
+LAST_LEVEL = 1
 SHIELD_LOCKS = 20
 MAX_BEAT_TIME = 2.5
 BEAT_PER_LEVEL = 0.1
@@ -1607,7 +1607,9 @@ end
 function runEnemySliderLogic(enemy, delta)
 	if enemy.name == "boss" then
 		if unlocked >= SHIELD_LOCKS then
-			if enemy.cooling < 1.0 then
+			if enemy.cooling <= 0.0 then
+				enemy.cooling = enemy.cooling + BESTIARY[enemy.name].cooldown
+			elseif enemy.cooling < 1.0 then
 				local i1 = math.floor(enemy.cooling / 0.1)
 				local i2 = math.floor((enemy.cooling + delta) / 0.1)
 				if i1 ~= i2 then
@@ -1616,8 +1618,6 @@ function runEnemySliderLogic(enemy, delta)
 						enemy.y + TILE_SIZE * 3,
 						DOWN_INDEX, enemy.name)
 				end
-			elseif enemy.cooling <= 0.0 then
-				enemy.cooling = enemy.cooling + BESTIARY[enemy.name].cooldown
 			end
 		end
 	else
@@ -1838,6 +1838,7 @@ function resetPlayer()
 	combatants[1].animation = 0.0
 	combatants[1].waiting = true
 	combatants[1].cooling = 0.0
+	missiles = {}
 	blasts = {}
 	resetHeartbeat()
 	removeSkulls()

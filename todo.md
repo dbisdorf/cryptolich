@@ -134,8 +134,12 @@ stack traceback:
 [x] skull sprites
 [x] trailer sprites
 [x] adjust keyboard/gamepad controls
-[ ] one of my stray shots from before my death killed me after i respawned
+[x] one of my stray shots from before my death killed me after i respawned
+    erase all missiles after death
 [ ] can't slide while holding aim and shoot?
+[ ] roller should always keep rolling
+[x] apparently i have screwed up the boss firing timing
+[ ] boss level victory is broken
 
 # Future features
 
