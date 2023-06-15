@@ -102,6 +102,7 @@ INFINITE_LIVES = 11
 INFINITE_SYMBOLS = "{}"
 LIFE_SYMBOL = utf8.char(3)
 DEADLINE = 60.0
+PAN_SPEED = 400.0
 
 -- globals
 
@@ -146,6 +147,7 @@ paused = false
 lifetime = 0.0
 offsetX = 0
 offsetY = 0
+panY = 0
 
 -- LOVE callbacks
 
@@ -202,6 +204,7 @@ function love.load()
 
 	sounds["player"] = love.audio.newSource("player.wav", "static")
 	sounds["boom"] = love.audio.newSource("boom.wav", "static")
+	sounds["bigboom"] = love.audio.newSource("bigboom.wav", "static")
 	sounds["unlock"] = love.audio.newSource("unlock.wav", "static")
 	sounds["level"] = love.audio.newSource("level.wav", "static")
 	sounds["heartbeat"] = love.audio.newSource("heartbeat.wav", "static")
@@ -264,7 +267,7 @@ function love.draw()
 			end
 		end
 
-		love.graphics.draw(mapCanvas, SCREEN_CENTER.x - combatants[1].x, SCREEN_CENTER.y - combatants[1].y)
+		love.graphics.draw(mapCanvas, SCREEN_CENTER.x - combatants[1].x, SCREEN_CENTER.y - combatants[1].y + panY)
 		love.graphics.draw(spriteBatch)
 
 		if gameOver then
@@ -363,11 +366,14 @@ function tick(delta)
 		stalling = stalling - delta
 		if advancing and level == LAST_LEVEL then
 			-- extra effects for stalling during last level
+			if TILE_SIZE * 4 < player.y - panY then
+				panY = math.min(panY + (PAN_SPEED * delta), player.y - TILE_SIZE  * 4)
+			end
 			if stalling > VICTORY_BOOM_TIME then
 				demise(delta)
 			else
 				if boss then
-					sounds["boom"]:play()
+					sounds["bigboom"]:play()
 					for b = 1, 10 do
 						makeBlast(
 							boss.x + (TILE_SIZE * 3.0 * math.random()),
@@ -384,6 +390,7 @@ function tick(delta)
 			if oldButtons then
 				checkOldButtons()
 			elseif shootButton() or startButton() then
+				panY = 0
 				level = 1
 				startLevel()
 				checkOldButtons()
@@ -527,7 +534,7 @@ function tick(delta)
 
 	-- player xy offset should be calculated only once
 	local offsetX = player.x - SCREEN_CENTER.x
-	local offsetY = player.y - SCREEN_CENTER.y
+	local offsetY = player.y - SCREEN_CENTER.y - panY
 	for i, c in ipairs(combatants) do
 		if c.name == "flame" then
 			spriteBatch:add(spriteQuads[c.name][c.facing][c.frame], c.x - offsetX, c.y - offsetY)
@@ -1682,6 +1689,8 @@ function demise(delta)
 	local i1 = math.floor(stalling / 0.1)
 	local i2 = math.floor((stalling + delta) / 0.1)
 	if i1 ~= i2 then
+		sounds["boom"]:stop()
+		sounds["boom"]:play()
 		makeBlast(
 			boss.x + (TILE_SIZE * 3.0 * math.random()),
 			boss.y + (TILE_SIZE * 3.0 * math.random()),
@@ -1897,7 +1906,7 @@ end
 
 function soundIfOnScreen(snd, x, y)
 	if x > combatants[1].x - SCREEN_CENTER.x and x < combatants[1].x + SCREEN_CENTER.x and
-		y > combatants[1].y - SCREEN_CENTER.y and y < combatants[1].y + SCREEN_CENTER.y then
+		y > combatants[1].y - panY - SCREEN_CENTER.y and y < combatants[1].y - panY + SCREEN_CENTER.y then
 		sounds[snd]:play()
 	end
 end
