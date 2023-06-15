@@ -381,9 +381,12 @@ function tick(delta)
 					stalling = 0.01
 				end
 			end
-			if shootButton() or startButton() then
+			if oldButtons then
+				checkOldButtons()
+			elseif shootButton() or startButton() then
 				level = 1
 				startLevel()
+				checkOldButtons()
 			end
 		else
 			-- normally just a brief wait to reset the level
@@ -430,6 +433,7 @@ function tick(delta)
 			if level == LAST_LEVEL then
 				awardPoints(VICTORY_POINTS)
 				stalling = VICTORY_FULL_TIME
+				checkOldButtons()
 			else
 				awardPoints(LEVEL_POINTS)
 				sounds["level"]:play()
@@ -480,6 +484,7 @@ function tick(delta)
 			checkOldButtons()
 		else
 			if shootButton() then
+				unlocked = locks
 				player.cooling = BESTIARY["player"].cooldown
 				makeMissile(
 					player.x + (VECTORS[player.facing].x * TILE_CENTER), 
