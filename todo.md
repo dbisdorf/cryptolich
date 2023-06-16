@@ -136,10 +136,10 @@ stack traceback:
 [x] adjust keyboard/gamepad controls
 [x] one of my stray shots from before my death killed me after i respawned
     erase all missiles after death
-[ ] can't slide while holding aim and shoot?
-[ ] roller should always keep rolling
+[x] roller should always keep rolling
 [x] apparently i have screwed up the boss firing timing
-[ ] boss level victory is broken
+[x] boss level victory is broken
+[x] pixel issues with delta sprite
 
 # Future features
 

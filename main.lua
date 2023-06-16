@@ -94,7 +94,7 @@ VICTORY_FULL_TIME = 6.0
 VICTORY_BOOM_TIME = 3.0
 DEFAULT_HIGH_SCORE = 10000
 BONUS_LIFE_SCORE = 10000
-LAST_LEVEL = 1
+LAST_LEVEL = 10
 SHIELD_LOCKS = 20
 MAX_BEAT_TIME = 2.5
 BEAT_PER_LEVEL = 0.1
@@ -491,7 +491,6 @@ function tick(delta)
 			checkOldButtons()
 		else
 			if shootButton() then
-				unlocked = locks
 				player.cooling = BESTIARY["player"].cooldown
 				makeMissile(
 					player.x + (VECTORS[player.facing].x * TILE_CENTER), 
@@ -1577,11 +1576,21 @@ function runEnemyRammerLogic(enemy, delta, rangeX, rangeY)
 				else
 					vY = rangeY / math.abs(rangeY)
 				end
-				local facing = RIGHT_INDEX
+				local allowed = {}
+				local facing = nil
 				for f = 1, 4 do
-					if vX == VECTORS[f].x and vY == VECTORS[f].y then
-						facing = f
+					if not pointIsObstructed(
+						enemy.x + (VECTORS[f].x * TILE_SIZE),
+						enemy.y + (VECTORS[f].y * TILE_SIZE),
+						BESTIARY[enemy.name].collision) then
+						table.insert(allowed, f)
+						if vX == VECTORS[f].x and vY == VECTORS[f].y then
+							facing = f
+						end
 					end
+				end
+				if not facing then
+					facing = allowed[math.random(#allowed)]
 				end
 				enemy.facing = facing
 				enemy.stepping = BESTIARY[enemy.name].steps
