@@ -140,6 +140,19 @@ stack traceback:
 [x] apparently i have screwed up the boss firing timing
 [x] boss level victory is broken
 [x] pixel issues with delta sprite
+[x] reposition all enemies when player respawns
+[x] don't make all enemies available at level 1
+[x] crash after respawn:
+	Error: main.lua:1602: attempt to compare number with nil
+	stack traceback:
+		[love "boot.lua"]:345: in function '__lt'
+		main.lua:1602: in function 'runEnemyRammerLogic'
+		main.lua:1483: in function 'runEnemyLogic'
+		main.lua:507: in function 'tick'
+		main.lua:237: in function 'update'
+		[love "callbacks.lua"]:162: in function <[love "callbacks.lua"]:144>
+		[C]: in function 'xpcall'
+
 
 # Future features
 
