@@ -50,7 +50,7 @@ BESTIARY = {
 	["slider"] = {speed = 32.0, spf = 0.0, points = 0, cooldown = 1.5, steps = 21, collision = "invulnerable", hits = 0},
 	["trailer"] = {speed = 48.0, spf = 0.2, points = 50, cooldown = 0.0, steps = 5, collision = "enemy", hits = 5, level1 = 2, eachLevel = 0.5, debutLevel = 3},
 	["flame"] = {speed = 0.0, spf = 0.1, points = 0, cooldown = 5.0, collision = "insubstantial", hits = 0},
-	["shield"] = {spf = 0.25, points = 0, cooldown = 0.0, collision = "invulnerable", hits = 1, passive = true},
+	["shield"] = {spf = 0.25, points = 0, cooldown = 0.0, collision = "invulnerable", hits = 2, passive = true},
 	["battery"] = {spf = 0.5, points = 50, cooldown = 0.0, collision = "enemy", hits = 3, passive = true},
 	["boss"] = {spf = 0.0, speed = 32.0, cooldown = 3.0, steps = 5, hits = 0, collision = "invulnerable"}
 }
@@ -1389,9 +1389,12 @@ end
 function killBattery()
 	unlocked = unlocked + 1
 	if unlocked == SHIELD_LOCKS then
+		local delay = 0.5
 		for i, c in ipairs(combatants) do
 			if c.name == "shield" then
-				takeHits(c, 1)
+				c.hits = 1
+				c.cooling = delay
+				delay = delay + 0.2
 			end
 		end
 	end
@@ -1428,6 +1431,7 @@ function takeHits(combatant, hits)
 	if combatant.hits <= 0 then
 		combatant.destroyed = true
 		makeBlast(combatant.x, combatant.y, combatant.name ~= "shield")
+		sounds["boom"]:stop()
 		sounds["boom"]:play()
 		awardPoints(BESTIARY[combatant.name].points)
 		if combatant.name == "battery" then
@@ -1487,6 +1491,8 @@ function runEnemyLogic(enemy, delta)
 		runEnemyTurretLogic(enemy, delta, rangeX, rangeY)
 	elseif enemy.name == "flame" then
 		runEnemyBurnerLogic(enemy, delta)
+	elseif enemy.name == "shield" then
+		runEnemyShieldLogic(enemy, delta)
 	end
 end
 
@@ -1692,6 +1698,12 @@ end
 function runEnemyBurnerLogic(enemy, delta)
 	if enemy.cooling <= 0.0 then
 		enemy.destroyed = true
+	end
+end
+
+function runEnemyShieldLogic(enemy, delta)
+	if enemy.hits == 1 and enemy.cooling <= 0.0 then
+		takeHits(enemy, 1)
 	end
 end
 

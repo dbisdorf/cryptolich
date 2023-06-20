@@ -155,7 +155,8 @@ stack traceback:
 
 # 1.0.0
 
-[ ] Boss compartment is too narrow
+[x] Boss compartment is too narrow
+[ ] Special sound effect for shields down
 
 # Future features
 
