@@ -13,7 +13,7 @@ COLOR_BLACK = {0.0, 0.0, 0.0, 1.0}
 COLOR_FLASH = {1.0, 0.0, 0.0, 1.0}
 COLOR_GRAY = {0.6, 0.6, 0.6}
 COLOR_RED = {1.0, 0.1, 0.1}
-VERSION_TEXT = {{0.4, 0.4, 0.4}, "VERSION 0.9.0"}
+VERSION_TEXT = {{0.4, 0.4, 0.4}, "VERSION 1.0.0"}
 TITLE_MENU_TEXT = {"PLAY", "INSTRUCTIONS", "OPTIONS", "CREDITS", "QUIT"}
 GAME_OVER_TEXT = {{1.0, 0.2, 0.2}, "GAME OVER"}
 UNLOCKED_TEXT = {{0.5, 1.0, 0.5}, "SECURITY UNLOCKED"}
@@ -52,7 +52,7 @@ BESTIARY = {
 	["flame"] = {speed = 0.0, spf = 0.1, points = 0, cooldown = 5.0, collision = "insubstantial", hits = 0},
 	["shield"] = {spf = 0.25, points = 0, cooldown = 0.0, collision = "invulnerable", hits = 1, passive = true},
 	["battery"] = {spf = 0.5, points = 50, cooldown = 0.0, collision = "enemy", hits = 3, passive = true},
-	["boss"] = {spf = 0.0, speed = 32.0, cooldown = 3.0, steps = 3, hits = 0, collision = "invulnerable"}
+	["boss"] = {spf = 0.0, speed = 32.0, cooldown = 3.0, steps = 5, hits = 0, collision = "invulnerable"}
 }
 ARMORY = {
 	["playerM"] = {speed = 256.0, collision = "playerMissile"},
@@ -94,7 +94,7 @@ VICTORY_FULL_TIME = 6.0
 VICTORY_BOOM_TIME = 3.0
 DEFAULT_HIGH_SCORE = 10000
 BONUS_LIFE_SCORE = 10000
-LAST_LEVEL = 10
+LAST_LEVEL = 1
 SHIELD_LOCKS = 20
 MAX_BEAT_TIME = 2.5
 BEAT_PER_LEVEL = 0.1
@@ -1012,7 +1012,7 @@ function buildBossMap()
 			if x == 0 or x == MAP_SIZE - 1 or y == 0 or y == MAP_SIZE - 1 then
 				-- exterior walls
 				mapInfo[x][y] = 2
-			elseif (x == 12 or x == 19) and y < 7 then
+			elseif (x == 11 or x == 20) and y < 7 then
 				-- boss walls
 				mapInfo[x][y] = 2
 			elseif y == 8 and x > 2 and x < MAP_SIZE - 3 then
@@ -1043,7 +1043,7 @@ function buildBossMap()
 	startX = 16 * TILE_SIZE
 	startY = 30 * TILE_SIZE
 	makeCombatant(startX, startY, "player")
-	boss = makeCombatant(13 * TILE_SIZE, 2 * TILE_SIZE, "boss")
+	boss = makeCombatant(12 * TILE_SIZE, 2 * TILE_SIZE, "boss")
 	boss.facing = DOWN_INDEX
 	boss.sliding = RIGHT_INDEX
 	local c
@@ -1056,8 +1056,8 @@ function buildBossMap()
 		c = makeCombatant(mapX * TILE_SIZE, mapY * TILE_SIZE, "battery")
 		c.frame = math.random(4)
 	end
-	for i = 1, 6 do
-		mapX = (12 + i) * TILE_SIZE
+	for i = 1, 8 do
+		mapX = (11 + i) * TILE_SIZE
 		makeCombatant(mapX, 6 * TILE_SIZE, "shield")
 		c = makeCombatant(mapX, TILE_SIZE, "battery")
 		c.frame = math.random(4)
@@ -1071,7 +1071,7 @@ function buildBossMap()
 	c = makeCombatant((MAP_SIZE - 2) * TILE_SIZE, 9 * TILE_SIZE, "slider")
 	c.facing = LEFT_INDEX
 	c.sliding = DOWN_INDEX
-	locks = 26
+	locks = 28
 end
 
 function drawMap()

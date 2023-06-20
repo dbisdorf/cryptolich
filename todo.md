@@ -153,13 +153,13 @@ stack traceback:
 		[love "callbacks.lua"]:162: in function <[love "callbacks.lua"]:144>
 		[C]: in function 'xpcall'
 
+# 1.0.0
+
+[ ] Boss compartment is too narrow
 
 # Future features
 
-# Tuning
 
-text gloss / formatting / color
-Bigger boom for victory explosion
 
 # Outstanding bugs
 
