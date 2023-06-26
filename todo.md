@@ -156,7 +156,12 @@ stack traceback:
 # 1.0.0
 
 [x] Boss compartment is too narrow
-[ ] Special sound effect for shields down
+[x] Special sound effect for shields down
+
+# 1.0.1
+
+[ ] Bug: when you lose your last life, if the trigger is held down, we skip right past "GAME OVER"
+[ ] Shots hitting invulnerable enemies should splash
 
 # Future features
 

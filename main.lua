@@ -94,7 +94,7 @@ VICTORY_FULL_TIME = 6.0
 VICTORY_BOOM_TIME = 3.0
 DEFAULT_HIGH_SCORE = 10000
 BONUS_LIFE_SCORE = 10000
-LAST_LEVEL = 1
+LAST_LEVEL = 10
 SHIELD_LOCKS = 20
 MAX_BEAT_TIME = 2.5
 BEAT_PER_LEVEL = 0.1
@@ -343,7 +343,9 @@ function tick(delta)
 
 	if gameOver then
 		-- wait until start
-		if shootButton() or startButton() or backButton() then
+		if oldButtons then
+			checkOldButtons()
+		elseif shootButton() or startButton() or backButton() then
 			startTitle()
 			return
 		end
@@ -430,6 +432,7 @@ function tick(delta)
 			end
 			if lives == 0 then
 				gameOver = true
+				checkOldButtons()
 				if score > highScore then
 					highScore = score
 					writeSaveFile()
