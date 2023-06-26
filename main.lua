@@ -1339,7 +1339,9 @@ function moveMissile(missile, delta)
 							killed = true
 						end
 					else
-						if BESTIARY[c.name].collision ~= "invulnerable" and BESTIARY[c.name].collision ~= "omnipotent" then
+						if BESTIARY[c.name].collision == "invulnerable" or BESTIARY[c.name].collision == "omnipotent" then
+							fizzle = true
+						else
 							takeHits(c, 1)
 						end
 					end

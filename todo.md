@@ -160,8 +160,8 @@ stack traceback:
 
 # 1.0.1
 
-[ ] Bug: when you lose your last life, if the trigger is held down, we skip right past "GAME OVER"
-[ ] Shots hitting invulnerable enemies should splash
+[x] Bug: when you lose your last life, if the trigger is held down, we skip right past "GAME OVER"
+[x] Shots hitting invulnerable enemies should splash
 
 # Future features
 
