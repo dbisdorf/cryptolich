@@ -6,7 +6,7 @@ cd build
 unzip ~/Software/love/love-11.4-win32.zip
 cd love-11.4-win32
 cat love.exe ../cryptolich.love > cryptolich.exe
-wine ~/Software/resourcehacker/ResourceHacker.exe -open cryptolich.exe -save cryptolich.exe -action addoverwrite -res ../../cryptolich.ico -mask ICONGROUP,MAINICON,
+wine ~/Software/resourcehacker/ResourceHacker.exe -open cryptolich.exe -save cryptolich.exe -action addoverwrite -res ../../crypto-icon.ico -mask ICONGROUP,MAINICON,
 rm game.ico
 rm love.ico
 rm love.exe
